@@ -186,6 +186,7 @@ namespace Zlebuh.MinTacToe.Tests
             Assert.Equal(6, f02.SurroundedByNotExplodedMines);
             Assert.Equal(7, fO.SurroundedByNotExplodedMines);
             Assert.Equal(7, fX.SurroundedByNotExplodedMines);
+            Assert.True(fO.ErasedByExplodedMine);
         }
 
         [Fact]
@@ -351,6 +352,10 @@ namespace Zlebuh.MinTacToe.Tests
             Assert.Equal(Player.O, f1212.Player.Value);
             Assert.True(f1313.Player.HasValue);
             Assert.Equal(Player.X, f1313.Player.Value);
+            Assert.False(f1010.ErasedByExplodedMine);
+            Assert.False(f1313.ErasedByExplodedMine);
+            Assert.False(f1212.ErasedByExplodedMine);
+
         }
 
         [Fact]
@@ -362,20 +367,25 @@ namespace Zlebuh.MinTacToe.Tests
                 NoMineMoves = 2
             });
 
-            GameControl.MakeMove(game, Player.O, new(10, 10));
-            GameControl.MakeMove(game, Player.X, new(12, 12));
-            GameControl.MakeMove(game, Player.O, new(11, 11));
-
             Field f1010 = game.GameState.Grid[new(10, 10)];
             Field f1111 = game.GameState.Grid[new(11, 11)];
             Field f1212 = game.GameState.Grid[new(12, 12)];
 
+            GameControl.MakeMove(game, Player.O, new(10, 10));
+            Assert.False(f1010.ErasedByExplodedMine);
+            GameControl.MakeMove(game, Player.X, new(12, 12));
+            GameControl.MakeMove(game, Player.O, new(11, 11));
+            Assert.True(f1010.ErasedByExplodedMine);
             Assert.False(f1010.Player.HasValue);
             Assert.True(f1111.IsMine);
+            Assert.False(f1111.ErasedByExplodedMine);
             Assert.True(f1111.Player.HasValue);
             Assert.Equal(Player.O, f1111.Player.Value);
             Assert.True(f1212.Player.HasValue);
+            Assert.False(f1212.ErasedByExplodedMine);
             Assert.Equal(Player.X, f1212.Player.Value);
+            GameControl.MakeMove(game, Player.X, new(10, 10));
+            Assert.False(f1010.ErasedByExplodedMine);
         }
     }
 }

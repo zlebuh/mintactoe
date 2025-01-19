@@ -27,6 +27,7 @@ namespace Zlebuh.MinTacToe
                         Player = null,
                         SurroundedByNotExplodedMines = 0,
                         IsMine = false,
+                        ErasedByExplodedMine = false,
                         Generated = false,
                         HasAllNeighboursGenerated = false
                     };
@@ -103,6 +104,7 @@ namespace Zlebuh.MinTacToe
             }
 
             field.Player = player;
+            field.ErasedByExplodedMine = false; // no more
             changedFieldCoordinates.Add(coordinate);
 
             bool playerWins = game.CheckPlayerWins(player, coordinate);
@@ -140,6 +142,7 @@ namespace Zlebuh.MinTacToe
                         if (f.Player == player)
                         {
                             f.Player = null;
+                            f.ErasedByExplodedMine = true;
                         }
                         coordinatesAffected.Add(c);
                         f.SurroundedByNotExplodedMines--;
