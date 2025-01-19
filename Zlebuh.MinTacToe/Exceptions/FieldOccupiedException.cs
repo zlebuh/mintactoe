@@ -5,9 +5,12 @@ namespace Zlebuh.MinTacToe.Exceptions
     public class FieldOccupiedException : Exception
     {
         public FieldOccupiedException(Player player, Coordinate coordinate) 
-            : base($"Field is taken. {player} [r{coordinate.Row}, c{coordinate.Col}]")
+            : base($"Field (0-based) [r{coordinate.Row}, c{coordinate.Col}] is occupied by player: {player}.")
         {
-            
+            OccupiedCoordinate = coordinate;
+            OccupyingPlayer = player;
         }
+        public Coordinate OccupiedCoordinate { get; }
+        public Player OccupyingPlayer { get; }
     }
 }

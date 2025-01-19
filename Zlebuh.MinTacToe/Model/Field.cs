@@ -2,12 +2,14 @@
 {
     public class Field
     {
-        internal Field(bool isMine)
+        internal Field()
         {
-            IsMine = isMine;
         }
         public Player? Player { get; internal set; }
-        public int SurroundedBy { get; internal set; } = 0;
-        public bool IsMine { get; }
+        public bool ErasedByExplodedMine { get; internal set; }
+        public int SurroundedByNotExplodedMines { get; internal set; } = 0;
+        public bool IsMine { get; internal set; }
+        internal bool Generated { get; set; }
+        internal bool HasAllNeighboursGenerated { get; set; }
     }
 }
