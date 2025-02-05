@@ -9,7 +9,7 @@
         public bool ErasedByExplodedMine { get; internal set; }
         public int SurroundedByNotExplodedMines { get; internal set; } = 0;
         public bool IsMine { get; internal set; }
-        internal bool Generated { get; set; }
+        public bool Generated { get; set; }
         internal bool HasAllNeighboursGenerated { get; set; }
     }
 }

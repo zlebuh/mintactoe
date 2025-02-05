@@ -1,37 +1,35 @@
-﻿using Zlebuh.MinTacToe.Exceptions;
+﻿using Zlebuh.MinTacToe;
+using Zlebuh.MinTacToe.Exceptions;
 using Zlebuh.MinTacToe.Model;
-using Zlebuh.MinTacToe.Services;
-using Zlebuh.MinTacToe.Services.Implementations;
 
-IGameFactory gameFactory = new GameFactory();
 Rules rules = new();
+Game game = GameControl.Initialize(rules);
 int colMin = 0;
 int colMax = rules.Columns - 1;
 int rowMin = 0;
 int rowMax = rules.Rows - 1;
-IGameControl gameControl = gameFactory.Create(rules);
 
-RedrawField(gameControl.Grid);
+RedrawField(game.GameState.Grid);
 
-MoveOutcome outcome;
+if (!game.GameState.PlayerOnTurn.HasValue) return;
+
 do
 {
-    Coordinate input = GetInput(gameControl.PlayerOnMove);
+    Coordinate input = GetInput(game.GameState.PlayerOnTurn.Value);
     try
     {
-        outcome = gameControl.PlaceMove(gameControl.PlayerOnMove, input);
+        GameControl.MakeMove(game, game.GameState.PlayerOnTurn.Value, input);
     }
-    catch (FieldOccupiedException ex)
+    catch (TicTacToeException ex)
     {
         Console.WriteLine(ex.Message);
-        outcome = MoveOutcome.GameIsOn;
         continue;
-    }    
-    RedrawField(gameControl.Grid);
-} while (outcome == MoveOutcome.GameIsOn);
-RedrawField(gameControl.Grid, true);
+    }
+    RedrawField(game.GameState.Grid);
+} while (!game.GameState.IsGameOver);
+RedrawField(game.GameState.Grid, true);
 
-Console.WriteLine($"The result is: {outcome}.");
+Console.WriteLine($"The result is: {(game.GameState.Winner.HasValue ? game.GameState.Winner : "No one")}.");
 
 void RedrawField(Grid grid, bool showMines = false)
 {
@@ -56,10 +54,10 @@ void RedrawField(Grid grid, bool showMines = false)
         {
             Console.Write("  ");
             Coordinate coordinate = new(i, j);
-            if (grid.FieldGenerated(coordinate))
+            Field f = grid[coordinate];
+            if (f.Generated)
             {
-                Field f = grid[coordinate];
-                if (f.Player != null)
+                if (f.Player.HasValue)
                 {
                     if (f.IsMine)
                     {
@@ -71,7 +69,7 @@ void RedrawField(Grid grid, bool showMines = false)
                         Console.ForegroundColor = f.Player == Player.X ? ConsoleColor.Blue : ConsoleColor.Red;
                         Console.Write(f.Player);
                         Console.ForegroundColor = foregroundColor;
-                        Console.Write(f.SurroundedBy);
+                        Console.Write(f.SurroundedByNotExplodedMines);
                     }
                     Console.Write("  |");
                 }

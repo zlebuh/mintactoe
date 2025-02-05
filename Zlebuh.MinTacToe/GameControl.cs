@@ -43,10 +43,10 @@ namespace Zlebuh.MinTacToe
                     IsGameOver = false,
                     Changes = new(),
                     PlayerOnTurn = Player.O,
-                    Winner = null
+                    Winner = null,
+                    MovesPlayed = 0
                 },
-                Rules = rules,
-                MovesPlayed = 0
+                Rules = rules
             };
             return game;
         }
@@ -77,7 +77,7 @@ namespace Zlebuh.MinTacToe
 
             if (!field.Generated)
             {
-                field.IsMine = game.MovesPlayed >= game.Rules.NoMineMoves && random.NextDouble() < game.Rules.MineProbability;
+                field.IsMine = game.GameState.MovesPlayed >= game.Rules.NoMineMoves && random.NextDouble() < game.Rules.MineProbability;
                 field.Generated = true;
             }
 
@@ -114,7 +114,7 @@ namespace Zlebuh.MinTacToe
             game.GameState.Winner = playerWins ? player : null;
             game.GameState.PlayerOnTurn = gameOver ? null : player == Player.O ? Player.X : Player.O;
             game.GameState.Changes = changedFieldCoordinates;
-            game.MovesPlayed++;
+            game.GameState.MovesPlayed++;
         }
 
         internal static bool IsOnGrid(this Coordinate coordinate, Game game)
@@ -139,7 +139,7 @@ namespace Zlebuh.MinTacToe
                     if (c.IsOnGrid(game))
                     {
                         Field f = grid[c];
-                        if (f.Player == player)
+                        if (f.Player == player && !f.IsMine)
                         {
                             f.Player = null;
                             f.ErasedByExplodedMine = true;

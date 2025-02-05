@@ -2,7 +2,7 @@
 
 namespace Zlebuh.MinTacToe.Exceptions
 {
-    internal class CoordinateOutOfGridException : Exception
+    public class CoordinateOutOfGridException : TicTacToeException
     {
         public CoordinateOutOfGridException(Coordinate coordinate, byte rows, byte columns)
         {

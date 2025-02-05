@@ -7,5 +7,6 @@
         public Player? Winner { get; internal set; }
         public Player? PlayerOnTurn { get; internal set; }
         public List<Coordinate> Changes { get; internal set; } = null!;
+        public int MovesPlayed { get; internal set; }
     }
 }
