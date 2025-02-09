@@ -13,6 +13,30 @@ namespace Zlebuh.MinTacToe
             (1, 0), (0, 1), (-1, 0), (0, -1), (-1, 1), (1, 1), (1, -1), (-1, -1)
         };
 
+        private enum Direction
+        {
+            Up = 0,
+            Down = 4,
+            Left = 1,
+            Right = 5,
+            UpLeft = 2,
+            UpRight = 3,
+            DownRight = 6,
+            DownLeft = 7
+        }
+
+        private readonly static Dictionary<Direction, (int, int)> Directions = new()
+        {
+            { Direction.Up, (-1, 0) },
+            { Direction.Down, (1, 0) },
+            { Direction.Left, (0, -1) },
+            { Direction.Right, (0, 1) },
+            { Direction.UpLeft, (-1, -1) },
+            { Direction.UpRight, (-1, 1) },
+            { Direction.DownRight, (1, 1) },
+            { Direction.DownLeft, (1, -1) }
+        };
+
         private readonly static Random random = new();
         public static Game Initialize(Rules rules)
         {
@@ -27,7 +51,6 @@ namespace Zlebuh.MinTacToe
                         Player = null,
                         SurroundedByNotExplodedMines = 0,
                         IsMine = false,
-                        ErasedByExplodedMine = false,
                         Generated = false,
                         HasAllNeighboursGenerated = false
                     };
@@ -104,7 +127,6 @@ namespace Zlebuh.MinTacToe
             }
 
             field.Player = player;
-            field.ErasedByExplodedMine = false; // no more
             changedFieldCoordinates.Add(coordinate);
 
             bool playerWins = game.CheckPlayerWins(player, coordinate);
@@ -139,12 +161,17 @@ namespace Zlebuh.MinTacToe
                     if (c.IsOnGrid(game))
                     {
                         Field f = grid[c];
-                        if (f.Player == player && !f.IsMine)
+                        if (!f.IsMine)
                         {
-                            f.Player = null;
-                            f.ErasedByExplodedMine = true;
+                            if (f.Player.HasValue)
+                            {
+                                coordinatesAffected.Add(c);
+                            }
+                            if (f.Player == player)
+                            {
+                                f.Player = null;
+                            }
                         }
-                        coordinatesAffected.Add(c);
                         f.SurroundedByNotExplodedMines--;
                     }
                 }
@@ -155,11 +182,17 @@ namespace Zlebuh.MinTacToe
         internal static bool CheckPlayerWins(this Game game, Player player, Coordinate coordinate)
         {
             if (game.Rules.SeriesLength == 1) return true;
-            foreach ((int r, int c) in neighbours)
+            Dictionary<int, int> masterDirectionToSum = new()
             {
+                { 0, 1 }, { 1, 1 }, { 2, 1 }, { 3, 1 }
+            };
+            foreach (var kvp in Directions)
+            {
+                Direction direction = kvp.Key;
+                (int r, int c) = kvp.Value;
+                int masterDirection = ((int)direction) % 4;
                 int rc = coordinate.Row;
                 int cc = coordinate.Col;
-                int counter = 1;
                 do
                 {
                     rc += r;
@@ -170,8 +203,8 @@ namespace Zlebuh.MinTacToe
                     if (!f.Generated) break;
                     if (f.Player == player)
                     {
-                        counter++;
-                        if (counter == game.Rules.SeriesLength) return true;
+                        masterDirectionToSum[masterDirection]++;
+                        if (masterDirectionToSum[masterDirection] == game.Rules.SeriesLength) return true;
                     }
                     else
                     {

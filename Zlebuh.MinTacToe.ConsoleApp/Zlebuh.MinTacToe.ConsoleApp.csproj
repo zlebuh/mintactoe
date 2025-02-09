@@ -8,7 +8,14 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Zlebuh.MinTacToe.AIPlayers\Zlebuh.MinTacToe.AIPlayers.csproj" />
     <ProjectReference Include="..\Zlebuh.MinTacToe\Zlebuh.MinTacToe.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="config.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>

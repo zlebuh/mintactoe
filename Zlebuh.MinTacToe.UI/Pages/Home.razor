@@ -1,0 +1,46 @@
+﻿@page "/"
+@using Zlebuh.MinTacToe.Model
+@inject NavigationManager Navigation
+
+<PageTitle>Lobby</PageTitle>
+
+<label>
+    Počet řádků:
+    <input type="number" @bind="rules.Rows" min="1" max="20" />
+</label>
+<br />
+<label>
+    Počet sloupců:
+    <input type="number" @bind="rules.Columns" min="1" max="20" />
+</label>
+<br />
+<label>
+    Potřebné symboly v řadě:
+    <input type="number" @bind="rules.SeriesLength" min="3" max="5"/>
+</label>
+<br />
+<label>
+    Počet tahů bez náhodného ohrožení minou:
+    <input type="number" @bind="rules.NoMineMoves" min="0" max="6"/>
+</label>
+<br />
+<label>
+    Síla miny:
+    <input type="number" @bind="rules.MinePower" min="0" max="3"/>
+</label>
+<br />
+<label>
+    Pravděpodobnost výskytu miny:
+    <input type="number" @bind="rules.MineProbability" step="0.01" min="0" max="1" />
+</label>
+<br />
+<button @onclick="StartGame">Start</button>
+
+@code {
+    private Rules rules = new Rules();
+
+    private void StartGame()
+    {
+        Navigation.NavigateTo($"/game?rows={rules.Rows}&columns={rules.Columns}&seriesLength={rules.SeriesLength}&noMineMoves={rules.NoMineMoves}&minePower={rules.MinePower}&mineProbability={rules.MineProbability}");
+    }
+}

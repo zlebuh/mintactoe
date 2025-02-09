@@ -1,0 +1,203 @@
+﻿@page "/game"
+@using Engine = Zlebuh.MinTacToe.Model
+@inject NavigationManager Navigation
+
+<PageTitle>Game</PageTitle>
+<button @onclick="GoBackToLobby">Zpět do lobby</button>
+<p>Na tahu je: <b>@GetPlayerString(game.GameState.PlayerOnTurn)</b>.</p>
+<table>
+    <thead>
+        <tr>
+            <th></th>
+            @for (int col = 0; col < rules.Columns; col++)
+            {
+                <th>@(Convert.ToChar('A' + col))</th>
+            }
+        </tr>
+    </thead>
+    <tbody>
+        @for (int row = 0; row < rules.Rows; row++)
+        {
+            <tr>
+                <th>@(row + 1)</th>
+                @for (int col = 0; col < rules.Columns; col++)
+                {
+                    int rowToBeClicked = row;
+                    int colToBeClicked = col;
+                    <td @onclick="() => CellClicked(rowToBeClicked, colToBeClicked)" class="@highlightedClass[rowToBeClicked, colToBeClicked]">
+                        <span style="background-color: @colors[rowToBeClicked, colToBeClicked];">
+                            @grid[rowToBeClicked, colToBeClicked]
+                        </span>
+                    </td>
+                }
+            </tr>
+        }
+    </tbody>
+</table>
+<p>@message</p>
+
+<style>
+    table {
+        border-collapse: collapse;
+        margin: 20px 0px;
+    }
+
+    td span{
+        width: 24px;
+        height: 24px;
+        margin: 2px;
+        font-size: 19px;
+        color: white;
+        text-align: center;
+        vertical-align: middle;
+        display: inline-block;
+    }
+
+    .highlighted{
+        background-color: #ffffdc;
+    }
+
+    td {
+    width: 30px;
+    height: 30px;
+    border: 1px solid black;
+    text-align: center;
+    vertical-align: middle;
+    cursor: pointer;
+    }
+
+    th {
+    text-align: center;
+    vertical-align: middle;
+    }
+</style>
+
+@code {
+    private Engine.Rules rules = new();
+    private Zlebuh.MinTacToe.Model.Game game = null!;
+    private string[,] grid = null!;
+    private string[,] colors = null!;
+    private string[,] highlightedClass = null!;
+    private string message = string.Empty;
+    private List<Engine.Coordinate> highlighted = new();
+
+    protected override void OnInitialized()
+    {
+        var uri = new Uri(Navigation.Uri);
+        var query = System.Web.HttpUtility.ParseQueryString(uri.Query);
+
+        rules.Rows = byte.Parse(query["rows"]);
+        rules.Columns = byte.Parse(query["columns"]);
+        rules.SeriesLength = byte.Parse(query["seriesLength"]);
+        rules.NoMineMoves = byte.Parse(query["noMineMoves"]);
+        rules.MinePower = byte.Parse(query["minePower"]);
+        rules.MineProbability = double.Parse(query["mineProbability"]);
+
+        grid = new string[rules.Rows, rules.Columns];
+        colors = new string[rules.Rows, rules.Columns];
+        highlightedClass = new string[rules.Rows, rules.Columns];
+
+        game = GameControl.Initialize(rules);
+    }
+
+    private void RefreshField(int row, int col, Engine.Field f, bool showMines = false)
+    {
+        string outcome;
+        string background;
+        if (f.Generated)
+        {
+            if (f.Player.HasValue)
+            {
+                if (f.IsMine)
+                {
+                    outcome = string.Empty;
+                    background = "#3a452d";
+                }
+                else
+                {
+                    outcome = $"{f.SurroundedByNotExplodedMines}";
+                    background = GetPlayerColor(f.Player.Value);
+                }
+            }
+            else
+            {
+                if (f.IsMine && showMines)
+                {
+                    outcome = string.Empty;
+                    background = "#3a452d";
+                }
+                else
+                {
+                    outcome = string.Empty;
+                    background = "transparent";
+                }
+            }
+        }
+        else
+        {
+            outcome = string.Empty;
+            background = "transparent";
+
+        }
+        grid[row, col] = outcome;
+        colors[row, col] = background;
+    }
+
+    private void CellClicked(int row, int col)
+    {
+        message = string.Empty;
+        foreach (Engine.Coordinate h in highlighted)
+        {
+            highlightedClass[h.Row, h.Col] = string.Empty;
+        }
+        highlighted.Clear();
+
+        // Handle cell click event (e.g., place a mark)
+        if (game.GameState.IsGameOver)
+        {
+            return;
+        }
+        try
+        {
+            GameControl.MakeMove(game, game.GameState.PlayerOnTurn!.Value, new(row, col));
+        }
+        catch (MinTacToe.Exceptions.TicTacToeException e)
+        {
+            message = e.Message;
+        }
+        foreach (Engine.Coordinate coordinateChanged in game.GameState.Changes)
+        {
+            Engine.Field f = game.GameState.Grid[coordinateChanged];
+            highlightedClass[coordinateChanged.Row, coordinateChanged.Col] = "highlighted";
+            RefreshField(coordinateChanged.Row, coordinateChanged.Col, f);
+            highlighted.Add(coordinateChanged);
+        }
+        if (game.GameState.IsGameOver)
+        {
+            for (int i = 0; i < rules.Rows; i++)
+            {
+                for (int j = 0; j < rules.Columns; j++)
+                {
+                    RefreshField(i, j, game.GameState.Grid[new(i, j)], true);
+                }
+            }
+            message = game.GameState.Winner.HasValue ? $"Vítězem je: {GetPlayerString(game.GameState.Winner)}." : "Hra skončila remízou.";
+        }
+    }
+
+    private string GetPlayerString(Engine.Player? player)
+    {
+        if (!player.HasValue) return "nikdo";
+        return player.Value == Engine.Player.X ? "červený" : "modrý";
+    }
+
+    private string GetPlayerColor(Engine.Player player)
+    {
+        return player == Engine.Player.X ? "#ff0064" : "#00c8e1";
+    }
+
+    private void GoBackToLobby()
+    {
+        Navigation.NavigateTo("/");
+    }
+}

@@ -1,0 +1,26 @@
+{
+  "Games": [
+    {
+      "MaxMilisecondsPerMove": 0,
+      "MinMilisecondsPerMove": 0,
+      "Opponents": {
+        "X": {
+          "PlayerType": "Human",
+          "PlayerProperties": {}
+        },
+        "O": {
+          "PlayerType": "SmartRandom",
+          "PlayerProperties": {}
+        }
+      },
+      "Rules": {
+        "Rows": 15,
+        "Columns": 15,
+        "SeriesLength": 5,
+        "NoMineMoves": 6,
+        "MinePower": 1,
+        "MineProbability": 0.1
+      }
+    }
+  ]
+}
