@@ -4,11 +4,17 @@
     <meta charset="utf-8">
     <title>Redirecting...</title>
     <script type="text/javascript">
-      // Získá původní cestu za '/mintactoe/'
-      var path = location.pathname.replace('/mintactoe/', '');
-      // Poskládá redirect na index.html se zachováním cesty, query a hashe
-      var redirect = '/mintactoe/index.html/' + path + location.search + location.hash;
-      window.location.replace(redirect);
+      // Zjisti, zda už je v URL index.html
+      var repoBase = '/mintactoe/';
+      var path = location.pathname;
+      if (!path.startsWith(repoBase + 'index.html')) {
+        // Ořízni prefix /mintactoe/
+        var subPath = path.startsWith(repoBase) ? path.substring(repoBase.length) : path;
+        // Přesměruj na správnou adresu
+        var redirect = repoBase + 'index.html/' + subPath.replace(/^index\.html\/?/, '') + location.search + location.hash;
+        window.location.replace(redirect);
+      }
+      // Jinak už jsme na index.html, není třeba přesměrování
     </script>
   </head>
   <body>
