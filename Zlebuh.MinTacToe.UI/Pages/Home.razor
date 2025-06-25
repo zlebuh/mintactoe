@@ -41,6 +41,6 @@
 
     private void StartGame()
     {
-        Navigation.NavigateTo($"game?rows={rules.Rows}&columns={rules.Columns}&seriesLength={rules.SeriesLength}&noMineMoves={rules.NoMineMoves}&minePower={rules.MinePower}&mineProbability={rules.MineProbability}");
+        Navigation.NavigateTo($"{Navigation.BaseUri}game?rows={rules.Rows}&columns={rules.Columns}&seriesLength={rules.SeriesLength}&noMineMoves={rules.NoMineMoves}&minePower={rules.MinePower}&mineProbability={rules.MineProbability}");
     }
 }
