@@ -4,8 +4,12 @@
     <meta charset="utf-8" />
     <title>Redirecting...</title>
     <script>
-      var redirect = '/mintactoe/' + 'index.html' + location.search + location.hash;
-      window.location.replace(redirect);
+      var path = window.location.pathname;
+      var base = "/mintactoe";
+      if (path.indexOf(base) === 0) {
+        path = path.substring(base.length);
+      }
+      window.location.replace(base + "/index.html#" + path + window.location.search + window.location.hash);
     </script>
   </head>
   <body>
