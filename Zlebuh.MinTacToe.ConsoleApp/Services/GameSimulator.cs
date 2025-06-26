@@ -38,7 +38,7 @@ namespace Zlebuh.MinTacToe.ConsoleApp.Services
                 {
                     GameControl.MakeMove(game, game.GameState.PlayerOnTurn.Value, input);
                 }
-                catch (TicTacToeException ex)
+                catch (MinTacToeException ex)
                 {
                     Console.WriteLine(ex.Message);
                     continue;

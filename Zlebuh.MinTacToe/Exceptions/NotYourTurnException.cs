@@ -2,13 +2,9 @@
 
 namespace Zlebuh.MinTacToe.Exceptions
 {
-    public class NotYourTurnException : TicTacToeException
+    public class NotYourTurnException(Player playerOnTurn) 
+        : MinTacToeException($"{playerOnTurn} is on turn.")
     {
-        public NotYourTurnException(Player playerOnTurn) 
-            : base($"{playerOnTurn} is on turn.")
-        {
-            PlayerOnTurn = playerOnTurn;
-        }
-        public Player PlayerOnTurn { get; }
+        public Player PlayerOnTurn { get; } = playerOnTurn;
     }
 }

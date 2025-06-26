@@ -161,7 +161,7 @@
         {
             GameControl.MakeMove(game, game.GameState.PlayerOnTurn!.Value, new(row, col));
         }
-        catch (MinTacToe.Exceptions.TicTacToeException e)
+        catch (MinTacToe.Exceptions.MinTacToeException e)
         {
             message = e.Message;
         }

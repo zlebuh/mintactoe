@@ -2,27 +2,23 @@
 {
     public class Game
     {
-        public GameState GameState { get; internal set; } = null!;
-        public Rules Rules { get; internal set; } = null!;
+        public GameState GameState { get; internal set; } = new();
+        public Rules Rules { get; internal set; } = new();
         public Game MakeCopy()
         {
-            Game copy = new();
-            Grid gridCopy = [];
-            foreach (var kvp in GameState.Grid)
+            return new()
             {
-                gridCopy[kvp.Key] = kvp.Value;
-            }
-            copy.GameState = new GameState
-            {
-                Grid = gridCopy,
-                IsGameOver = GameState.IsGameOver,
-                Winner = GameState.Winner,
-                PlayerOnTurn = GameState.PlayerOnTurn,
-                Changes = new List<Coordinate>(GameState.Changes),
-                MovesPlayed = GameState.MovesPlayed
+                GameState = new GameState
+                {
+                    Grid = GameState.Grid.MakeCopy(),
+                    IsGameOver = GameState.IsGameOver,
+                    Winner = GameState.Winner,
+                    PlayerOnTurn = GameState.PlayerOnTurn,
+                    Changes = [.. GameState.Changes],
+                    MovesPlayed = GameState.MovesPlayed
+                },
+                Rules = Rules
             };
-            copy.Rules = Rules; // no need to create new instance
-            return copy;
         }
     }
 }

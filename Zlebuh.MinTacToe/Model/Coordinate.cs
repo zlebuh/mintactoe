@@ -1,13 +1,8 @@
 ﻿namespace Zlebuh.MinTacToe.Model
 {
-    public readonly struct Coordinate
+    public readonly struct Coordinate(int row, int col)
     {
-        public Coordinate(int row, int col)
-        {
-            Row = row;
-            Col = col;
-        }
-        public int Row { get; }
-        public int Col { get; }
+        public int Row { get; } = row;
+        public int Col { get; } = col;
     }
 }

@@ -1,10 +1,7 @@
 ﻿namespace Zlebuh.MinTacToe.Exceptions
 {
-    public class GameIsOverException : TicTacToeException
+    public class GameIsOverException : MinTacToeException
     {
-        public GameIsOverException() : base("Game is over.")
-        {
-            
-        }
+        public GameIsOverException() : base() { }
     }
 }
