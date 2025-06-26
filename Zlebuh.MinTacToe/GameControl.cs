@@ -8,39 +8,10 @@ namespace Zlebuh.MinTacToe
 {
     public static class GameControl
     {
-        private readonly static (int, int)[] neighbours = new (int, int)[]
-        {
-            (1, 0), (0, 1), (-1, 0), (0, -1), (-1, 1), (1, 1), (1, -1), (-1, -1)
-        };
-
-        private enum Direction
-        {
-            Up = 0,
-            Down = 4,
-            Left = 1,
-            Right = 5,
-            UpLeft = 2,
-            UpRight = 3,
-            DownRight = 6,
-            DownLeft = 7
-        }
-
-        private readonly static Dictionary<Direction, (int, int)> Directions = new()
-        {
-            { Direction.Up, (-1, 0) },
-            { Direction.Down, (1, 0) },
-            { Direction.Left, (0, -1) },
-            { Direction.Right, (0, 1) },
-            { Direction.UpLeft, (-1, -1) },
-            { Direction.UpRight, (-1, 1) },
-            { Direction.DownRight, (1, 1) },
-            { Direction.DownLeft, (1, -1) }
-        };
-
         private readonly static Random random = new();
         public static Game Initialize(Rules rules)
         {
-            Grid grid = new();
+            Grid grid = [];
             for (int row = 0; row < rules.Rows; row++)
             {
                 for (int col = 0; col < rules.Columns; col++)
@@ -64,7 +35,7 @@ namespace Zlebuh.MinTacToe
                 {
                     Grid = grid,
                     IsGameOver = false,
-                    Changes = new(),
+                    Changes = [],
                     PlayerOnTurn = Player.O,
                     Winner = null,
                     MovesPlayed = 0
@@ -106,9 +77,8 @@ namespace Zlebuh.MinTacToe
 
             if (!field.HasAllNeighboursGenerated)
             {
-                foreach ((int r, int c) in neighbours)
+                foreach (var neighbourCoordinate in coordinate.Neighbours.Values)
                 {
-                    Coordinate neighbourCoordinate = new(coordinate.Row + r, coordinate.Col + c);
                     if (!neighbourCoordinate.IsOnGrid(game)) continue;
                     Field neighbour = game.GameState.Grid[neighbourCoordinate];
                     if (!neighbour.Generated)
@@ -120,13 +90,13 @@ namespace Zlebuh.MinTacToe
                 }
                 field.HasAllNeighboursGenerated = true;
             }
-            List<Coordinate> changedFieldCoordinates = new();
+            List<Coordinate> changedFieldCoordinates = [];
             if (field.IsMine)
             {
                 changedFieldCoordinates.AddRange(game.ExplodeMine(player, coordinate));
             }
-
             field.Player = player;
+
             changedFieldCoordinates.Add(coordinate);
 
             bool playerWins = game.CheckPlayerWins(player, coordinate);
@@ -139,41 +109,36 @@ namespace Zlebuh.MinTacToe
             game.GameState.MovesPlayed++;
         }
 
-        internal static bool IsOnGrid(this Coordinate coordinate, Game game)
-        {
-            int minIndex = 0;
-            int maxRowIndex = game.Rules.Rows - 1;
-            int maxColIndex = game.Rules.Columns - 1;
-            return coordinate.Row >= minIndex && coordinate.Row <= maxRowIndex && coordinate.Col >= minIndex && coordinate.Col <= maxColIndex;
-        }
-
-        internal static List<Coordinate> ExplodeMine(this Game game, Player player, Coordinate coordinate)
+        internal static List<Coordinate> ExplodeMine(this Game game, Player player, Coordinate mineCoordinate)
         {
             int minePower = game.Rules.MinePower;
             Grid grid = game.GameState.Grid;
-            List<Coordinate> coordinatesAffected = new();
-            for (int i = coordinate.Row - minePower; i <= coordinate.Row + minePower; i++)
+            List<Coordinate> coordinatesAffected = [];
+            for (int i = mineCoordinate.Row - minePower; i <= mineCoordinate.Row + minePower; i++)
             {
-                for (int j = coordinate.Col - minePower; j <= coordinate.Col + minePower; j++)
+                for (int j = mineCoordinate.Col - minePower; j <= mineCoordinate.Col + minePower; j++)
                 {
                     Coordinate c = new(i, j);
-                    if (c.Row == coordinate.Row && c.Col == coordinate.Col) continue;
-                    if (c.IsOnGrid(game))
+                    if (!c.IsOnGrid(game)) continue;
+                    
+                    Field f = grid[c];
+                    
+                    if (c.Row == mineCoordinate.Row && c.Col == mineCoordinate.Col)
                     {
-                        Field f = grid[c];
-                        if (!f.IsMine)
-                        {
-                            if (f.Player.HasValue)
-                            {
-                                coordinatesAffected.Add(c);
-                            }
-                            if (f.Player == player)
-                            {
-                                f.Player = null;
-                            }
-                        }
-                        f.SurroundedByNotExplodedMines--;
+                        coordinatesAffected.Add(c);
+                        continue;
                     }
+
+                    if (!f.IsMine)
+                    {
+                        if (f.Player.HasValue && f.Player == player)
+                        {
+                            f.Player = null;
+                            coordinatesAffected.Add(c);
+                        }
+                    }
+
+                    f.SurroundedByNotExplodedMines--;
                 }
             }
             return coordinatesAffected;
@@ -186,10 +151,10 @@ namespace Zlebuh.MinTacToe
             {
                 { 0, 1 }, { 1, 1 }, { 2, 1 }, { 3, 1 }
             };
-            foreach (var kvp in Directions)
+            foreach (var kvp in coordinate.Neighbours)
             {
                 Direction direction = kvp.Key;
-                (int r, int c) = kvp.Value;
+                (int r, int c) = (kvp.Value.Row - coordinate.Row, kvp.Value.Col - coordinate.Col);
                 int masterDirection = ((int)direction) % 4;
                 int rc = coordinate.Row;
                 int cc = coordinate.Col;
@@ -201,6 +166,7 @@ namespace Zlebuh.MinTacToe
                     if (!coor.IsOnGrid(game)) break;
                     Field f = game.GameState.Grid[coor];
                     if (!f.Generated) break;
+                    if (f.IsMine) break;
                     if (f.Player == player)
                     {
                         masterDirectionToSum[masterDirection]++;
