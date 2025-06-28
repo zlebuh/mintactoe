@@ -1,0 +1,10 @@
+﻿<td @onclick="OnClick" class="@HighlightedClass">
+    <span style="background-color: @Color;">@Value</span>
+</td>
+
+@code {
+    [Parameter] public string Value { get; set; } = "";
+    [Parameter] public string Color { get; set; } = "transparent";
+    [Parameter] public string HighlightedClass { get; set; } = "";
+    [Parameter] public EventCallback OnClick { get; set; }
+}

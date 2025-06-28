@@ -1,0 +1,39 @@
+﻿<div class="responsive-table">
+    <table>
+        <thead>
+            <tr>
+                <th></th>
+                @for (int col = 0; col < Columns; col++)
+                {
+                    <th>@(Convert.ToChar('A' + col))</th>
+                }
+            </tr>
+        </thead>
+        <tbody>
+            @for (int row = 0; row < Rows; row++)
+            {
+                <tr>
+                    <th>@(row + 1)</th>
+                    @for (int col = 0; col < Columns; col++)
+                    {
+                        int r = row;
+                        int c = col;
+                        <GameCell Value="@Grid[r, c]"
+                                  Color="@Colors[r, c]"
+                                  HighlightedClass="@HighlightedClass[r, c]"
+                                  OnClick="() => OnCellClick.InvokeAsync((r, c))" />
+                    }
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+@code {
+    [Parameter] public int Rows { get; set; }
+    [Parameter] public int Columns { get; set; }
+    [Parameter] public string[,] Grid { get; set; } = default!;
+    [Parameter] public string[,] Colors { get; set; } = default!;
+    [Parameter] public string[,] HighlightedClass { get; set; } = default!;
+    [Parameter] public EventCallback<(int row, int col)> OnCellClick { get; set; }
+}

@@ -1,0 +1,9 @@
+﻿.game-center {
+    min-height: 100vh; /* zabere celou výšku okna */
+    display: flex;
+    flex-direction: column; /* obsah pod sebou */
+    align-items: center; /* zarovnání na střed vodorovně */
+    justify-content: center; /* zarovnání na střed svisle */
+    box-sizing: border-box;
+    padding: 2rem 0;
+}

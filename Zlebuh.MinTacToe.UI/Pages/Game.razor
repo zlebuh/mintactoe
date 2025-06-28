@@ -1,5 +1,162 @@
 ﻿@page "/"
 @using Engine = Zlebuh.MinTacToe.Model
+@using Zlebuh.MinTacToe.UI.Components
+
+<div class="game-center">
+    <PageTitle>Game</PageTitle>
+    <p>Player on turn: <b>@GetPlayerString(game.GameState.PlayerOnTurn)</b>.</p>
+
+    <GameGrid Rows="@rules.Rows"
+              Columns="@rules.Columns"
+              Grid="@grid"
+              Colors="@colors"
+              HighlightedClass="@highlightedClass"
+              OnCellClick="CellClicked" />
+
+    <p>@(new MarkupString(message))</p>
+</div>
+
+
+@code {
+    [Parameter]
+    public byte? Rows { get; set; }
+
+    private Engine.Rules rules = new()
+    {
+        Rows = 16,
+        Columns = 16
+    };
+    private Zlebuh.MinTacToe.Model.Game game = null!;
+    private string[,] grid = null!;
+    private string[,] colors = null!;
+    private string[,] highlightedClass = null!;
+    private string message = string.Empty;
+    private List<Engine.Coordinate> highlighted = new();
+
+    protected override void OnInitialized()
+    {
+        grid = new string[rules.Rows, rules.Columns];
+        colors = new string[rules.Rows, rules.Columns];
+        highlightedClass = new string[rules.Rows, rules.Columns];
+
+        game = GameControl.Initialize(rules);
+    }
+
+    private void RefreshField(int row, int col, Engine.Field f, bool showMines = false)
+    {
+        string outcome;
+        string background;
+        if (f.Generated)
+        {
+            if (f.Player.HasValue)
+            {
+                if (f.IsMine)
+                {
+                    outcome = string.Empty;
+                    background = "#3a452d";
+                }
+                else
+                {
+                    outcome = $"{f.SurroundedByNotExplodedMines}";
+                    background = GetPlayerColor(f.Player.Value);
+                }
+            }
+            else
+            {
+                if (f.IsMine && showMines)
+                {
+                    outcome = string.Empty;
+                    background = "#3a452d";
+                }
+                else
+                {
+                    outcome = string.Empty;
+                    background = "transparent";
+                }
+            }
+        }
+        else
+        {
+            outcome = string.Empty;
+            background = "transparent";
+        }
+        grid[row, col] = outcome;
+        colors[row, col] = background;
+    }
+
+    private void CellClicked((int row, int col) pos)
+    {
+        CellClicked(pos.row, pos.col);
+    }
+    private void CellClicked(int row, int col)
+    {
+        message = string.Empty;
+        foreach (Engine.Coordinate h in highlighted)
+        {
+            highlightedClass[h.Row, h.Col] = string.Empty;
+        }
+        highlighted.Clear();
+
+        if (game.GameState.IsGameOver)
+        {
+            message = "Game is over. Refresh page to play new game.";
+            return;
+        }
+        try
+        {
+            GameControl.MakeMove(game, game.GameState.PlayerOnTurn!.Value, new(row, col));
+        }
+        catch (MinTacToe.Exceptions.GameIsOverException)
+        {
+            message = "Game is over. Refresh page to play new game.";
+        }
+        catch (MinTacToe.Exceptions.FieldOccupiedException e)
+        {
+            message = $"Field {Convert.ToChar('A' + e.OccupiedCoordinate.Col)}{e.OccupiedCoordinate.Row + 1} is occupied.";
+        }
+        catch (MinTacToe.Exceptions.MinTacToeException e)
+        {
+            message = $"Unexpected internal error. Please report it via github issues.\n{e.Message}\n{e.StackTrace}";
+        }
+        catch (Exception e)
+        {
+            message = $"Unexpected error. Please report it via github issues.\n{e.Message}\n{e.StackTrace}";
+        }
+
+        foreach (Engine.Coordinate coordinateChanged in game.GameState.Changes)
+        {
+            Engine.Field f = game.GameState.Grid[coordinateChanged];
+            highlightedClass[coordinateChanged.Row, coordinateChanged.Col] = "highlighted";
+            RefreshField(coordinateChanged.Row, coordinateChanged.Col, f);
+            highlighted.Add(coordinateChanged);
+        }
+        if (game.GameState.IsGameOver)
+        {
+            for (int i = 0; i < rules.Rows; i++)
+            {
+                for (int j = 0; j < rules.Columns; j++)
+                {
+                    RefreshField(i, j, game.GameState.Grid[new(i, j)], true);
+                }
+            }
+            message = game.GameState.Winner.HasValue ? $"The winner is: <b>{GetPlayerString(game.GameState.Winner)}</b>." : "Game is <b>tied</b>.";
+        }
+    }
+
+    private string GetPlayerString(Engine.Player? player)
+    {
+        if (!player.HasValue) return "no one";
+        return player.Value == Engine.Player.X ? "red" : "blue";
+    }
+
+    private string GetPlayerColor(Engine.Player player)
+    {
+        return player == Engine.Player.X ? "#ff0064" : "#00c8e1";
+    }
+}
+
+@* @page "/"
+@using Engine = Zlebuh.MinTacToe.Model
 
 <PageTitle>Game</PageTitle>
 <p>Player on turn: <b>@GetPlayerString(game.GameState.PlayerOnTurn)</b>.</p>
@@ -203,4 +360,4 @@
     {
         return player == Engine.Player.X ? "#ff0064" : "#00c8e1";
     }
-}
+} *@

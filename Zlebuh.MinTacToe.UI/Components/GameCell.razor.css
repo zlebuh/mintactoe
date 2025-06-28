@@ -1,0 +1,24 @@
+﻿.highlighted {
+    background-color: #ffffdc;
+}
+
+td {
+    width: 30px;
+    height: 30px;
+    border: 1px solid black;
+    text-align: center;
+    vertical-align: middle;
+    cursor: pointer;
+}
+
+td span {
+    width: 24px;
+    height: 24px;
+    margin: 2px;
+    font-size: 1em;
+    color: white;
+    text-align: center;
+    vertical-align: middle;
+    display: flex;
+    justify-content: center;
+}

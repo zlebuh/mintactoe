@@ -1,0 +1,14 @@
+﻿.responsive-table {
+    overflow-x: auto;
+    max-width: 100vw;
+}
+
+table {
+    border-collapse: collapse;
+    margin: 20px 0px;
+}
+
+th {
+    text-align: center;
+    vertical-align: middle;
+}
