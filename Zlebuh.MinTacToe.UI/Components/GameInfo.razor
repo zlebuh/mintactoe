@@ -1,0 +1,63 @@
+﻿@using Zlebuh.MinTacToe.Model
+<div>
+	@if (PlayerOnTurn.HasValue)
+	{
+		<p class="player-on-turn-info">Player on turn: <span style="padding: 2px 5px; color: white; background-color: @PlayerOnTurn.ToColor()">@PlayerOnTurn.ToDisplayString()</span>.</p>
+	}
+	<div class="game-info-message">
+		@if (UsedMessage is not null)
+		{
+			<p class="@(UsedMessage.Type.ToString().ToLower())">@UsedMessage.Message</p>
+		}
+	</div>
+	
+</div>
+
+
+
+@code {
+	public class GameInfoMessage
+	{
+		public MarkupString Message = new(string.Empty);
+		public GameInfoMessageType Type = GameInfoMessageType.Info;
+	}
+
+	public enum GameInfoMessageType
+	{
+		Info,
+		Error,
+	}
+
+	[Parameter] public Player? PlayerOnTurn { get; set; }
+	[Parameter] public bool IsGameOver { get; set; }
+	[Parameter] public Player? Winner { get; set; }
+	[Parameter] public GameInfoMessage? Message { get; set; }
+	private GameInfoMessage? UsedMessage => GetInnerMessage() ?? Message;
+
+	private GameInfoMessage? GetInnerMessage()
+	{
+		if (IsGameOver)
+		{
+			if (Winner.HasValue)
+			{
+				return new GameInfoMessage
+				{
+					Message = new MarkupString($"Game is over - <span style=\"padding: 2px 5px; color: white; background-color: {@Winner.ToColor()}\">{@Winner.ToDisplayString()}</span> wins!"),
+					Type = GameInfoMessageType.Info
+				};
+			}
+			else
+			{
+				return new GameInfoMessage
+				{
+					Message = new("Game is over. It's a draw."),
+					Type = GameInfoMessageType.Info
+				};
+			}
+		}
+		else
+		{
+			return null;
+		}
+	}
+}

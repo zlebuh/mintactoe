@@ -1,0 +1,27 @@
+﻿.player-on-turn-info {
+    text-align: center;
+}
+
+.game-info-message {
+    height: 50px;       
+}
+
+p.info {
+    background-color: #e6f4ff;
+    color: #1a5b8a;
+    padding: 12px 18px;
+    border-left: 4px solid #3399ff;
+    border-radius: 4px;
+    margin: 12px 0;
+    font-size: 1rem;
+}
+
+p.error {
+    background-color: #ffeaea;
+    color: #a12622;
+    padding: 12px 18px;
+    border-left: 4px solid #e53935;
+    border-radius: 4px;
+    margin: 12px 0;
+    font-size: 1rem;
+}
