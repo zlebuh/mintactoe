@@ -1,10 +1,8 @@
-﻿@page "/game"
+﻿@page "/"
 @using Engine = Zlebuh.MinTacToe.Model
-@inject NavigationManager Navigation
 
 <PageTitle>Game</PageTitle>
-<button @onclick="GoBackToLobby">Zpět do lobby</button>
-<p>Na tahu je: <b>@GetPlayerString(game.GameState.PlayerOnTurn)</b>.</p>
+<p>Player on turn: <b>@GetPlayerString(game.GameState.PlayerOnTurn)</b>.</p>
 <table>
     <thead>
         <tr>
@@ -38,23 +36,23 @@
 
 <style>
     table {
-        border-collapse: collapse;
-        margin: 20px 0px;
+    border-collapse: collapse;
+    margin: 20px 0px;
     }
 
     td span{
-        width: 24px;
-        height: 24px;
-        margin: 2px;
-        font-size: 19px;
-        color: white;
-        text-align: center;
-        vertical-align: middle;
-        display: inline-block;
+    width: 24px;
+    height: 24px;
+    margin: 2px;
+    font-size: 19px;
+    color: white;
+    text-align: center;
+    vertical-align: middle;
+    display: inline-block;
     }
 
     .highlighted{
-        background-color: #ffffdc;
+    background-color: #ffffdc;
     }
 
     td {
@@ -73,7 +71,14 @@
 </style>
 
 @code {
-    private Engine.Rules rules = new();
+    [Parameter]
+    public byte? Rows { get; set; }
+
+    private Engine.Rules rules = new()
+    {
+        Rows = 16,
+        Columns = 16
+    };
     private Zlebuh.MinTacToe.Model.Game game = null!;
     private string[,] grid = null!;
     private string[,] colors = null!;
@@ -83,16 +88,6 @@
 
     protected override void OnInitialized()
     {
-        var uri = new Uri(Navigation.Uri);
-        var query = System.Web.HttpUtility.ParseQueryString(uri.Query);
-
-        rules.Rows = byte.Parse(query["rows"]);
-        rules.Columns = byte.Parse(query["columns"]);
-        rules.SeriesLength = byte.Parse(query["seriesLength"]);
-        rules.NoMineMoves = byte.Parse(query["noMineMoves"]);
-        rules.MinePower = byte.Parse(query["minePower"]);
-        rules.MineProbability = double.Parse(query["mineProbability"]);
-
         grid = new string[rules.Rows, rules.Columns];
         colors = new string[rules.Rows, rules.Columns];
         highlightedClass = new string[rules.Rows, rules.Columns];
@@ -152,19 +147,32 @@
         }
         highlighted.Clear();
 
-        // Handle cell click event (e.g., place a mark)
         if (game.GameState.IsGameOver)
         {
+            message = "Game is over. Refresh page to play new game.";
             return;
         }
         try
         {
             GameControl.MakeMove(game, game.GameState.PlayerOnTurn!.Value, new(row, col));
         }
+        catch (MinTacToe.Exceptions.GameIsOverException)
+        {            
+            message = "Game is over. Refresh page to play new game.";
+        }
+        catch (MinTacToe.Exceptions.FieldOccupiedException e)
+        {
+            message = $"Field {Convert.ToChar('A' + e.OccupiedCoordinate.Col)}{e.OccupiedCoordinate.Row + 1} is occupied.";
+        }
         catch (MinTacToe.Exceptions.MinTacToeException e)
         {
-            message = e.Message;
+            message = $"Unexpected internal error. Please report it via github issues.\n{e.Message}\n{e.StackTrace}";
         }
+        catch (Exception e)
+        {
+            message = $"Unexpected error. Please report it via github issues.\n{e.Message}\n{e.StackTrace}";
+        }
+
         foreach (Engine.Coordinate coordinateChanged in game.GameState.Changes)
         {
             Engine.Field f = game.GameState.Grid[coordinateChanged];
@@ -181,23 +189,18 @@
                     RefreshField(i, j, game.GameState.Grid[new(i, j)], true);
                 }
             }
-            message = game.GameState.Winner.HasValue ? $"Vítězem je: {GetPlayerString(game.GameState.Winner)}." : "Hra skončila remízou.";
+            message = game.GameState.Winner.HasValue ? $"The winner is: <b>{GetPlayerString(game.GameState.Winner)}</b>." : "Game is <b>tied</b>.";
         }
     }
 
     private string GetPlayerString(Engine.Player? player)
     {
-        if (!player.HasValue) return "nikdo";
-        return player.Value == Engine.Player.X ? "červený" : "modrý";
+        if (!player.HasValue) return "no one";
+        return player.Value == Engine.Player.X ? "red" : "blue";
     }
 
     private string GetPlayerColor(Engine.Player player)
     {
         return player == Engine.Player.X ? "#ff0064" : "#00c8e1";
-    }
-
-    private void GoBackToLobby()
-    {
-        Navigation.NavigateTo("/");
     }
 }
