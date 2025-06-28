@@ -25,11 +25,11 @@ namespace Zlebuh.MinTacToe.Tests
         public void CoordinateTests()
         {
             Game game = GameControl.Initialize(new());
-            Assert.True(GameControl.IsOnGrid(new(10, 10), game));
-            Assert.True(GameControl.IsOnGrid(new(0, 0), game));
-            Assert.True(GameControl.IsOnGrid(new(5, 15), game));
-            Assert.False(GameControl.IsOnGrid(new(game.Rules.Rows, game.Rules.Columns), game));
-            Assert.False(GameControl.IsOnGrid(new(-1, -1), game));
+            Assert.True(new Coordinate(10, 10).IsOnGrid(game));
+            Assert.True(new Coordinate(0, 0).IsOnGrid(game));
+            Assert.True(new Coordinate(5, 15).IsOnGrid(game));            
+            Assert.False(new Coordinate(game.Rules.Rows, game.Rules.Columns).IsOnGrid(game));
+            Assert.False(new Coordinate(-1, -1).IsOnGrid(game));            
         }
 
         [Fact]
@@ -53,6 +53,74 @@ namespace Zlebuh.MinTacToe.Tests
             f = game.GameState.Grid[coordinate];
             Assert.True(f.Player.HasValue);
             Assert.Equal(Player.X, f.Player.Value);
+        }
+
+        [Fact]
+        public void PlacingAMoveThatCauseMineExplosion_PutsGameToCorrectState()
+        {
+            Game game = GameControl.Initialize(new()
+            {
+                MineProbability = 0,                
+            });
+            
+            GameControl.MakeMove(game, Player.O, new(0, 0));
+            GameControl.MakeMove(game, Player.X, new(0, 1));
+            GameControl.MakeMove(game, Player.O, new(0, 2));
+            GameControl.MakeMove(game, Player.X, new(1, 2));
+            GameControl.MakeMove(game, Player.O, new(1, 0));
+            GameControl.MakeMove(game, Player.X, new(2, 0));
+            GameControl.MakeMove(game, Player.O, new(2, 1));
+            GameControl.MakeMove(game, Player.X, new(2, 2));
+            
+            // mock
+            game.GameState.Grid[new(1, 1)].IsMine = true; // place a mine in the middle
+            for (int i = 0; i <= 2; i++)
+            {
+                for (int j = 0; j <= 2; j++)
+                {
+                    if (i == 1 && j == 1) continue; // skip the mine
+                    // all fields are surrounded by one not exploded mines
+                    game.GameState.Grid[new(i, j)].SurroundedByNotExplodedMines += 1; 
+                }
+            }
+            // end of mock
+
+            // OXO
+            // OMX
+            // XOX
+            GameControl.MakeMove(game, Player.O, new(1, 1));
+            
+            // -X-
+            // -MX
+            // X-X
+
+            Assert.Equal(9, game.GameState.Changes.Count); 
+            // 8 fields changed because it is not surrounded by mine anymore
+
+            Assert.Multiple(() =>
+            {
+                Assert.True(game.GameState.Grid[new(1, 1)].IsMine);
+                Assert.True(game.GameState.Grid[new(1, 1)].Player.HasValue);
+                Assert.Equal(Player.O, game.GameState.Grid[new(1, 1)].Player);
+
+                Assert.Equal(0, game.GameState.Grid[new(0, 0)].SurroundedByNotExplodedMines);
+                Assert.Null(game.GameState.Grid[new(0, 0)].Player);
+                Assert.Equal(0, game.GameState.Grid[new(0, 1)].SurroundedByNotExplodedMines);
+                Assert.Equal(Player.X, game.GameState.Grid[new(0, 1)].Player);
+                Assert.Equal(0, game.GameState.Grid[new(0, 2)].SurroundedByNotExplodedMines);
+                Assert.Null(game.GameState.Grid[new(0, 2)].Player);
+                Assert.Equal(0, game.GameState.Grid[new(1, 0)].SurroundedByNotExplodedMines);
+                Assert.Null(game.GameState.Grid[new(1, 0)].Player);
+                Assert.Equal(0, game.GameState.Grid[new(1, 2)].SurroundedByNotExplodedMines);
+                Assert.Equal(Player.X, game.GameState.Grid[new(1, 2)].Player);
+                Assert.Equal(0, game.GameState.Grid[new(2, 0)].SurroundedByNotExplodedMines);
+                Assert.Equal(Player.X, game.GameState.Grid[new(2, 0)].Player);
+                Assert.Equal(0, game.GameState.Grid[new(2, 1)].SurroundedByNotExplodedMines);
+                Assert.Null(game.GameState.Grid[new(2, 1)].Player);
+                Assert.Equal(0, game.GameState.Grid[new(2, 2)].SurroundedByNotExplodedMines);
+                Assert.Equal(Player.X, game.GameState.Grid[new(2, 2)].Player);                
+            });
+            
         }
 
         [Fact]

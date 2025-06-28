@@ -95,9 +95,10 @@ namespace Zlebuh.MinTacToe
             {
                 changedFieldCoordinates.AddRange(game.ExplodeMine(player, coordinate));
             }
+            changedFieldCoordinates.Add(coordinate);            
             field.Player = player;
 
-            changedFieldCoordinates.Add(coordinate);
+            
 
             bool playerWins = game.CheckPlayerWins(player, coordinate);
             bool isTie = game.CheckTie();
@@ -109,11 +110,11 @@ namespace Zlebuh.MinTacToe
             game.GameState.MovesPlayed++;
         }
 
-        internal static List<Coordinate> ExplodeMine(this Game game, Player player, Coordinate mineCoordinate)
+        internal static HashSet<Coordinate> ExplodeMine(this Game game, Player player, Coordinate mineCoordinate)
         {
             int minePower = game.Rules.MinePower;
             Grid grid = game.GameState.Grid;
-            List<Coordinate> coordinatesAffected = [];
+            HashSet<Coordinate> coordinatesAffected = [];
             for (int i = mineCoordinate.Row - minePower; i <= mineCoordinate.Row + minePower; i++)
             {
                 for (int j = mineCoordinate.Col - minePower; j <= mineCoordinate.Col + minePower; j++)
@@ -125,17 +126,19 @@ namespace Zlebuh.MinTacToe
                     
                     if (c.Row == mineCoordinate.Row && c.Col == mineCoordinate.Col)
                     {
-                        coordinatesAffected.Add(c);
                         continue;
                     }
 
                     if (!f.IsMine)
                     {
-                        if (f.Player.HasValue && f.Player == player)
+                        if (f.Player.HasValue)
                         {
-                            f.Player = null;
                             coordinatesAffected.Add(c);
-                        }
+                            if (f.Player == player)
+                            {
+                                f.Player = null;
+                            }
+                        } 
                     }
 
                     f.SurroundedByNotExplodedMines--;
