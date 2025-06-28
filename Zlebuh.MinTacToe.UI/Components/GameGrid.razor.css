@@ -1,11 +1,11 @@
 ﻿.responsive-table {
     overflow-x: auto;
-    /*max-width: 100vw;*/
+    max-width: 100vw;
 }
 
 table {
     border-collapse: collapse;
-    /*width: max-content;*/
+    width: max-content;
 }
 
 th {
