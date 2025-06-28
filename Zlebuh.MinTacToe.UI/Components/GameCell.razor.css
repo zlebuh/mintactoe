@@ -2,9 +2,7 @@
     background-color: #ffffdc;
 }
 
-td {
-    width: 30px;
-    height: 30px;
+td {    
     border: 1px solid black;
     text-align: center;
     vertical-align: middle;
@@ -12,10 +10,10 @@ td {
 }
 
 td span {
-    width: 24px;
-    height: 24px;
-    margin: 2px;
-    font-size: 1em;
+    width: 1.5em;
+    height: 1.5em;
+    margin: 0.15em;
+    font-size: 1.2em;
     color: white;
     text-align: center;
     vertical-align: middle;
