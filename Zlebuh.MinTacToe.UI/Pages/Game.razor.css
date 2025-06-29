@@ -1,13 +1,5 @@
-﻿.game-center {
-    /*min-height: 100vh;*/
-    display: grid;
-    grid-template-rows: auto 1fr auto;
-    /*height: 100vh;
-    min-height: 100vh;      */
-    /*flex-direction: column;*/
-    /*align-items: center;
-    justify-content: center;
-    box-sizing: border-box;
-    padding: 2rem 0;*/
-    margin: 0;
+﻿container {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
 }

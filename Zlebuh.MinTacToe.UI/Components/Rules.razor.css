@@ -1,4 +1,10 @@
-﻿.rules{
-    grid-row: 3;
-    height: 200px;
+﻿footer {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 1em 2vw;
+    background: #eaeaea;
+    font-size: 0.95em;
+    flex-shrink: 0;
+    gap: 1em;
 }

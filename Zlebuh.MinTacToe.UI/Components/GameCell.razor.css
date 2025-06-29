@@ -2,19 +2,33 @@
     background-color: #ffffdc;
 }
 
-.td { 
-    aspect-ratio: 1 / 1;
+.board-cell {
+    background: #fff;
     border: 1px solid black;
     margin: -1px 0px 0px -1px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    transition: background 0.15s;
+    aspect-ratio: 1/1;
+    padding: 0;
+    line-height: 1;
+    min-width: 0;
+    min-height: 0;
+    outline: none;
+    color: #0057b8;
 }
 
-    .td span {
-        font-size: calc(0.8 *min(100%, calc(100vh - 300px)));
-        display: flex;
-        justify-content: center; /* horizontálně na střed */
-        align-items: center; /* vertikálně na střed */
-        width: 80%;
-        height: 80%;
-        margin: 10%;
-        color: white;
-    }
+.board-cell span {
+    display: flex;
+    width: 80%;
+    height: 80%;
+    justify-content: center;
+    align-items: center;
+    font-size: 1.3em;
+    margin: 10%;
+    color: #fff;
+    user-select: none;
+    pointer-events: none;
+}

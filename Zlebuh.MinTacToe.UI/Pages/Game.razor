@@ -3,12 +3,12 @@
 @using Zlebuh.MinTacToe.UI.Components
 @using static Zlebuh.MinTacToe.UI.Components.GameInfo
 
-<div class="game-center">
+<container>
     <PageTitle>Game</PageTitle>
     <GameInfo PlayerOnTurn="@game.GameState.PlayerOnTurn"
               IsGameOver="@game.GameState.IsGameOver"
               Winner="@game.GameState.Winner"
-              Message="message"/>
+              Message="message" />
 
     <GameGrid Rows="@rules.Rows"
               Columns="@rules.Columns"
@@ -18,7 +18,7 @@
               OnCellClick="CellClicked" />
 
     <Rules />
-</div>
+</container>
 
 
 @code {

@@ -1,53 +1,27 @@
-﻿<div class="game-grid">
-    <div class="table">
-        <div class="td"></div>
-        @for (int col = 0; col < Columns; col++)
-        {
-            <div class="td">@(Convert.ToChar('A' + col))</div>
-        }        
-        @for (int row = 0; row < Rows; row++)
-        {
-            <div class="td">@(row + 1)</div>
+﻿<section class="board-wrapper">
+    <div class="board-container">
+        <div class="board-grid">
+            <div class="board-label"></div>
             @for (int col = 0; col < Columns; col++)
             {
-                int r = row;
-                int c = col;
-                <GameCell Value="@Grid[r, c]"
-                            Color="@Colors[r, c]"
-                            HighlightedClass="@HighlightedClass[r, c]"
-                            OnClick="() => OnCellClick.InvokeAsync((r, c))" />
+                <div class="board-label">@(Convert.ToChar('A' + col))</div>
             }
-        }
-    </div>
-</div>
-@*     <table>
-        <thead>
-            <tr>
-                <th></th>
-                @for (int col = 0; col < Columns; col++)
-                {
-                    <th>@(Convert.ToChar('A' + col))</th>
-                }
-            </tr>
-        </thead>
-        <tbody>
             @for (int row = 0; row < Rows; row++)
             {
-                <tr>
-                    <th>@(row + 1)</th>
-                    @for (int col = 0; col < Columns; col++)
-                    {
-                        int r = row;
-                        int c = col;
-                        <GameCell Value="@Grid[r, c]"
-                                  Color="@Colors[r, c]"
-                                  HighlightedClass="@HighlightedClass[r, c]"
-                                  OnClick="() => OnCellClick.InvokeAsync((r, c))" />
-                    }
-                </tr>
+                <div class="board-label">@(row + 1)</div>
+                @for (int col = 0; col < Columns; col++)
+                {
+                    int r = row;
+                    int c = col;
+                    <GameCell Value="@Grid[r, c]"
+                              Color="@Colors[r, c]"
+                              HighlightedClass="@HighlightedClass[r, c]"
+                              OnClick="() => OnCellClick.InvokeAsync((r, c))" />
+                }
             }
-        </tbody>
-    </table> *@
+        </div>
+    </div>
+</section>
 
 @code {
     [Parameter] public int Rows { get; set; }
