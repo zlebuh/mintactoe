@@ -33,11 +33,9 @@
 }
 
 .board-label {
-    background: var(--label-bg);
-    color: var(--label-color);
     display: flex;
     justify-content: center;
     align-items: center;
-    font-size: var(--label-font);
+    font-size: 1em;
     box-sizing: border-box;
 }

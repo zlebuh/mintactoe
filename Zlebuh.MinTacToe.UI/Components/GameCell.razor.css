@@ -1,23 +1,20 @@
-﻿.highlighted {
-    background-color: #ffffdc;
-}
-
-.board-cell {
-    background: #fff;
+﻿.board-cell {
     border: 1px solid black;
     margin: -1px 0px 0px -1px;
     display: flex;
     justify-content: center;
     align-items: center;
     cursor: pointer;
-    transition: background 0.15s;
     aspect-ratio: 1/1;
     padding: 0;
     line-height: 1;
     min-width: 0;
     min-height: 0;
     outline: none;
-    color: #0057b8;
+}
+
+.highlighted {
+    background-color: #ffffdc;
 }
 
 .board-cell span {
