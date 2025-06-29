@@ -1,5 +1,6 @@
 ﻿footer {
     display: flex;
+    flex-direction: column;
     justify-content: center;
     align-items: center;
     padding: 1em 2vw;
@@ -7,4 +8,46 @@
     font-size: 0.95em;
     flex-shrink: 0;
     gap: 1em;
+}
+
+.rules-btn {
+    cursor: pointer;
+    border: none;
+    font-size: 1em;
+    transition: background 0.15s, box-shadow 0.15s;
+    user-select: none;
+    text-align: center;
+    position: relative;
+}
+
+
+.rules-btn::before {
+    content: "▼ ";
+    font-size: 1em;
+    display: inline-block;
+    transform: rotate(-90deg);
+    margin-right: 0.3em;
+}
+
+#rules-toggle:checked + .rules-btn::before {
+    transform: rotate(0deg);
+}
+
+.rules-btn::after {
+    content: " (click to show)";
+    font-size: 0.85em;
+    margin-left: 0.5em;
+}
+
+#rules-toggle:checked + .rules-btn::after {
+    content: " (click to hide)";
+}
+
+.rules-text {
+    display: none;
+    min-width: 200px;
+}
+
+#rules-toggle:checked + .rules-btn + .rules-text {
+    display: block;
 }

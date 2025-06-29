@@ -17,6 +17,12 @@
 			<p class="@(UsedMessage.Type.ToString().ToLower())">@UsedMessage.Message</p>
 		}
 	</div>
+
+	@if (IsGameOver)
+	{
+		<button type="button" class="new-game-btn" onclick="location.reload()">Start a new game</button>
+	}
+	
 </section>
 
 @code {

@@ -2,21 +2,18 @@
     display: flex;
     flex-direction: column;
     align-items: center;
+    justify-content: center; 
     gap: 0.5em;
     margin: 0 0 0.5em 0;
     background: #eaeaea;
+    height: 80px;
+    min-height: 80px;
+    box-sizing: border-box;
 }
 
-
-.player-on-turn-info {
-    height: 50px;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-}
-
+.player-on-turn-info,
 .game-info-message {
-    height: 50px;
+    width: 100%;
 }
 
 p {
@@ -30,6 +27,6 @@ p span.highlighted {
     color: white;
 }
 
-p.error {    
-    color: #b01212;    
+p.error {
+    color: #b01212;
 }

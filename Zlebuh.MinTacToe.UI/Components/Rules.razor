@@ -1,6 +1,18 @@
 ﻿<footer>
-	Rules
+    <input type="checkbox" id="rules-toggle" hidden>
+    <label for="rules-toggle" class="rules-btn">Rules</label>
+    <div class="rules-text">
+        <ul>
+            <li>The goal is to reach 5 symbols in a row, column or diagonally (same as 5-in-a-row).</li>
+            <li>There is a 10 % probability of field covered by a mine.</li>
+            <li>If a mine is hit then all symbols (in close neighborhood) of player who hit it disappear.</li>
+            <li>Each symbol holds information about how many non-exploded mines are in its' close neighborhood.</li>
+            <li>Exploded mines acts as a permanent obstacle.</li>
+        </ul>
+
+    </div>
 </footer>
+
 
 @code {
 
