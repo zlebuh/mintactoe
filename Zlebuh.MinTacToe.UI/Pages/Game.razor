@@ -6,17 +6,18 @@
 <div class="game-center">
     <PageTitle>Game</PageTitle>
     <GameInfo PlayerOnTurn="@game.GameState.PlayerOnTurn"
-    IsGameOver="@game.GameState.IsGameOver"
-    Winner="@game.GameState.Winner"
-    Message="message"/>
-
+              IsGameOver="@game.GameState.IsGameOver"
+              Winner="@game.GameState.Winner"
+              Message="message"/>
 
     <GameGrid Rows="@rules.Rows"
-    Columns="@rules.Columns"
-    Grid="@grid"
-    Colors="@colors"
-    HighlightedClass="@highlightedClass"
-    OnCellClick="CellClicked" />
+              Columns="@rules.Columns"
+              Grid="@grid"
+              Colors="@colors"
+              HighlightedClass="@highlightedClass"
+              OnCellClick="CellClicked" />
+
+    <Rules />
 </div>
 
 

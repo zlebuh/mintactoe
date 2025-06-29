@@ -1,16 +1,21 @@
 ﻿@using Zlebuh.MinTacToe.Model
-<div>
-	@if (PlayerOnTurn.HasValue)
-	{
-		<p class="player-on-turn-info">Player on turn: <span style="padding: 2px 5px; color: white; background-color: @PlayerOnTurn.ToColor()">@PlayerOnTurn.ToDisplayString()</span>.</p>
-	}
+<div class="game-info">
+	<div class="player-on-turn-info">
+		@if (PlayerOnTurn.HasValue)
+		{
+			<p>
+			<span>Player on turn:</span>
+			<span class="highlighted" style="background-color: @PlayerOnTurn.ToColor()">@PlayerOnTurn.ToDisplayString()</span>
+			</p>
+		}
+	</div>
+	
 	<div class="game-info-message">
 		@if (UsedMessage is not null)
 		{
 			<p class="@(UsedMessage.Type.ToString().ToLower())">@UsedMessage.Message</p>
 		}
-	</div>
-	
+	</div>	
 </div>
 
 

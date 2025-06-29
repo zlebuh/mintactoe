@@ -1,5 +1,26 @@
-﻿<div class="responsive-table">
-    <table>
+﻿<div class="game-grid">
+    <div class="table">
+        <div class="td"></div>
+        @for (int col = 0; col < Columns; col++)
+        {
+            <div class="td">@(Convert.ToChar('A' + col))</div>
+        }        
+        @for (int row = 0; row < Rows; row++)
+        {
+            <div class="td">@(row + 1)</div>
+            @for (int col = 0; col < Columns; col++)
+            {
+                int r = row;
+                int c = col;
+                <GameCell Value="@Grid[r, c]"
+                            Color="@Colors[r, c]"
+                            HighlightedClass="@HighlightedClass[r, c]"
+                            OnClick="() => OnCellClick.InvokeAsync((r, c))" />
+            }
+        }
+    </div>
+</div>
+@*     <table>
         <thead>
             <tr>
                 <th></th>
@@ -26,8 +47,7 @@
                 </tr>
             }
         </tbody>
-    </table>
-</div>
+    </table> *@
 
 @code {
     [Parameter] public int Rows { get; set; }

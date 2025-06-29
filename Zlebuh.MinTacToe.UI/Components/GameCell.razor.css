@@ -2,21 +2,19 @@
     background-color: #ffffdc;
 }
 
-td {    
+.td { 
+    aspect-ratio: 1 / 1;
     border: 1px solid black;
-    text-align: center;
-    vertical-align: middle;
-    cursor: pointer;
+    margin: -1px 0px 0px -1px;
 }
 
-td span {
-    width: 1.5em;
-    height: 1.5em;
-    margin: 0.15em;
+.td span {
     font-size: 1.2em;
-    color: white;
-    text-align: center;
-    vertical-align: middle;
     display: flex;
-    justify-content: center;
+    justify-content: center; /* horizontálně na střed */
+    align-items: center; /* vertikálně na střed */
+    width: 80%;
+    height: 80%;
+    margin: 10%;
+    color: white;
 }

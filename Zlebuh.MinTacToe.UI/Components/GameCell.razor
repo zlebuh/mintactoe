@@ -1,6 +1,6 @@
-﻿<td @onclick="OnClick" class="@HighlightedClass">
+﻿<div @onclick="OnClick" class="td @HighlightedClass">
     <span style="background-color: @Color;">@Value</span>
-</td>
+</div>
 
 @code {
     [Parameter] public string Value { get; set; } = "";
