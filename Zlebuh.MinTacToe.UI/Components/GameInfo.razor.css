@@ -1,4 +1,4 @@
-﻿.game-header {
+﻿/*.game-header {
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -9,6 +9,18 @@
     height: 80px;
     min-height: 80px;
     box-sizing: border-box;
+}*/
+
+.game-header {
+    flex: 0 0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5em;
+    /*margin: 0 0 0.5em 0;*/
+    background: #eaeaea;
+    min-height: 80px;
 }
 
 .player-on-turn-info,

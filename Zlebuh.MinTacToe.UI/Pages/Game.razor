@@ -5,17 +5,19 @@
 
 <container>
     <PageTitle>Game</PageTitle>
-    <GameInfo PlayerOnTurn="@game.GameState.PlayerOnTurn"
-              IsGameOver="@game.GameState.IsGameOver"
-              Winner="@game.GameState.Winner"
-              Message="message" />
-
-    <GameGrid Rows="@rules.Rows"
-              Columns="@rules.Columns"
-              Grid="@grid"
-              Colors="@colors"
-              HighlightedClass="@highlightedClass"
-              OnCellClick="CellClicked" />
+    <GameInfo 
+        PlayerOnTurn="@game.GameState.PlayerOnTurn"
+        IsGameOver="@game.GameState.IsGameOver"
+        Winner="@game.GameState.Winner"
+        Message="message" />
+    
+    <GameGrid 
+        Rows="@rules.Rows"
+        Columns="@rules.Columns"
+        Grid="@grid"
+        Colors="@colors"
+        HighlightedClass="@highlightedClass"
+        OnCellClick="CellClicked" />
 
     <Rules />
 </container>
@@ -90,10 +92,8 @@
 
     private void CellClicked((int row, int col) pos)
     {
-        CellClicked(pos.row, pos.col);
-    }
-    private void CellClicked(int row, int col)
-    {
+        int row = pos.row;
+        int col = pos.col;
         message = null;
         foreach (Engine.Coordinate h in highlighted)
         {

@@ -1,27 +1,58 @@
-﻿<section class="board-wrapper">
-    <div class="board-container">
-        <div class="board-grid">
-            <div class="board-label"></div>
-            @for (int col = 0; col < Columns; col++)
+﻿<div class="grid-wrapper">
+    <div class="grid-container">
+        <svg viewBox="0 0 480 480" preserveAspectRatio="xMidYMid meet" class="grid-svg">
+            @for (int yIter = 0; yIter < Columns; yIter++)
             {
-                <div class="board-label">@(Convert.ToChar('A' + col))</div>
-            }
-            @for (int row = 0; row < Rows; row++)
-            {
-                <div class="board-label">@(row + 1)</div>
-                @for (int col = 0; col < Columns; col++)
+                for (int xIter = 0; xIter < Rows; xIter++)
                 {
-                    int r = row;
-                    int c = col;
-                    <GameCell Value="@Grid[r, c]"
-                              Color="@Colors[r, c]"
-                              HighlightedClass="@HighlightedClass[r, c]"
-                              OnClick="() => OnCellClick.InvokeAsync((r, c))" />
-                }
+                    int y = yIter;
+                    int x = xIter;
+
+                    var cellSize = 30;
+                    var margin = 2;
+                    var contentSize = cellSize - 2 * margin;
+
+                    var posX = x * cellSize;
+                    var posY = y * cellSize;
+
+                    var isHighlighted = HighlightedClass[x, y] == "highlighted";
+                    var bgColor = isHighlighted ? "#ffffdc" : "transparent";
+                    var innerFill = Colors[x, y];
+                    var text = Grid[x, y];
+
+                    <g @onclick="@(() => OnCellClick.InvokeAsync((x, y)))" cursor="pointer">
+                        <rect x="@posX" y="@posY" width="@cellSize" height="@cellSize"
+                              fill="@bgColor" stroke="black" stroke-width="0.5" />
+
+                        @if (!string.IsNullOrWhiteSpace(text) || !string.IsNullOrWhiteSpace(innerFill))
+                        {
+                            <rect x="@(posX + margin)" y="@(posY + margin)"
+                                  width="@contentSize" height="@contentSize"
+                                  fill="@innerFill"/>
+                        }
+
+                        @if (!string.IsNullOrWhiteSpace(text))
+                        {
+                            <text>
+                            <text 
+                                x="@(posX + cellSize / 2)" 
+                                y="@(posY + cellSize / 2 + 6)" 
+                                text-anchor="middle" 
+                                font-size="16" 
+                                fill="white" 
+                                font-family="Arial" 
+                                font-weight="bold"
+                                >
+                                @text
+                            </text>
+                            </text>
+                        }
+                    </g>
             }
-        </div>
+        }
+        </svg>
     </div>
-</section>
+</div>
 
 @code {
     [Parameter] public int Rows { get; set; }

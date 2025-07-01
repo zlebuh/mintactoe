@@ -1,13 +1,13 @@
 ﻿footer {
+    gap: 1em;
+    flex: 0 0 auto;
+    padding: 1rem;
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
     padding: 1em 2vw;
     background: #eaeaea;
-    font-size: 0.95em;
-    flex-shrink: 0;
-    gap: 1em;
 }
 
 .rules-btn {
