@@ -21,7 +21,7 @@
                     var innerFill = Colors[x, y];
                     var text = Grid[x, y];
 
-                    <svg @onclick="@(() => OnCellClick.InvokeAsync((x, y)))" cursor="pointer">
+                    <g @onclick="@(() => OnCellClick.InvokeAsync((x, y)))" cursor="pointer">
                         <rect x="@posX" y="@posY" width="@cellSize" height="@cellSize"
                               fill="@bgColor" stroke="black" stroke-width="0.5" />
 
@@ -48,7 +48,7 @@
                             </text>
                             </text>
                         }
-                    </svg>
+                    </g>
             }
         }
         </svg>
