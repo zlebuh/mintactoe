@@ -6,7 +6,7 @@ The game is available to <a href="https://mines.petrzlebek.cz" target="_blank">p
 - There is a 10 % probability of field covered by a mine.
 - If a mine is hit then all symbols (in close neighborhood) of player who hit it disappear.
 - Each symbol holds information about how many non-exploded mines are in its' close neighborhood.
-- Exploded mines acts as a permanent obstacle.
+- Exploded mines act as a permanent obstacle.
 
 **License**
 This code and all related materials are the property of the author.  
