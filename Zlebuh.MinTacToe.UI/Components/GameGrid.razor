@@ -1,6 +1,7 @@
 ﻿<div class="grid-wrapper">
     <div class="grid-container">
         <svg viewBox="0 0 480 480" preserveAspectRatio="xMidYMid meet" class="grid-svg">
+            <rect x="0" y="0" width="480" height="480" fill="transparent" stroke="black" stroke-width="0.5"/>
             @for (int yIter = 0; yIter < Columns; yIter++)
             {
                 for (int xIter = 0; xIter < Rows; xIter++)
@@ -20,7 +21,7 @@
                     var innerFill = Colors[x, y];
                     var text = Grid[x, y];
 
-                    <g @onclick="@(() => OnCellClick.InvokeAsync((x, y)))" cursor="pointer">
+                    <svg @onclick="@(() => OnCellClick.InvokeAsync((x, y)))" cursor="pointer">
                         <rect x="@posX" y="@posY" width="@cellSize" height="@cellSize"
                               fill="@bgColor" stroke="black" stroke-width="0.5" />
 
@@ -47,7 +48,7 @@
                             </text>
                             </text>
                         }
-                    </g>
+                    </svg>
             }
         }
         </svg>
