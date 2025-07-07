@@ -1,10 +1,14 @@
 ﻿
+using System.Text.Json.Serialization;
+
 namespace Zlebuh.MinTacToe.Model
 {
     public readonly struct Coordinate(int row, int col)
     {
         public int Row { get; } = row;
         public int Col { get; } = col;
+        
+        [JsonIgnore]
         public Dictionary<Direction, Coordinate> Neighbours => GetNeighbors();
         public bool IsOnGrid(Game game)
         {

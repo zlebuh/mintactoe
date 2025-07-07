@@ -1,8 +1,12 @@
-﻿namespace Zlebuh.MinTacToe.Model
+﻿using System.Text.Json.Serialization;
+
+namespace Zlebuh.MinTacToe.Model
 {
     public class Game
     {
+        [JsonInclude]
         public GameState GameState { get; internal set; } = new();
+        [JsonInclude]
         public Rules Rules { get; internal set; } = new();
         public Game MakeCopy()
         {

@@ -5,11 +5,20 @@ namespace Zlebuh.MinTacToe.API.Services
 {
     public interface IGameProxy
     {
+        Task<string> CreateEmptySerializedGame();
         Task<(int errorCode, string message, string? gameState)> MakeAMove(string gameState, Coordinate coordinate, Player player);
     }
 
     internal class GameProxy : IGameProxy
     {
+        private static readonly Rules Rules = new() { Rows = 16, Columns = 16 };
+        public async Task<string> CreateEmptySerializedGame()
+        {
+            Game game = GameControl.Initialize(Rules);
+            string serialized = await GameSerializer.SerializeGame(game);
+            return serialized;
+        }
+
         public async Task<(int errorCode, string message, string? gameState)> MakeAMove(string gameState, Coordinate coordinate, Player player)
         {
             Game game = await GameSerializer.DeserializeGame(gameState);

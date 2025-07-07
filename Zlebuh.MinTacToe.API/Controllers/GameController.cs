@@ -6,9 +6,10 @@ namespace Zlebuh.MinTacToe.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class GameController(IDatabase db) : ControllerBase
+    public class GameController(IDatabase db, IGameProxy gameProxy) : ControllerBase
     {
         private readonly IDatabase db = db;
+        private readonly IGameProxy gameProxy = gameProxy;
 
         [HttpPost("create")]
         public async Task<IActionResult> CreateGame([FromBody] CreateGameRequest request)
@@ -23,8 +24,9 @@ namespace Zlebuh.MinTacToe.API.Controllers
             }
             try
             {
-                (string gameId, string hostToken, string visitorToken) = await db.CreateGame(request.HostUserId);
-                return Ok(new GameResponse { HostToken = hostToken, VisitorToken = visitorToken });
+                var gameState = await gameProxy.CreateEmptySerializedGame();
+                (string gameId, string hostToken, string visitorToken) = await db.CreateGame(request.HostUserId, gameState);
+                return Ok(new GameResponse { GameId = gameId, HostToken = hostToken, VisitorToken = visitorToken });
             }
             catch (Exception ex)
             {
@@ -32,9 +34,8 @@ namespace Zlebuh.MinTacToe.API.Controllers
             }
         }
 
-        [HttpPost]
-        [Route("token")]
-        public async Task<IActionResult> IsTokenValidForAGame([FromQuery] TokenValidityRequest request)
+        [HttpPost("token")]        
+        public async Task<IActionResult> IsTokenValidForAGame([FromBody] TokenValidityRequest request)
         {
             if (string.IsNullOrWhiteSpace(request.GameId))
             {
@@ -56,7 +57,7 @@ namespace Zlebuh.MinTacToe.API.Controllers
 
             if (hostToken == request.Token)
             {
-                return Ok(new TokenValidityResponse { IsValid = hostUserId != request.UserId });
+                return Ok(new TokenValidityResponse { IsValid = hostUserId == request.UserId });
             }
             else if (visitorToken == request.Token)
             {
@@ -65,7 +66,7 @@ namespace Zlebuh.MinTacToe.API.Controllers
                     await db.SetVisitorUserId(request.GameId, request.UserId);
                     return Ok(new TokenValidityResponse { IsValid = true });
                 }
-                return Ok(new TokenValidityResponse { IsValid = visitorUserId != request.UserId });
+                return Ok(new TokenValidityResponse { IsValid = visitorUserId == request.UserId });
             }
             else
             {

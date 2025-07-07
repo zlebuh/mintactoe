@@ -46,11 +46,12 @@ namespace Zlebuh.MinTacToe.API.Controllers
                 return Unauthorized("Invalid token or user ID for the game.");
             }
 
-            string gameState = await db.GetLatestGameState(request.GameId);
-            (int errorCode, string message, string? newGameState) = await game.MakeAMove(gameState, request.Coordinate, player);
+            string gameState = await db.GetGameState(request.GameId);
+            var coordinate = new Coordinate(request.CoordinateRow, request.CoordinateCol);
+            (int errorCode, string message, string? newGameState) = await game.MakeAMove(gameState, coordinate, player);
             if (!string.IsNullOrEmpty(newGameState))
             {
-                db.AddGameState(request.GameId, newGameState);
+                await db.UpdateGameState(request.GameId, newGameState);
             }
 
             return Ok(new MakeMoveResponse

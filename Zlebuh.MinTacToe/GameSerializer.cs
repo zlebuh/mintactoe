@@ -1,15 +1,22 @@
 ﻿using System.Text;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using Zlebuh.MinTacToe.Model;
 
 namespace Zlebuh.MinTacToe
 {
     public static class GameSerializer
     {
+        private static readonly JsonSerializerOptions options = new();
+        static GameSerializer()
+        {
+            options.Converters.Add(new CoordinateKeyConverter());
+            options.Converters.Add(new NullablePlayerEnumConverter());
+        }
         public static async Task<string> SerializeGame(Game game)
         {
             using var memoryStream = new MemoryStream();
-            await JsonSerializer.SerializeAsync(memoryStream, game);
+            await JsonSerializer.SerializeAsync(memoryStream, game, options);
             memoryStream.Seek(0, SeekOrigin.Begin);
             using var reader = new StreamReader(memoryStream);
             string serializedGame = await reader.ReadToEndAsync();
@@ -19,8 +26,77 @@ namespace Zlebuh.MinTacToe
         public static async Task<Game> DeserializeGame(string serializedGame)
         {
             using var stream = new MemoryStream(Encoding.UTF8.GetBytes(serializedGame));
-            return await JsonSerializer.DeserializeAsync<Game>(stream)
+            return await JsonSerializer.DeserializeAsync<Game>(stream, options)
                    ?? throw new InvalidOperationException("Deserialization failed.");
+        }
+
+        private class NullablePlayerEnumConverter : JsonConverter<Player?>
+        {
+            public override Player? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+            {
+                if (reader.TokenType == JsonTokenType.Null)
+                {
+                    return null;
+                }
+                if (reader.TokenType != JsonTokenType.String)
+                {
+                    throw new JsonException();
+                }
+                string value = reader.GetString() ?? throw new JsonException();
+                return Enum.TryParse<Player>(value, out var player) ? player : throw new JsonException();
+            }
+            public override void Write(Utf8JsonWriter writer, Player? value, JsonSerializerOptions options)
+            {
+                if (value.HasValue)
+                {
+                    writer.WriteStringValue(value.Value.ToString());
+                }
+                else
+                {
+                    writer.WriteNullValue();
+                }
+            }
+        }
+
+        private class CoordinateKeyConverter : JsonConverter<Grid>
+        {
+            public override Grid? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+            {
+                var grid = new Grid();
+
+                if (reader.TokenType != JsonTokenType.StartObject)
+                {
+                    throw new JsonException();
+                }
+
+                while (reader.Read() && reader.TokenType != JsonTokenType.EndObject)
+                {
+                    var keyString = reader.GetString() ?? throw new JsonException();
+                    var parts = keyString.Split(",");
+                    var coordinate = new Coordinate(int.Parse(parts[0]), int.Parse(parts[1]));
+
+                    reader.Read();
+                    var field = JsonSerializer.Deserialize<Field>(ref reader, options)
+                        ?? throw new JsonException();
+                    grid[coordinate] = field;
+                }
+
+                return grid;
+            }
+
+            public override void Write(Utf8JsonWriter writer, Grid value, JsonSerializerOptions options)
+            {
+                writer.WriteStartObject();
+
+                foreach (var kvp in value)
+                {
+                    string key = $"{kvp.Key.Row},{kvp.Key.Col}";
+                    writer.WritePropertyName(key);
+                    JsonSerializer.Serialize(writer, kvp.Value, options);
+                }
+
+                writer.WriteEndObject();
+            }
         }
     }
 }
