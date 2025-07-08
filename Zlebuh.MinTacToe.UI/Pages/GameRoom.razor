@@ -1,0 +1,9 @@
+﻿@page "/{RoomId}"
+
+<h3>GameRoom</h3>
+<p>Id: @RoomId</p>
+
+@code {
+	[Parameter]
+	public string RoomId { get; set; } = string.Empty;
+}
