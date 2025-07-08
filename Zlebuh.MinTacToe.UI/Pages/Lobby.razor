@@ -1,7 +1,133 @@
 ﻿@page "/lobby"
+@using Zlebuh.MinTacToe.APIModel
+@using Zlebuh.MinTacToe.UI.Services
+
+@inject NavigationManager Navigation
+@inject IJSRuntime Js
+@inject HttpClient Http
+@inject ICookieService CookieService
 
 <h3>Lobby</h3>
 
-@code {
+@if (!showOnlineModal)
+{
+    <div class="lobby-options">
+        <button class="btn btn-primary" @onclick="StartLocalGame">Lokální hra</button>
+        <button class="btn btn-secondary" @onclick="ShowOnlineModal">Online hra</button>
+    </div>
+}
+else
+{
+    <div class="modal-backdrop fade show"></div>
+    <div class="modal show d-block" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Pozvánka k online hře</h5>
+                </div>
+                <div class="modal-body">
+                    <div class="invite-url-box">
+                        <span>@inviteUrl</span>
+                        <button class="btn btn-outline-secondary btn-sm ms-2" @onclick="CopyInviteUrl">Kopírovat</button>
+                    </div>
+                    @if (copySuccess != null)
+                    {
+                        <div class="text-success mt-2">@copySuccess</div>
+                    }
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-primary" @onclick="ContinueToOnlineGame">Pokračovat do hry</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
 
+@code {
+    private bool showOnlineModal = false;
+    private string inviteUrl = string.Empty;
+    private string copySuccess = string.Empty;
+
+    private string gameId = string.Empty;
+	private string hostToken = string.Empty;
+	private string visitorToken = string.Empty;
+
+	private string userId = string.Empty;
+
+    private void StartLocalGame()
+    {
+        Navigation.NavigateTo("/");
+    }
+
+    private const string UserIdCookieName = "userid";
+    private const int UserIdCookieExpirationDays = 30;
+
+    private async Task ShowOnlineModal()
+    {
+		await RefreshUserIdCookie();
+
+        var createGameRequest = new CreateGameRequest()
+        {
+			HostUserId = userId
+        };
+
+        var response = await Http.PostAsJsonAsync("api/game/create", createGameRequest);
+		if (response.IsSuccessStatusCode)
+		{
+			var createGameResponse = await response.Content.ReadFromJsonAsync<GameResponse>();
+			if (createGameResponse != null)
+			{
+				gameId = createGameResponse.GameId;
+				hostToken = createGameResponse.HostToken;
+				visitorToken = createGameResponse.VisitorToken;
+
+                inviteUrl = $"{Navigation.BaseUri.TrimEnd('/')}/game/{gameId}/{visitorToken}";
+                showOnlineModal = true;
+			}
+			else
+			{
+				throw new Exception("Failed to create game.");
+			}
+		}
+    }
+
+    private async Task RefreshUserIdCookie()
+    {
+        var userId = await CookieService.GetCookie(UserIdCookieName);
+        var userRequest = new UserRequest()
+            {
+                UserId = userId
+            };
+
+        var response = await Http.PostAsJsonAsync("api/user", userRequest);
+        if (response.IsSuccessStatusCode)
+        {
+            var userResponse = await response.Content.ReadFromJsonAsync<UserResponse>();
+            if (userResponse != null)
+            {
+                userId = userResponse.UserId;
+            }
+        }
+
+        await CookieService.SetCookie(UserIdCookieName, userId, UserIdCookieExpirationDays);
+        this.userId = userId;
+    }
+
+    private async Task CopyInviteUrl()
+    {
+        try
+        {
+            await Js.InvokeVoidAsync("navigator.clipboard.writeText", inviteUrl);
+            copySuccess = "Odkaz zkopírován!";
+        }
+        catch
+        {
+            copySuccess = "Nepodařilo se zkopírovat.";
+        }
+    }
+
+    private void ContinueToOnlineGame()
+    {
+        Navigation.NavigateTo($"/game/{gameId}/{hostToken}");
+    }
 }
