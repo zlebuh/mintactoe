@@ -1,47 +1,105 @@
-﻿@page "/{RoomId}"
+﻿@page "/game/{GameId}/{Token}"
+@using System.Text.Json
 @using Zlebuh.MinTacToe.APIModel
+@using Zlebuh.MinTacToe.UI.Services
 @inject HttpClient Http
-@inject IJSRuntime JS
+@inject ICookieService CookieService
+@inject ISupabaseRealtime SupabaseRealtime
+@implements IAsyncDisposable
+@implements ICanReactOnGameStateChange
 
 <h3>GameRoom</h3>
-<p>Id: @UserId</p>
+<p>Id: @userId</p>
 
 @code {
-	[Parameter]
-	public string RoomId { get; set; } = string.Empty;
-	public string UserId { get; set; } = string.Empty;
+    [Parameter]
+    public string GameId { get; set; } = string.Empty;
+    [Parameter]
+    public string Token { get; set; } = string.Empty;
 
-	protected override async Task OnInitializedAsync()
-	{
-		// get from cookies or send empty
-		var userId = await GetCookie("userid") ?? string.Empty;
-		var userRequest = new UserRequest()
+    private string userId = string.Empty;
+    private bool tokenIsValid = false;
+
+    private const string UserIdCookieName = "userid";
+    private const int UserIdCookieExpirationDays = 30;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        await RefreshUserIdCookie();
+        await CheckToken();
+        await ConnectToAGame();
+        await base.OnParametersSetAsync();
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        await SupabaseRealtime.StopRealtime(this);
+    }
+
+    private async Task RefreshUserIdCookie()
+    {
+        var userId = await CookieService.GetCookie(UserIdCookieName);
+        var userRequest = new UserRequest()
 		{
 			UserId = userId
 		};
 
-		var response = await Http.PostAsJsonAsync("api/user", userRequest);
+        var response = await Http.PostAsJsonAsync("api/user", userRequest);
+        if (response.IsSuccessStatusCode)
+        {
+            var userResponse = await response.Content.ReadFromJsonAsync<UserResponse>();
+            if (userResponse != null)
+            {
+                userId = userResponse.UserId;
+            }
+        }
+
+        await CookieService.SetCookie(UserIdCookieName, userId, UserIdCookieExpirationDays);
+        this.userId = userId;
+    }
+
+    private async Task ConnectToAGame()
+    {
+        await SupabaseRealtime.StartRealtime(GameId, this);
+    }
+
+    [JSInvokable]
+    public async Task OnGameStateChanged(string json)
+    {
+        using JsonDocument document = JsonDocument.Parse(json);
+        string gameState = document.RootElement.GetProperty("game_state").ToString() ?? string.Empty;
+        var g = await GameSerializer.DeserializeGame(gameState);
+        Console.WriteLine(g.GameState.PlayerOnTurn);
+        Console.WriteLine(g.GameState.Changes);
+    }
+
+    private async Task CheckToken()
+    {
+		var tokenValidityRequest = new TokenValidityRequest()
+		{
+			GameId = GameId,
+			Token = Token,
+			UserId = userId
+		};
+
+		var response = await Http.PostAsJsonAsync("api/game/token", tokenValidityRequest);
+
 		if (response.IsSuccessStatusCode)
 		{
-			var userResponse = await response.Content.ReadFromJsonAsync<UserResponse>();
-			if (userResponse != null)
+			var tokenValidityResponse = await response.Content.ReadFromJsonAsync<TokenValidityResponse>();
+			if (tokenValidityResponse != null && !tokenValidityResponse.IsValid)
 			{
-				userId = userResponse.UserId;
+				// Handle invalid token scenario
+				Console.WriteLine("Invalid token.");
+			}
+			else
+			{
+				tokenIsValid = true;
 			}
 		}
-
-		// re-set cookie
-		await SetCookie("userid", userId, 30);
-		UserId = userId;
-	}
-
-	private async Task<string?> GetCookie(string name)
-	{
-		return await JS.InvokeAsync<string>("getCookie", name);
-	}
-
-	private async Task SetCookie(string name, string value, int days)
-	{
-		await JS.InvokeVoidAsync("setCookie", name, value, days);
+		else
+		{
+			Console.WriteLine("Error checking token validity.");
+		}
 	}
 }
