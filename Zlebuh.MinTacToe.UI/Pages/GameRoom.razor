@@ -1,4 +1,6 @@
 ﻿@page "/{RoomId}"
+@using Zlebuh.MinTacToe.APIModel
+@inject HttpClient Http
 
 <h3>GameRoom</h3>
 <p>Id: @RoomId</p>
@@ -6,4 +8,27 @@
 @code {
 	[Parameter]
 	public string RoomId { get; set; } = string.Empty;
+
+	protected override async Task OnInitializedAsync()
+	{
+		// get from cookies or send empty
+		var userId = string.Empty;
+		var userRequest = new UserRequest()
+		{
+			UserId = userId
+		};
+
+		var response = await Http.PostAsJsonAsync("api/user", userRequest);
+		if (response.IsSuccessStatusCode)
+		{
+			var userResponse = await response.Content.ReadFromJsonAsync<UserResponse>();
+			if (userResponse != null)
+			{
+				userId = userResponse.UserId;
+			}
+		}
+
+		// re-set cookie
+		RoomId = userId;
+	}
 }

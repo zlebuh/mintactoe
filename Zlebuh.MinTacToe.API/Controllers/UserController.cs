@@ -1,5 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Zlebuh.MinTacToe.API.Model;
+using Zlebuh.MinTacToe.APIModel;
 using Zlebuh.MinTacToe.API.Services;
 
 namespace Zlebuh.MinTacToe.API.Controllers

@@ -10,13 +10,36 @@ builder.Services.AddOpenApi();
 builder.Services.Configure<SupabaseCredentials>(builder.Configuration.GetSection("Supabase"));
 builder.Services.AddScoped<IGameProxy, GameProxy>();
 builder.Services.AddScoped<IDatabase, SupabaseDatabase>();
+builder.Services.AddCors(options =>
+{
+    if (builder.Environment.IsDevelopment())
+    {
+        options.AddPolicy("AllowAllOrigins",
+            builder => builder.AllowAnyOrigin()
+                              .AllowAnyMethod()
+                              .AllowAnyHeader());
+    }
+    else
+    {
+        var allowedOrigin = builder.Configuration.GetValue<string>("AllowedOrigin")
+            ?? throw new Exception("No origin specified in environment data");
+        options.AddPolicy("AllowSpecificOrigins",
+            builder => builder.WithOrigins(allowedOrigin)
+                              .AllowAnyMethod()
+                              .AllowAnyHeader());
+    }
+});
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
+    app.UseCors("AllowAllOrigins");
+}
+else
+{
+    app.UseCors("AllowSpecificOrigins");
 }
 
 app.UseHttpsRedirection();

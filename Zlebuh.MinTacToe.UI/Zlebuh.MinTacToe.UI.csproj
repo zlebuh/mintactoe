@@ -12,10 +12,14 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Zlebuh.MinTacToe.APIModel\Zlebuh.MinTacToe.APIModel.csproj" />
     <ProjectReference Include="..\Zlebuh.MinTacToe\Zlebuh.MinTacToe.csproj" />
   </ItemGroup>
 
   <ItemGroup>
+    <Content Update="wwwroot\appsettings.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Update="wwwroot\_redirects">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

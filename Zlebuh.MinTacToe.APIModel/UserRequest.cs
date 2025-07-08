@@ -1,4 +1,4 @@
-﻿namespace Zlebuh.MinTacToe.API.Model
+﻿namespace Zlebuh.MinTacToe.APIModel
 {
     public class UserRequest
     {

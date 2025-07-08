@@ -1,6 +1,4 @@
-﻿using Zlebuh.MinTacToe.Model;
-
-namespace Zlebuh.MinTacToe.API.Model
+﻿namespace Zlebuh.MinTacToe.APIModel
 {
     public class MakeMoveRequest
     {
