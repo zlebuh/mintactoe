@@ -7,3 +7,10 @@
     }
     document.cookie = name + "=" + (value || "") + expires + "; path=/";
 }
+
+window.getCookie = (name) => {
+    let value = "; " + document.cookie;
+    let parts = value.split("; " + name + "=");
+    if (parts.length === 2) return parts.pop().split(";").shift();
+    return null;
+}

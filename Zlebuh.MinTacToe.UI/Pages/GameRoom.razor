@@ -1,18 +1,20 @@
 ﻿@page "/{RoomId}"
 @using Zlebuh.MinTacToe.APIModel
 @inject HttpClient Http
+@inject IJSRuntime JS
 
 <h3>GameRoom</h3>
-<p>Id: @RoomId</p>
+<p>Id: @UserId</p>
 
 @code {
 	[Parameter]
 	public string RoomId { get; set; } = string.Empty;
+	public string UserId { get; set; } = string.Empty;
 
 	protected override async Task OnInitializedAsync()
 	{
 		// get from cookies or send empty
-		var userId = string.Empty;
+		var userId = await GetCookie("userid") ?? string.Empty;
 		var userRequest = new UserRequest()
 		{
 			UserId = userId
@@ -29,6 +31,17 @@
 		}
 
 		// re-set cookie
-		RoomId = userId;
+		await SetCookie("userid", userId, 30);
+		UserId = userId;
+	}
+
+	private async Task<string?> GetCookie(string name)
+	{
+		return await JS.InvokeAsync<string>("getCookie", name);
+	}
+
+	private async Task SetCookie(string name, string value, int days)
+	{
+		await JS.InvokeVoidAsync("setCookie", name, value, days);
 	}
 }
