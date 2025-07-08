@@ -15,4 +15,10 @@
     <ProjectReference Include="..\Zlebuh.MinTacToe\Zlebuh.MinTacToe.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Content Update="wwwroot\_redirects">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
 </Project>
