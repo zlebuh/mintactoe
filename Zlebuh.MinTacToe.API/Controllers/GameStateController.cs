@@ -7,10 +7,26 @@ namespace Zlebuh.MinTacToe.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class GameStateController(IDatabase db, IGameProxy game) : ControllerBase
+    public class GameStateController(IDatabase db, IGameProxy game, ILogger<GameStateController> logger) : ControllerBase
     {
         private readonly IDatabase db = db;
         private readonly IGameProxy game = game;
+        private readonly ILogger<GameStateController> logger = logger;
+
+        [HttpGet("{gameId}")]
+        public async Task<IActionResult> GetGameState(string gameId)
+        {
+            if (string.IsNullOrWhiteSpace(gameId))
+            {
+                return BadRequest("Game ID is required.");
+            }
+            string gameState = await db.GetGameState(gameId);
+            if (string.IsNullOrEmpty(gameState))
+            {
+                return NotFound("Game not found or has no state.");
+            }
+            return Ok(new GameStateResponse { GameState = gameState, GameId = gameId });
+        }
 
         [HttpPost]
         public async Task<IActionResult> MakeMove([FromBody] MakeMoveRequest request)
@@ -45,9 +61,11 @@ namespace Zlebuh.MinTacToe.API.Controllers
             {
                 return Unauthorized("Invalid token or user ID for the game.");
             }
+            
 
             string gameState = await db.GetGameState(request.GameId);
             var coordinate = new Coordinate(request.CoordinateRow, request.CoordinateCol);
+            logger.LogInformation($"Making a move {player} -> [{coordinate.Row},{coordinate.Col}]");
             (int errorCode, string message, string? newGameState) = await game.MakeAMove(gameState, coordinate, player);
             if (!string.IsNullOrEmpty(newGameState))
             {

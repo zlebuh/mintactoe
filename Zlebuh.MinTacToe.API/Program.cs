@@ -10,6 +10,7 @@ builder.Services.AddOpenApi();
 builder.Services.Configure<SupabaseCredentials>(builder.Configuration.GetSection("Supabase"));
 builder.Services.AddScoped<IGameProxy, GameProxy>();
 builder.Services.AddScoped<IDatabase, SupabaseDatabase>();
+builder.Logging.AddConsole();
 builder.Services.AddCors(options =>
 {
     if (builder.Environment.IsDevelopment())
