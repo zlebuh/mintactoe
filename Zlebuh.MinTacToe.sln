@@ -11,7 +11,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Zlebuh.MinTacToe.AIPlayers"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Zlebuh.MinTacToe.UI", "Zlebuh.MinTacToe.UI\Zlebuh.MinTacToe.UI.csproj", "{82188E70-1406-4F72-952E-49DE795C4713}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Zlebuh.MinTacToe.Tests", "Zlebuh.MinTacToe.Tests\Zlebuh.MinTacToe.Tests.csproj", "{4BDB237D-B0F9-4310-AE41-50B0AF33D336}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Zlebuh.MinTacToe.GameEngine.Tests", "Zlebuh.MinTacToe.GameEngine.Tests\Zlebuh.MinTacToe.GameEngine.Tests.csproj", "{4BDB237D-B0F9-4310-AE41-50B0AF33D336}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Zlebuh.MinTacToe.API", "Zlebuh.MinTacToe.API\Zlebuh.MinTacToe.API.csproj", "{A1BAD26D-4525-48DE-A4F8-25BB0B7759A9}"
 EndProject
