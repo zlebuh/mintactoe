@@ -1,11 +1,12 @@
-﻿using Zlebuh.MinTacToe.GameEngine;
+﻿using NUnit.Framework;
 using Zlebuh.MinTacToe.GameEngine.Model;
 
-namespace Zlebuh.MinTacToe.Tests
+namespace Zlebuh.MinTacToe.GameEngine.Tests
 {
+    [TestFixture]
     public class GameIsOverCheckTests
     {
-        [Fact]
+        [Test]
         public void LastMissingPlacedInside()
         {
             Rules rules = new()
@@ -26,8 +27,8 @@ namespace Zlebuh.MinTacToe.Tests
             GameControl.MakeMove(game, Player.O, new(0, 4));
             GameControl.MakeMove(game, Player.X, new(4, 0));
             GameControl.MakeMove(game, Player.O, new(0, 3));
-            Assert.True(game.GameState.IsGameOver);
-            Assert.Equal(Player.O, game.GameState.Winner);
+            Assert.That(game.GameState.IsGameOver, Is.True);
+            Assert.That(game.GameState.Winner, Is.EqualTo(Player.O));
         }
     }
 }

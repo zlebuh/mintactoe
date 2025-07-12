@@ -1,11 +1,12 @@
-﻿using Zlebuh.MinTacToe.GameEngine;
+﻿using NUnit.Framework;
 using Zlebuh.MinTacToe.GameEngine.Model;
 
-namespace Zlebuh.MinTacToe.Tests
+namespace Zlebuh.MinTacToe.GameEngine.Tests
 {
+    [TestFixture]
     public class GameSerializerTests
     {
-        [Fact]
+        [Test]
         public async Task SerializeAndDeserializeGame()
         {
             Rules rules = new()
@@ -30,29 +31,31 @@ namespace Zlebuh.MinTacToe.Tests
             GameControl.MakeMove(game, Player.O, new(2, 2));
             string serializedGame = await GameSerializer.SerializeGame(game);
             Game deserializedGame = await GameSerializer.DeserializeGame(serializedGame);
-            Assert.Equal(game.Rules.Columns, deserializedGame.Rules.Columns);
-            Assert.Equal(game.Rules.Rows, deserializedGame.Rules.Rows);
-            Assert.Equal(game.Rules.SeriesLength, deserializedGame.Rules.SeriesLength);
-            Assert.Equal(game.GameState.IsGameOver, deserializedGame.GameState.IsGameOver);
-            Assert.Equal(game.GameState.Winner, deserializedGame.GameState.Winner);
-            Assert.Equal(game.GameState.PlayerOnTurn, deserializedGame.GameState.PlayerOnTurn);
-            Assert.Equal(game.GameState.MovesPlayed, deserializedGame.GameState.MovesPlayed);
-            Assert.Equal(game.GameState.Changes.Count, deserializedGame.GameState.Changes.Count);
+
+            Assert.That(deserializedGame.Rules.Columns, Is.EqualTo(game.Rules.Columns));
+            Assert.That(deserializedGame.Rules.Rows, Is.EqualTo(game.Rules.Rows));
+            Assert.That(deserializedGame.Rules.SeriesLength, Is.EqualTo(game.Rules.SeriesLength));
+            Assert.That(deserializedGame.GameState.IsGameOver, Is.EqualTo(game.GameState.IsGameOver));
+            Assert.That(deserializedGame.GameState.Winner, Is.EqualTo(game.GameState.Winner));
+            Assert.That(deserializedGame.GameState.PlayerOnTurn, Is.EqualTo(game.GameState.PlayerOnTurn));
+            Assert.That(deserializedGame.GameState.MovesPlayed, Is.EqualTo(game.GameState.MovesPlayed));
+            Assert.That(deserializedGame.GameState.Changes.Count, Is.EqualTo(game.GameState.Changes.Count));
+
             for (int i = 0; i < game.GameState.Changes.Count; i++)
             {
-                Assert.Equal(game.GameState.Changes[i].Col, deserializedGame.GameState.Changes[i].Col);
-                Assert.Equal(game.GameState.Changes[i].Row, deserializedGame.GameState.Changes[i].Row);
+                Assert.That(deserializedGame.GameState.Changes[i].Col, Is.EqualTo(game.GameState.Changes[i].Col));
+                Assert.That(deserializedGame.GameState.Changes[i].Row, Is.EqualTo(game.GameState.Changes[i].Row));
             }
             for (int i = 0; i < game.Rules.Rows; i++)
             {
                 for (int j = 0; j < game.Rules.Columns; j++)
                 {
                     Coordinate c = new(i, j);
-                    Assert.Equal(game.GameState.Grid[c].Player, deserializedGame.GameState.Grid[c].Player);
-                    Assert.Equal(game.GameState.Grid[c].Generated, deserializedGame.GameState.Grid[c].Generated);
-                    Assert.Equal(game.GameState.Grid[c].IsMine, deserializedGame.GameState.Grid[c].IsMine);
-                    Assert.Equal(game.GameState.Grid[c].SurroundedByNotExplodedMines, deserializedGame.GameState.Grid[c].SurroundedByNotExplodedMines);
-                    Assert.Equal(game.GameState.Grid[c].HasAllNeighboursGenerated, deserializedGame.GameState.Grid[c].HasAllNeighboursGenerated);
+                    Assert.That(deserializedGame.GameState.Grid[c].Player, Is.EqualTo(game.GameState.Grid[c].Player));
+                    Assert.That(deserializedGame.GameState.Grid[c].Generated, Is.EqualTo(game.GameState.Grid[c].Generated));
+                    Assert.That(deserializedGame.GameState.Grid[c].IsMine, Is.EqualTo(game.GameState.Grid[c].IsMine));
+                    Assert.That(deserializedGame.GameState.Grid[c].SurroundedByNotExplodedMines, Is.EqualTo(game.GameState.Grid[c].SurroundedByNotExplodedMines));
+                    Assert.That(deserializedGame.GameState.Grid[c].HasAllNeighboursGenerated, Is.EqualTo(game.GameState.Grid[c].HasAllNeighboursGenerated));
                 }
             }
         }

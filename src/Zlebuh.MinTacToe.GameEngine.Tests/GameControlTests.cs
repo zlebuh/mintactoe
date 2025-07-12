@@ -1,39 +1,41 @@
-﻿using Zlebuh.MinTacToe.GameEngine;
+﻿using NUnit.Framework;
 using Zlebuh.MinTacToe.GameEngine.Exceptions;
 using Zlebuh.MinTacToe.GameEngine.Model;
 
-namespace Zlebuh.MinTacToe.Tests
+namespace Zlebuh.MinTacToe.GameEngine.Tests
 {
+    [TestFixture]
+
     public class GameControlTests
     {
-        [Fact]
+        [Test]
         public void GameInitialization()
         {
             Game game = GameControl.Initialize(new());
-            Assert.Equal(0, game.GameState.MovesPlayed);
-            Assert.Equal(Player.O, game.GameState.PlayerOnTurn);
+            Assert.That(game.GameState.MovesPlayed, Is.EqualTo(0));
+            Assert.That(game.GameState.PlayerOnTurn, Is.EqualTo(Player.O));
             for (int i = 0; i < game.Rules.Rows; i++)
             {
                 for (int j = 0; j < game.Rules.Columns; j++)
                 {
                     Field f = game.GameState.Grid[new(i, j)];
-                    Assert.Null(f.Player);
+                    Assert.That(f.Player, Is.Null);
                 }
             }
         }
 
-        [Fact]
+        [Test]
         public void CoordinateTests()
         {
             Game game = GameControl.Initialize(new());
-            Assert.True(new Coordinate(10, 10).IsOnGrid(game));
-            Assert.True(new Coordinate(0, 0).IsOnGrid(game));
-            Assert.True(new Coordinate(5, 15).IsOnGrid(game));            
-            Assert.False(new Coordinate(game.Rules.Rows, game.Rules.Columns).IsOnGrid(game));
-            Assert.False(new Coordinate(-1, -1).IsOnGrid(game));            
+            Assert.That(new Coordinate(10, 10).IsOnGrid(game), Is.True);
+            Assert.That(new Coordinate(0, 0).IsOnGrid(game), Is.True);
+            Assert.That(new Coordinate(5, 15).IsOnGrid(game), Is.True);
+            Assert.That(new Coordinate(game.Rules.Rows, game.Rules.Columns).IsOnGrid(game), Is.False);
+            Assert.That(new Coordinate(-1, -1).IsOnGrid(game), Is.False);
         }
 
-        [Fact]
+        [Test]
         public void PlacingAMove()
         {
             Game game = GameControl.Initialize(new()
@@ -42,28 +44,28 @@ namespace Zlebuh.MinTacToe.Tests
             });
             Coordinate coordinate = new(0, 0);
             GameControl.MakeMove(game, Player.O, coordinate);
-            Assert.Equal(Player.X, game.GameState.PlayerOnTurn);
-            Assert.Equal(coordinate, Assert.Single(game.GameState.Changes));
+            Assert.That(game.GameState.PlayerOnTurn, Is.EqualTo(Player.X));
+            Assert.That(game.GameState.Changes.Single(), Is.EqualTo(coordinate));
             Field f = game.GameState.Grid[coordinate];
-            Assert.True(f.Player.HasValue);
-            Assert.Equal(Player.O, f.Player.Value);
+            Assert.That(f.Player.HasValue, Is.True);
+            Assert.That(f.Player!.Value, Is.EqualTo(Player.O));
             coordinate = new(1, 0);
             GameControl.MakeMove(game, Player.X, coordinate);
-            Assert.Equal(Player.O, game.GameState.PlayerOnTurn);
-            Assert.Equal(coordinate, Assert.Single(game.GameState.Changes));
+            Assert.That(game.GameState.PlayerOnTurn, Is.EqualTo(Player.O));
+            Assert.That(game.GameState.Changes.Single(), Is.EqualTo(coordinate));
             f = game.GameState.Grid[coordinate];
-            Assert.True(f.Player.HasValue);
-            Assert.Equal(Player.X, f.Player.Value);
+            Assert.That(f.Player.HasValue, Is.True);
+            Assert.That(f.Player!.Value, Is.EqualTo(Player.X));
         }
 
-        [Fact]
+        [Test]
         public void PlacingAMoveThatCauseMineExplosion_PutsGameToCorrectState()
         {
             Game game = GameControl.Initialize(new()
             {
-                MineProbability = 0,                
+                MineProbability = 0,
             });
-            
+
             GameControl.MakeMove(game, Player.O, new(0, 0));
             GameControl.MakeMove(game, Player.X, new(0, 1));
             GameControl.MakeMove(game, Player.O, new(0, 2));
@@ -72,16 +74,19 @@ namespace Zlebuh.MinTacToe.Tests
             GameControl.MakeMove(game, Player.X, new(2, 0));
             GameControl.MakeMove(game, Player.O, new(2, 1));
             GameControl.MakeMove(game, Player.X, new(2, 2));
-            
+
             // mock
             game.GameState.Grid[new(1, 1)].IsMine = true; // place a mine in the middle
             for (int i = 0; i <= 2; i++)
             {
                 for (int j = 0; j <= 2; j++)
                 {
-                    if (i == 1 && j == 1) continue; // skip the mine
+                    if (i == 1 && j == 1)
+                    {
+                        continue; // skip the mine
+                    }
                     // all fields are surrounded by one not exploded mines
-                    game.GameState.Grid[new(i, j)].SurroundedByNotExplodedMines += 1; 
+                    game.GameState.Grid[new(i, j)].SurroundedByNotExplodedMines += 1;
                 }
             }
             // end of mock
@@ -90,41 +95,41 @@ namespace Zlebuh.MinTacToe.Tests
             // OMX
             // XOX
             GameControl.MakeMove(game, Player.O, new(1, 1));
-            
+
             // -X-
             // -MX
             // X-X
 
-            Assert.Equal(9, game.GameState.Changes.Count); 
+            Assert.That(game.GameState.Changes.Count, Is.EqualTo(9));
             // 8 fields changed because it is not surrounded by mine anymore
 
             Assert.Multiple(() =>
             {
-                Assert.True(game.GameState.Grid[new(1, 1)].IsMine);
-                Assert.True(game.GameState.Grid[new(1, 1)].Player.HasValue);
-                Assert.Equal(Player.O, game.GameState.Grid[new(1, 1)].Player);
+                Assert.That(game.GameState.Grid[new(1, 1)].IsMine, Is.True);
+                Assert.That(game.GameState.Grid[new(1, 1)].Player.HasValue, Is.True);
+                Assert.That(game.GameState.Grid[new(1, 1)].Player, Is.EqualTo(Player.O));
 
-                Assert.Equal(0, game.GameState.Grid[new(0, 0)].SurroundedByNotExplodedMines);
-                Assert.Null(game.GameState.Grid[new(0, 0)].Player);
-                Assert.Equal(0, game.GameState.Grid[new(0, 1)].SurroundedByNotExplodedMines);
-                Assert.Equal(Player.X, game.GameState.Grid[new(0, 1)].Player);
-                Assert.Equal(0, game.GameState.Grid[new(0, 2)].SurroundedByNotExplodedMines);
-                Assert.Null(game.GameState.Grid[new(0, 2)].Player);
-                Assert.Equal(0, game.GameState.Grid[new(1, 0)].SurroundedByNotExplodedMines);
-                Assert.Null(game.GameState.Grid[new(1, 0)].Player);
-                Assert.Equal(0, game.GameState.Grid[new(1, 2)].SurroundedByNotExplodedMines);
-                Assert.Equal(Player.X, game.GameState.Grid[new(1, 2)].Player);
-                Assert.Equal(0, game.GameState.Grid[new(2, 0)].SurroundedByNotExplodedMines);
-                Assert.Equal(Player.X, game.GameState.Grid[new(2, 0)].Player);
-                Assert.Equal(0, game.GameState.Grid[new(2, 1)].SurroundedByNotExplodedMines);
-                Assert.Null(game.GameState.Grid[new(2, 1)].Player);
-                Assert.Equal(0, game.GameState.Grid[new(2, 2)].SurroundedByNotExplodedMines);
-                Assert.Equal(Player.X, game.GameState.Grid[new(2, 2)].Player);                
+                Assert.That(game.GameState.Grid[new(0, 0)].SurroundedByNotExplodedMines, Is.EqualTo(0));
+                Assert.That(game.GameState.Grid[new(0, 0)].Player, Is.Null);
+                Assert.That(game.GameState.Grid[new(0, 1)].SurroundedByNotExplodedMines, Is.EqualTo(0));
+                Assert.That(game.GameState.Grid[new(0, 1)].Player, Is.EqualTo(Player.X));
+                Assert.That(game.GameState.Grid[new(0, 2)].SurroundedByNotExplodedMines, Is.EqualTo(0));
+                Assert.That(game.GameState.Grid[new(0, 2)].Player, Is.Null);
+                Assert.That(game.GameState.Grid[new(1, 0)].SurroundedByNotExplodedMines, Is.EqualTo(0));
+                Assert.That(game.GameState.Grid[new(1, 0)].Player, Is.Null);
+                Assert.That(game.GameState.Grid[new(1, 2)].SurroundedByNotExplodedMines, Is.EqualTo(0));
+                Assert.That(game.GameState.Grid[new(1, 2)].Player, Is.EqualTo(Player.X));
+                Assert.That(game.GameState.Grid[new(2, 0)].SurroundedByNotExplodedMines, Is.EqualTo(0));
+                Assert.That(game.GameState.Grid[new(2, 0)].Player, Is.EqualTo(Player.X));
+                Assert.That(game.GameState.Grid[new(2, 1)].SurroundedByNotExplodedMines, Is.EqualTo(0));
+                Assert.That(game.GameState.Grid[new(2, 1)].Player, Is.Null);
+                Assert.That(game.GameState.Grid[new(2, 2)].SurroundedByNotExplodedMines, Is.EqualTo(0));
+                Assert.That(game.GameState.Grid[new(2, 2)].Player, Is.EqualTo(Player.X));
             });
-            
+
         }
 
-        [Fact]
+        [Test]
         public void PlacingAMove_ThrowsOutOfGridException()
         {
             Game game = GameControl.Initialize(new());
@@ -135,7 +140,7 @@ namespace Zlebuh.MinTacToe.Tests
             });
         }
 
-        [Fact]
+        [Test]
         public void PlacingAMove_ThrowsNotOnTurnException()
         {
             Game game = GameControl.Initialize(new());
@@ -146,7 +151,7 @@ namespace Zlebuh.MinTacToe.Tests
             });
         }
 
-        [Fact]
+        [Test]
         public void PlacingAMove_ThrowsOccupiedException()
         {
             Game game = GameControl.Initialize(new());
@@ -158,7 +163,7 @@ namespace Zlebuh.MinTacToe.Tests
             });
         }
 
-        [Fact]
+        [Test]
         public void GamePlayed_OWins()
         {
             Game game = GameControl.Initialize(new()
@@ -174,12 +179,13 @@ namespace Zlebuh.MinTacToe.Tests
             GameControl.MakeMove(game, Player.O, new(0, 1));
             GameControl.MakeMove(game, Player.X, new(1, 1));
             GameControl.MakeMove(game, Player.O, new(0, 2));
-            Assert.True(game.GameState.IsGameOver);
-            Assert.True(game.GameState.Winner.HasValue);
-            Assert.Equal(Player.O, game.GameState.Winner);
-            Assert.False(game.GameState.PlayerOnTurn.HasValue);
+            Assert.That(game.GameState.IsGameOver, Is.True);
+            Assert.That(game.GameState.Winner.HasValue, Is.True);
+            Assert.That(game.GameState.Winner, Is.EqualTo(Player.O));
+            Assert.That(game.GameState.PlayerOnTurn.HasValue, Is.False);
         }
-        [Fact]
+
+        [Test]
         public void GamePlayed_XWinsDiagonally()
         {
             Game game = GameControl.Initialize(new()
@@ -198,13 +204,13 @@ namespace Zlebuh.MinTacToe.Tests
             GameControl.MakeMove(game, Player.O, new(0, 10));
             GameControl.MakeMove(game, Player.X, new(14, 14));
 
-            Assert.True(game.GameState.IsGameOver);
-            Assert.True(game.GameState.Winner.HasValue);
-            Assert.Equal(Player.X, game.GameState.Winner);
-            Assert.False(game.GameState.PlayerOnTurn.HasValue);
+            Assert.That(game.GameState.IsGameOver, Is.True);
+            Assert.That(game.GameState.Winner.HasValue, Is.True);
+            Assert.That(game.GameState.Winner, Is.EqualTo(Player.X));
+            Assert.That(game.GameState.PlayerOnTurn.HasValue, Is.False);
         }
 
-        [Fact]
+        [Test]
         public void SurroundingMinesChanges()
         {
             Game game = GameControl.Initialize(new()
@@ -216,9 +222,9 @@ namespace Zlebuh.MinTacToe.Tests
             Coordinate coorO = new(10, 10);
             GameControl.MakeMove(game, Player.O, coorO);
             Field fO = game.GameState.Grid[coorO];
-            Assert.False(fO.IsMine);
-            Assert.Equal(8, fO.SurroundedByNotExplodedMines);
-            
+            Assert.That(fO.IsMine, Is.False);
+            Assert.That(fO.SurroundedByNotExplodedMines, Is.EqualTo(8));
+
             //  90123
             //9 BBB..
             //0 BOB..
@@ -229,9 +235,9 @@ namespace Zlebuh.MinTacToe.Tests
             Coordinate coorX = new(12, 12);
             GameControl.MakeMove(game, Player.X, coorX);
             Field fX = game.GameState.Grid[coorX];
-            Assert.False(fX.IsMine);
-            Assert.Equal(8, fX.SurroundedByNotExplodedMines);
-            
+            Assert.That(fX.IsMine, Is.False);
+            Assert.That(fX.SurroundedByNotExplodedMines, Is.EqualTo(8));
+
             //  90123
             //9 BBB..
             //0 BOB..
@@ -241,7 +247,7 @@ namespace Zlebuh.MinTacToe.Tests
 
             Coordinate coorO2 = new(11, 11);
             GameControl.MakeMove(game, Player.O, coorO2);
-            
+
             //  90123
             //9 BBB..
             //0 B.BB.
@@ -250,15 +256,15 @@ namespace Zlebuh.MinTacToe.Tests
             //3 ..BBB
 
             Field f02 = game.GameState.Grid[coorO2];
-            Assert.True(f02.IsMine);
-            Assert.True(f02.Player.HasValue);
-            Assert.Equal(Player.O, f02.Player);
-            Assert.Equal(6, f02.SurroundedByNotExplodedMines);
-            Assert.Equal(7, fO.SurroundedByNotExplodedMines);
-            Assert.Equal(7, fX.SurroundedByNotExplodedMines);
+            Assert.That(f02.IsMine, Is.True);
+            Assert.That(f02.Player.HasValue, Is.True);
+            Assert.That(f02.Player, Is.EqualTo(Player.O));
+            Assert.That(f02.SurroundedByNotExplodedMines, Is.EqualTo(6));
+            Assert.That(fO.SurroundedByNotExplodedMines, Is.EqualTo(7));
+            Assert.That(fX.SurroundedByNotExplodedMines, Is.EqualTo(7));
         }
 
-        [Fact]
+        [Test]
         public void PlacingAMove_ThrowsGameIsOverException()
         {
             Game game = GameControl.Initialize(new()
@@ -275,7 +281,8 @@ namespace Zlebuh.MinTacToe.Tests
                 GameControl.MakeMove(game, Player.X, new(1, 1));
             });
         }
-        [Fact]
+
+        [Test]
         public void GamePlayed_Tie()
         {
             Game game = GameControl.Initialize(new()
@@ -300,12 +307,12 @@ namespace Zlebuh.MinTacToe.Tests
             // XXO
             // OXO
 
-            Assert.True(game.GameState.IsGameOver);
-            Assert.False(game.GameState.Winner.HasValue);
-            Assert.False(game.GameState.PlayerOnTurn.HasValue);
+            Assert.That(game.GameState.IsGameOver, Is.True);
+            Assert.That(game.GameState.Winner.HasValue, Is.False);
+            Assert.That(game.GameState.PlayerOnTurn.HasValue, Is.False);
         }
 
-        [Fact]
+        [Test]
         public void GamePlayed_WithBomb_Tie()
         {
             Game game = GameControl.Initialize(new()
@@ -330,12 +337,12 @@ namespace Zlebuh.MinTacToe.Tests
             // OXX
             // OOX
 
-            Assert.True(game.GameState.IsGameOver);
-            Assert.False(game.GameState.Winner.HasValue);
-            Assert.False(game.GameState.PlayerOnTurn.HasValue);
+            Assert.That(game.GameState.IsGameOver, Is.True);
+            Assert.That(game.GameState.Winner.HasValue, Is.False);
+            Assert.That(game.GameState.PlayerOnTurn.HasValue, Is.False);
         }
 
-        [Fact]
+        [Test]
         public void GamePlayed_WithExplodedBomb_Tie()
         {
             Game game = GameControl.Initialize(new()
@@ -352,18 +359,18 @@ namespace Zlebuh.MinTacToe.Tests
             GameControl.MakeMove(game, Player.O, new(0, 0));
             // bomb erases O from [1, 0]
             Field f = game.GameState.Grid[new(0, 0)];
-            Assert.True(f.IsMine);
-            Assert.True(f.Player.HasValue);
-            Assert.Equal(Player.O, f.Player.Value);
+            Assert.That(f.IsMine, Is.True);
+            Assert.That(f.Player.HasValue, Is.True);
+            Assert.That(f.Player!.Value, Is.EqualTo(Player.O));
             Field erased = game.GameState.Grid[new(1, 0)];
-            Assert.False(erased.IsMine);
-            Assert.False(erased.Player.HasValue);
+            Assert.That(erased.IsMine, Is.False);
+            Assert.That(erased.Player.HasValue, Is.False);
 
             GameControl.MakeMove(game, Player.X, new(1, 1));
             GameControl.MakeMove(game, Player.O, new(2, 1));
             GameControl.MakeMove(game, Player.X, new(1, 0)); // overlay
-            Assert.True(erased.Player.HasValue);
-            Assert.Equal(Player.X, erased.Player.Value);
+            Assert.That(erased.Player.HasValue, Is.True);
+            Assert.That(erased.Player!.Value, Is.EqualTo(Player.X));
             GameControl.MakeMove(game, Player.O, new(1, 2));
             GameControl.MakeMove(game, Player.X, new(2, 0));
             GameControl.MakeMove(game, Player.O, new(0, 2));
@@ -373,12 +380,12 @@ namespace Zlebuh.MinTacToe.Tests
             // XXO
             // XOX
 
-            Assert.True(game.GameState.IsGameOver);
-            Assert.False(game.GameState.Winner.HasValue);
-            Assert.False(game.GameState.PlayerOnTurn.HasValue);
+            Assert.That(game.GameState.IsGameOver, Is.True);
+            Assert.That(game.GameState.Winner.HasValue, Is.False);
+            Assert.That(game.GameState.PlayerOnTurn.HasValue, Is.False);
         }
 
-        [Fact]
+        [Test]
         public void Mines_NoMineMovesTest()
         {
             Game game = GameControl.Initialize(new()
@@ -388,16 +395,16 @@ namespace Zlebuh.MinTacToe.Tests
             });
 
             GameControl.MakeMove(game, Player.O, new(10, 10));
-            Assert.False(game.GameState.Grid[new(10, 10)].IsMine);
+            Assert.That(game.GameState.Grid[new(10, 10)].IsMine, Is.False);
             GameControl.MakeMove(game, Player.X, new(5, 5));
-            Assert.False(game.GameState.Grid[new(5, 5)].IsMine);
+            Assert.That(game.GameState.Grid[new(5, 5)].IsMine, Is.False);
             GameControl.MakeMove(game, Player.O, new(11, 10));
-            Assert.True(game.GameState.Grid[new(11, 10)].IsMine);
+            Assert.That(game.GameState.Grid[new(11, 10)].IsMine, Is.True);
             GameControl.MakeMove(game, Player.X, new(0, 0));
-            Assert.True(game.GameState.Grid[new(0, 0)].IsMine);
+            Assert.That(game.GameState.Grid[new(0, 0)].IsMine, Is.True);
         }
 
-        [Fact]
+        [Test]
         public void BombExplodedWithNoSurroundings()
         {
             Game game = GameControl.Initialize(new()
@@ -414,17 +421,16 @@ namespace Zlebuh.MinTacToe.Tests
             Field f1313 = game.GameState.Grid[new(13, 13)];
             Field f1212 = game.GameState.Grid[new(12, 12)];
 
-            Assert.True(f1010.Player.HasValue);
-            Assert.Equal(Player.O, f1010.Player.Value);
-            Assert.True(f1212.IsMine);
-            Assert.True(f1212.Player.HasValue);
-            Assert.Equal(Player.O, f1212.Player.Value);
-            Assert.True(f1313.Player.HasValue);
-            Assert.Equal(Player.X, f1313.Player.Value);
-
+            Assert.That(f1010.Player.HasValue, Is.True);
+            Assert.That(f1010.Player!.Value, Is.EqualTo(Player.O));
+            Assert.That(f1212.IsMine, Is.True);
+            Assert.That(f1212.Player.HasValue, Is.True);
+            Assert.That(f1212.Player!.Value, Is.EqualTo(Player.O));
+            Assert.That(f1313.Player.HasValue, Is.True);
+            Assert.That(f1313.Player!.Value, Is.EqualTo(Player.X));
         }
 
-        [Fact]
+        [Test]
         public void BombExplodedAndErases()
         {
             Game game = GameControl.Initialize(new()
@@ -440,12 +446,12 @@ namespace Zlebuh.MinTacToe.Tests
             GameControl.MakeMove(game, Player.O, new(10, 10));
             GameControl.MakeMove(game, Player.X, new(12, 12));
             GameControl.MakeMove(game, Player.O, new(11, 11));
-            Assert.False(f1010.Player.HasValue);
-            Assert.True(f1111.IsMine);
-            Assert.True(f1111.Player.HasValue);
-            Assert.Equal(Player.O, f1111.Player.Value);
-            Assert.True(f1212.Player.HasValue);
-            Assert.Equal(Player.X, f1212.Player.Value);
+            Assert.That(f1010.Player.HasValue, Is.False);
+            Assert.That(f1111.IsMine, Is.True);
+            Assert.That(f1111.Player.HasValue, Is.True);
+            Assert.That(f1111.Player!.Value, Is.EqualTo(Player.O));
+            Assert.That(f1212.Player.HasValue, Is.True);
+            Assert.That(f1212.Player!.Value, Is.EqualTo(Player.X));
             GameControl.MakeMove(game, Player.X, new(10, 10));
         }
     }
