@@ -1,4 +1,5 @@
 ﻿using Zlebuh.MinTacToe.GameEngine.Exceptions;
+using Zlebuh.MinTacToe.GameEngine.ModelExtensions;
 using Zlebuh.MinTacToe.GameModel;
 
 namespace Zlebuh.MinTacToe.GameEngine
@@ -74,7 +75,7 @@ namespace Zlebuh.MinTacToe.GameEngine
 
             if (!field.HasAllNeighboursGenerated)
             {
-                foreach (Coordinate neighbourCoordinate in coordinate.Neighbours.Values)
+                foreach (Coordinate neighbourCoordinate in coordinate.AllNeighbors().Values)
                 {
                     if (!neighbourCoordinate.IsOnGrid(game))
                     {
@@ -165,7 +166,7 @@ namespace Zlebuh.MinTacToe.GameEngine
             {
                 { 0, 1 }, { 1, 1 }, { 2, 1 }, { 3, 1 }
             };
-            foreach (KeyValuePair<Direction, Coordinate> kvp in coordinate.Neighbours)
+            foreach (KeyValuePair<Direction, Coordinate> kvp in coordinate.AllNeighbors())
             {
                 Direction direction = kvp.Key;
                 (int r, int c) = (kvp.Value.Row - coordinate.Row, kvp.Value.Col - coordinate.Col);
