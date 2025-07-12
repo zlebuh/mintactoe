@@ -5,10 +5,6 @@ VisualStudioVersion = 17.7.34221.43
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Zlebuh.MinTacToe.GameEngine", "Zlebuh.MinTacToe.GameEngine\Zlebuh.MinTacToe.GameEngine.csproj", "{4FDEDE6C-1204-4C09-B19E-0EED82A706B9}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Zlebuh.MinTacToe.ConsoleApp", "Zlebuh.MinTacToe.ConsoleApp\Zlebuh.MinTacToe.ConsoleApp.csproj", "{BB115BB5-3A38-40D9-8DE7-86584F54A33B}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Zlebuh.MinTacToe.AIPlayers", "Zlebuh.MinTacToe.AIPlayers\Zlebuh.MinTacToe.AIPlayers.csproj", "{6DA11E4B-4D51-4379-BDCF-D859999F6271}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Zlebuh.MinTacToe.UI", "Zlebuh.MinTacToe.UI\Zlebuh.MinTacToe.UI.csproj", "{82188E70-1406-4F72-952E-49DE795C4713}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Zlebuh.MinTacToe.GameEngine.Tests", "Zlebuh.MinTacToe.GameEngine.Tests\Zlebuh.MinTacToe.GameEngine.Tests.csproj", "{4BDB237D-B0F9-4310-AE41-50B0AF33D336}"
@@ -27,14 +23,6 @@ Global
 		{4FDEDE6C-1204-4C09-B19E-0EED82A706B9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4FDEDE6C-1204-4C09-B19E-0EED82A706B9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4FDEDE6C-1204-4C09-B19E-0EED82A706B9}.Release|Any CPU.Build.0 = Release|Any CPU
-		{BB115BB5-3A38-40D9-8DE7-86584F54A33B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{BB115BB5-3A38-40D9-8DE7-86584F54A33B}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{BB115BB5-3A38-40D9-8DE7-86584F54A33B}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{BB115BB5-3A38-40D9-8DE7-86584F54A33B}.Release|Any CPU.Build.0 = Release|Any CPU
-		{6DA11E4B-4D51-4379-BDCF-D859999F6271}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{6DA11E4B-4D51-4379-BDCF-D859999F6271}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{6DA11E4B-4D51-4379-BDCF-D859999F6271}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{6DA11E4B-4D51-4379-BDCF-D859999F6271}.Release|Any CPU.Build.0 = Release|Any CPU
 		{82188E70-1406-4F72-952E-49DE795C4713}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{82188E70-1406-4F72-952E-49DE795C4713}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{82188E70-1406-4F72-952E-49DE795C4713}.Release|Any CPU.ActiveCfg = Release|Any CPU
