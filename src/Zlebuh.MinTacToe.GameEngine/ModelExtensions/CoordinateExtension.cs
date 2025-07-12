@@ -2,7 +2,7 @@
 
 namespace Zlebuh.MinTacToe.GameEngine.ModelExtensions
 {
-    public enum Direction
+    internal enum Direction
     {
         Up = 0,
         Left = 1,
@@ -14,7 +14,7 @@ namespace Zlebuh.MinTacToe.GameEngine.ModelExtensions
         DownLeft = 7
     }
 
-    public static class CoordinateExtension
+    internal static class CoordinateExtension
     {
         public static Dictionary<Direction, Coordinate> AllNeighbors(this Coordinate coordinate)
         {
