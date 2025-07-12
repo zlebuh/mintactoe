@@ -9,7 +9,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Zlebuh.MinTacToe.AIPlayers\Zlebuh.MinTacToe.AIPlayers.csproj" />
-    <ProjectReference Include="..\Zlebuh.MinTacToe\Zlebuh.MinTacToe.GameEngine.csproj" />
+    <ProjectReference Include="..\Zlebuh.MinTacToe.GameEngine\Zlebuh.MinTacToe.GameEngine.csproj" />
   </ItemGroup>
 
   <ItemGroup>
