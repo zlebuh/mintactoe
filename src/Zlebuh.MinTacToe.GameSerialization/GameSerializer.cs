@@ -5,13 +5,31 @@ using Zlebuh.MinTacToe.GameModel;
 
 namespace Zlebuh.MinTacToe.GameSerialization
 {
+    public interface ISerializer
+    {
+        Task<string> SerializeGame(Game game);
+        Task<Game> DeserializeGame(string serializedGame);
+    }
+
+    public class Serializer : ISerializer
+    {
+        public Task<Game> DeserializeGame(string serializedGame)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<string> SerializeGame(Game game)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
     public static class GameSerializer
     {
         private static readonly JsonSerializerOptions options = new();
         static GameSerializer()
         {
             options.Converters.Add(new CoordinateKeyConverter());
-            options.Converters.Add(new NullablePlayerEnumConverter());
             options.Converters.Add(new CoordinateConverter());
         }
         public static async Task<string> SerializeGame(Game game)
