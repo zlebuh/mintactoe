@@ -3,12 +3,12 @@ ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
 
 # Copy csproj files and restore
-COPY ["Zlebuh.MinTacToe.API/Zlebuh.MinTacToe.API.csproj", "Zlebuh.MinTacToe.API/"]
-COPY ["Zlebuh.MinTacToe.GameEngine/Zlebuh.MinTacToe.GameEngine.csproj", "Zlebuh.MinTacToe.GameEngine/"]
+COPY ["src/Zlebuh.MinTacToe.API/Zlebuh.MinTacToe.API.csproj", "Zlebuh.MinTacToe.API/"]
+COPY ["src/Zlebuh.MinTacToe.GameEngine/Zlebuh.MinTacToe.GameEngine.csproj", "Zlebuh.MinTacToe.GameEngine/"]
 RUN dotnet restore "Zlebuh.MinTacToe.API/Zlebuh.MinTacToe.API.csproj"
 
 # Copy all source files
-COPY . .
+COPY src/ .
 
 WORKDIR "/src/Zlebuh.MinTacToe.API"
 RUN dotnet publish "Zlebuh.MinTacToe.API.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false

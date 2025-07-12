@@ -19,10 +19,10 @@ jobs:
           dotnet-version: '9.0.x'
 
       - name: Restore dependencies
-        run: dotnet restore
+        run: dotnet restore src/Zlebuh.MinTacToe.UI/Zlebuh.MinTacToe.UI.csproj
 
       - name: Build
-        run: dotnet publish Zlebuh.MinTacToe.UI -c Release -o build_output
+        run: dotnet publish src/Zlebuh.MinTacToe.UI/Zlebuh.MinTacToe.UI.csproj -c Release -o build_output
 
       - name: Install Netlify CLI
         run: npm install -g netlify-cli

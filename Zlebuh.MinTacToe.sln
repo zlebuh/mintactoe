@@ -3,15 +3,15 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.7.34221.43
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Zlebuh.MinTacToe.GameEngine", "Zlebuh.MinTacToe.GameEngine\Zlebuh.MinTacToe.GameEngine.csproj", "{4FDEDE6C-1204-4C09-B19E-0EED82A706B9}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Zlebuh.MinTacToe.GameEngine", "src\Zlebuh.MinTacToe.GameEngine\Zlebuh.MinTacToe.GameEngine.csproj", "{4FDEDE6C-1204-4C09-B19E-0EED82A706B9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Zlebuh.MinTacToe.UI", "Zlebuh.MinTacToe.UI\Zlebuh.MinTacToe.UI.csproj", "{82188E70-1406-4F72-952E-49DE795C4713}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Zlebuh.MinTacToe.UI", "src\Zlebuh.MinTacToe.UI\Zlebuh.MinTacToe.UI.csproj", "{82188E70-1406-4F72-952E-49DE795C4713}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Zlebuh.MinTacToe.GameEngine.Tests", "Zlebuh.MinTacToe.GameEngine.Tests\Zlebuh.MinTacToe.GameEngine.Tests.csproj", "{4BDB237D-B0F9-4310-AE41-50B0AF33D336}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Zlebuh.MinTacToe.GameEngine.Tests", "src\Zlebuh.MinTacToe.GameEngine.Tests\Zlebuh.MinTacToe.GameEngine.Tests.csproj", "{4BDB237D-B0F9-4310-AE41-50B0AF33D336}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Zlebuh.MinTacToe.API", "Zlebuh.MinTacToe.API\Zlebuh.MinTacToe.API.csproj", "{A1BAD26D-4525-48DE-A4F8-25BB0B7759A9}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Zlebuh.MinTacToe.API", "src\Zlebuh.MinTacToe.API\Zlebuh.MinTacToe.API.csproj", "{A1BAD26D-4525-48DE-A4F8-25BB0B7759A9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Zlebuh.MinTacToe.APIModel", "Zlebuh.MinTacToe.APIModel\Zlebuh.MinTacToe.APIModel.csproj", "{A1854201-5487-4A55-B790-8EFB98AB566A}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Zlebuh.MinTacToe.APIModel", "src\Zlebuh.MinTacToe.APIModel\Zlebuh.MinTacToe.APIModel.csproj", "{A1854201-5487-4A55-B790-8EFB98AB566A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
