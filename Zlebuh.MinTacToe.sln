@@ -13,6 +13,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Zlebuh.MinTacToe.API", "src
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Zlebuh.MinTacToe.APIModel", "src\Zlebuh.MinTacToe.APIModel\Zlebuh.MinTacToe.APIModel.csproj", "{A1854201-5487-4A55-B790-8EFB98AB566A}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Zlebuh.MinTacToe.GameModel", "src\Zlebuh.MinTacToe.GameModel\Zlebuh.MinTacToe.GameModel.csproj", "{9C49D196-04CB-4D99-B95E-35999BF3AE1D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -39,6 +41,10 @@ Global
 		{A1854201-5487-4A55-B790-8EFB98AB566A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A1854201-5487-4A55-B790-8EFB98AB566A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A1854201-5487-4A55-B790-8EFB98AB566A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9C49D196-04CB-4D99-B95E-35999BF3AE1D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9C49D196-04CB-4D99-B95E-35999BF3AE1D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9C49D196-04CB-4D99-B95E-35999BF3AE1D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9C49D196-04CB-4D99-B95E-35999BF3AE1D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -6,12 +6,4 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
-  <ItemGroup>
-    <Folder Include="ModelExtensions\" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\Zlebuh.MinTacToe.GameModel\Zlebuh.MinTacToe.GameModel.csproj" />
-  </ItemGroup>
-
 </Project>

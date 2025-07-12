@@ -1,7 +1,7 @@
 ﻿using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using Zlebuh.MinTacToe.GameEngine.Model;
+using Zlebuh.MinTacToe.GameModel;
 
 namespace Zlebuh.MinTacToe.GameEngine
 {

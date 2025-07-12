@@ -1,5 +1,5 @@
 ﻿using Zlebuh.MinTacToe.GameEngine.Exceptions;
-using Zlebuh.MinTacToe.GameEngine.Model;
+using Zlebuh.MinTacToe.GameModel;
 
 namespace Zlebuh.MinTacToe.GameEngine
 {

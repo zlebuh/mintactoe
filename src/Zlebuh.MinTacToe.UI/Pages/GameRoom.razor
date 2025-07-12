@@ -2,7 +2,7 @@
 @using System.Text.Json
 @using Zlebuh.MinTacToe.APIModel
 @using Zlebuh.MinTacToe.GameEngine
-@using Zlebuh.MinTacToe.GameEngine.Model
+@using Zlebuh.MinTacToe.GameModel
 @using Zlebuh.MinTacToe.UI.Components
 @using Zlebuh.MinTacToe.UI.Services
 @using static Zlebuh.MinTacToe.UI.Components.GameInfo
@@ -41,16 +41,16 @@
 
     private const string UserIdCookieName = "userid";
     private const int UserIdCookieExpirationDays = 30;
-    private static readonly GameEngine.Model.Game DefaultGame = new();
-    private static GameEngine.Model.Rules DefaultRules => DefaultGame.Rules;
+    private static readonly GameModel.Game DefaultGame = new();
+    private static GameModel.Rules DefaultRules => DefaultGame.Rules;
 
-    private GameEngine.Model.Game game = DefaultGame;
+    private GameModel.Game game = DefaultGame;
     private string[,] grid = new string[DefaultRules.Rows, DefaultRules.Columns];
     private string[,] colors = new string[DefaultRules.Rows, DefaultRules.Columns];
     private string[,] highlightedClass = new string[DefaultRules.Rows, DefaultRules.Columns];
     private GameInfoMessage? message = new(){Message = new("Game is not loaded yet.")};
     private List<Coordinate> highlighted = new();
-    private GameEngine.Model.Rules rules = DefaultRules;
+    private GameModel.Rules rules = DefaultRules;
 
     protected override async Task OnParametersSetAsync()
     {
@@ -150,7 +150,7 @@
         RefreshGameBoard(g);        
     }
 
-    private void RefreshGameBoard(GameEngine.Model.Game g)
+    private void RefreshGameBoard(GameModel.Game g)
     {
         game = g;
         foreach (Coordinate h in highlighted)

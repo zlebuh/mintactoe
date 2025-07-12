@@ -1,7 +1,7 @@
 ﻿@page "/"
 @using Zlebuh.MinTacToe.GameEngine
 @using Zlebuh.MinTacToe.GameEngine.Exceptions
-@using Zlebuh.MinTacToe.GameEngine.Model
+@using Zlebuh.MinTacToe.GameModel
 @using Zlebuh.MinTacToe.UI.Components
 @using static Zlebuh.MinTacToe.UI.Components.GameInfo
 
@@ -29,12 +29,12 @@
     [Parameter]
     public byte? Rows { get; set; }
 
-    private GameEngine.Model.Rules rules = new()
+    private GameModel.Rules rules = new()
     {
         Rows = 16,
         Columns = 16
     };
-    private GameEngine.Model.Game game = null!;
+    private GameModel.Game game = null!;
     private string[,] grid = null!;
     private string[,] colors = null!;
     private string[,] highlightedClass = null!;
