@@ -1,6 +1,6 @@
-﻿using Zlebuh.MinTacToe.Model;
+﻿using Zlebuh.MinTacToe.GameEngine.Model;
 
-namespace Zlebuh.MinTacToe.Exceptions
+namespace Zlebuh.MinTacToe.GameEngine.Exceptions
 {
     public class CoordinateOutOfGridException(Coordinate coordinate, byte rows, byte columns) : MinTacToeException
     {

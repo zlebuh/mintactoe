@@ -1,4 +1,5 @@
 ﻿using System.Reflection;
+using Zlebuh.MinTacToe.GameEngine;
 
 namespace Zlebuh.MinTacToe.ConsoleApp.Services
 {

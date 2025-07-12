@@ -1,7 +1,7 @@
 ﻿
 using System.Text.Json.Serialization;
 
-namespace Zlebuh.MinTacToe.Model
+namespace Zlebuh.MinTacToe.GameEngine.Model
 {
     public readonly struct Coordinate(int row, int col)
     {
@@ -9,7 +9,7 @@ namespace Zlebuh.MinTacToe.Model
         public int Row { get; } = row;
         [JsonInclude]
         public int Col { get; } = col;
-        
+
         [JsonIgnore]
         public Dictionary<Direction, Coordinate> Neighbours => GetNeighbors();
         public bool IsOnGrid(Game game)

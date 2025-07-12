@@ -1,4 +1,4 @@
-﻿namespace Zlebuh.MinTacToe.Exceptions
+﻿namespace Zlebuh.MinTacToe.GameEngine.Exceptions
 {
     public class GameIsOverException : MinTacToeException
     {

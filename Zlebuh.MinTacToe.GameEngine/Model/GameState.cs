@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace Zlebuh.MinTacToe.Model
+namespace Zlebuh.MinTacToe.GameEngine.Model
 {
     public class GameState
     {

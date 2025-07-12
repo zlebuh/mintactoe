@@ -4,7 +4,7 @@ WORKDIR /src
 
 # Copy csproj files and restore
 COPY ["Zlebuh.MinTacToe.API/Zlebuh.MinTacToe.API.csproj", "Zlebuh.MinTacToe.API/"]
-COPY ["Zlebuh.MinTacToe/Zlebuh.MinTacToe.csproj", "Zlebuh.MinTacToe/"]
+COPY ["Zlebuh.MinTacToe.GameEngine/Zlebuh.MinTacToe.GameEngine.csproj", "Zlebuh.MinTacToe.GameEngine/"]
 RUN dotnet restore "Zlebuh.MinTacToe.API/Zlebuh.MinTacToe.API.csproj"
 
 # Copy all source files

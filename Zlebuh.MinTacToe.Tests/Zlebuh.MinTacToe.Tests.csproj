@@ -15,7 +15,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Zlebuh.MinTacToe\Zlebuh.MinTacToe.csproj" />
+    <ProjectReference Include="..\Zlebuh.MinTacToe\Zlebuh.MinTacToe.GameEngine.csproj" />
   </ItemGroup>
 
   <ItemGroup>

@@ -1,6 +1,6 @@
-﻿using Zlebuh.MinTacToe.Model;
+﻿using Zlebuh.MinTacToe.GameEngine.Model;
 
-namespace Zlebuh.MinTacToe
+namespace Zlebuh.MinTacToe.GameEngine
 {
     public interface IAIPlayer
     {

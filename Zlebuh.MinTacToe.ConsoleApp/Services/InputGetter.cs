@@ -1,4 +1,5 @@
-﻿using Zlebuh.MinTacToe.Model;
+﻿using Zlebuh.MinTacToe.GameEngine;
+using Zlebuh.MinTacToe.GameEngine.Model;
 
 namespace Zlebuh.MinTacToe.ConsoleApp.Services
 {

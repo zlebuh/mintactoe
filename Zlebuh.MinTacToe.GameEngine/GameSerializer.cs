@@ -1,9 +1,9 @@
 ﻿using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using Zlebuh.MinTacToe.Model;
+using Zlebuh.MinTacToe.GameEngine.Model;
 
-namespace Zlebuh.MinTacToe
+namespace Zlebuh.MinTacToe.GameEngine
 {
     public static class GameSerializer
     {
@@ -16,17 +16,17 @@ namespace Zlebuh.MinTacToe
         }
         public static async Task<string> SerializeGame(Game game)
         {
-            using var memoryStream = new MemoryStream();
+            using MemoryStream memoryStream = new();
             await JsonSerializer.SerializeAsync(memoryStream, game, options);
             memoryStream.Seek(0, SeekOrigin.Begin);
-            using var reader = new StreamReader(memoryStream);
+            using StreamReader reader = new(memoryStream);
             string serializedGame = await reader.ReadToEndAsync();
             return serializedGame;
         }
 
         public static async Task<Game> DeserializeGame(string serializedGame)
         {
-            using var stream = new MemoryStream(Encoding.UTF8.GetBytes(serializedGame));
+            using MemoryStream stream = new(Encoding.UTF8.GetBytes(serializedGame));
             return await JsonSerializer.DeserializeAsync<Game>(stream, options)
                    ?? throw new InvalidOperationException("Deserialization failed.");
         }
@@ -36,7 +36,9 @@ namespace Zlebuh.MinTacToe
             public override Coordinate Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
             {
                 if (reader.TokenType != JsonTokenType.StartObject)
+                {
                     throw new JsonException();
+                }
 
                 int row = 0;
                 int col = 0;
@@ -44,10 +46,14 @@ namespace Zlebuh.MinTacToe
                 while (reader.Read())
                 {
                     if (reader.TokenType == JsonTokenType.EndObject)
+                    {
                         break;
+                    }
 
                     if (reader.TokenType != JsonTokenType.PropertyName)
+                    {
                         throw new JsonException();
+                    }
 
                     string propertyName = reader.GetString()!;
                     reader.Read();
@@ -91,7 +97,7 @@ namespace Zlebuh.MinTacToe
                     throw new JsonException();
                 }
                 string value = reader.GetString() ?? throw new JsonException();
-                return Enum.TryParse<Player>(value, out var player) ? player : throw new JsonException();
+                return Enum.TryParse<Player>(value, out Player player) ? player : throw new JsonException();
             }
             public override void Write(Utf8JsonWriter writer, Player? value, JsonSerializerOptions options)
             {
@@ -110,7 +116,7 @@ namespace Zlebuh.MinTacToe
         {
             public override Grid? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
             {
-                var grid = new Grid();
+                Grid grid = new();
 
                 if (reader.TokenType != JsonTokenType.StartObject)
                 {
@@ -119,12 +125,12 @@ namespace Zlebuh.MinTacToe
 
                 while (reader.Read() && reader.TokenType != JsonTokenType.EndObject)
                 {
-                    var keyString = reader.GetString() ?? throw new JsonException();
-                    var parts = keyString.Split(",");
-                    var coordinate = new Coordinate(int.Parse(parts[0]), int.Parse(parts[1]));
+                    string keyString = reader.GetString() ?? throw new JsonException();
+                    string[] parts = keyString.Split(",");
+                    Coordinate coordinate = new(int.Parse(parts[0]), int.Parse(parts[1]));
 
                     reader.Read();
-                    var field = JsonSerializer.Deserialize<Field>(ref reader, options)
+                    Field field = JsonSerializer.Deserialize<Field>(ref reader, options)
                         ?? throw new JsonException();
                     grid[coordinate] = field;
                 }
@@ -136,7 +142,7 @@ namespace Zlebuh.MinTacToe
             {
                 writer.WriteStartObject();
 
-                foreach (var kvp in value)
+                foreach (KeyValuePair<Coordinate, Field> kvp in value)
                 {
                     string key = $"{kvp.Key.Row},{kvp.Key.Col}";
                     writer.WritePropertyName(key);

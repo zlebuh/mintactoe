@@ -1,4 +1,4 @@
-﻿namespace Zlebuh.MinTacToe.Model
+﻿namespace Zlebuh.MinTacToe.GameEngine.Model
 {
     public enum Player
     {

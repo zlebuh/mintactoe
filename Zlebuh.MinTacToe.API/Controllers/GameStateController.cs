@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Zlebuh.MinTacToe.API.Services;
-using Zlebuh.MinTacToe.Model;
 using Zlebuh.MinTacToe.APIModel;
+using Zlebuh.MinTacToe.GameEngine.Model;
 
 namespace Zlebuh.MinTacToe.API.Controllers
 {

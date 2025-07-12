@@ -1,10 +1,10 @@
 ﻿using System.Runtime.CompilerServices;
-using Zlebuh.MinTacToe.Exceptions;
-using Zlebuh.MinTacToe.Model;
+using Zlebuh.MinTacToe.GameEngine.Exceptions;
+using Zlebuh.MinTacToe.GameEngine.Model;
 
 [assembly: InternalsVisibleTo("Zlebuh.MinTacToe.Tests")]
 
-namespace Zlebuh.MinTacToe
+namespace Zlebuh.MinTacToe.GameEngine
 {
     public static class GameControl
     {
@@ -158,7 +158,7 @@ namespace Zlebuh.MinTacToe
             {
                 Direction direction = kvp.Key;
                 (int r, int c) = (kvp.Value.Row - coordinate.Row, kvp.Value.Col - coordinate.Col);
-                int masterDirection = ((int)direction) % 4;
+                int masterDirection = (int)direction % 4;
                 int rc = coordinate.Row;
                 int cc = coordinate.Col;
                 do

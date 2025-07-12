@@ -1,11 +1,11 @@
-﻿namespace Zlebuh.MinTacToe.Model
+﻿namespace Zlebuh.MinTacToe.GameEngine.Model
 {
-    public class Grid : Dictionary<Coordinate, Field> 
+    public class Grid : Dictionary<Coordinate, Field>
     {
         public Grid MakeCopy()
         {
             Grid copy = [];
-            foreach (var kvp in this)
+            foreach (KeyValuePair<Coordinate, Field> kvp in this)
             {
                 copy[kvp.Key] = kvp.Value;
             }

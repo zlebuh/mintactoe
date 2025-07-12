@@ -1,8 +1,8 @@
-﻿using Zlebuh.MinTacToe.Model;
+﻿using Zlebuh.MinTacToe.GameEngine.Model;
 
-namespace Zlebuh.MinTacToe.Exceptions
+namespace Zlebuh.MinTacToe.GameEngine.Exceptions
 {
-    public class FieldOccupiedException(Player player, Coordinate coordinate) 
+    public class FieldOccupiedException(Player player, Coordinate coordinate)
         : MinTacToeException($"Field (0-based) [r{coordinate.Row}, " +
             $"c{coordinate.Col}] is occupied by player: {player}.")
     {

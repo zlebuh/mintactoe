@@ -1,4 +1,4 @@
-﻿using Zlebuh.MinTacToe.Model;
+﻿using Zlebuh.MinTacToe.GameEngine.Model;
 
 namespace Zlebuh.MinTacToe.UI.Shared
 {
@@ -21,7 +21,7 @@ namespace Zlebuh.MinTacToe.UI.Shared
                 Player.X => "#ff0064",
                 Player.O => "#00c8e1",
                 _ => "transparent"
-            };            
-        }    
+            };
+        }
     }
 }

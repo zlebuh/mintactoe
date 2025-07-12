@@ -1,4 +1,4 @@
-﻿using Zlebuh.MinTacToe.Model;
+﻿using Zlebuh.MinTacToe.GameEngine.Model;
 
 namespace Zlebuh.MinTacToe.ConsoleApp.Configuration
 {

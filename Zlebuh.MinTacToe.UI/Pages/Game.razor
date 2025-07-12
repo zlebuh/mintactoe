@@ -1,5 +1,7 @@
 ﻿@page "/"
-@using Engine = Zlebuh.MinTacToe.Model
+@using Zlebuh.MinTacToe.GameEngine
+@using Zlebuh.MinTacToe.GameEngine.Exceptions
+@using Zlebuh.MinTacToe.GameEngine.Model
 @using Zlebuh.MinTacToe.UI.Components
 @using static Zlebuh.MinTacToe.UI.Components.GameInfo
 
@@ -27,17 +29,17 @@
     [Parameter]
     public byte? Rows { get; set; }
 
-    private Engine.Rules rules = new()
+    private GameEngine.Model.Rules rules = new()
     {
         Rows = 16,
         Columns = 16
     };
-    private Zlebuh.MinTacToe.Model.Game game = null!;
+    private GameEngine.Model.Game game = null!;
     private string[,] grid = null!;
     private string[,] colors = null!;
     private string[,] highlightedClass = null!;
     private GameInfoMessage? message = null;
-    private List<Engine.Coordinate> highlighted = new();
+    private List<Coordinate> highlighted = new();
 
     protected override void OnInitialized()
     {
@@ -48,7 +50,7 @@
         game = GameControl.Initialize(rules);
     }
 
-    private void RefreshField(int row, int col, Engine.Field f, bool showMines = false)
+    private void RefreshField(int row, int col, Field f, bool showMines = false)
     {
         string outcome;
         string background;
@@ -95,7 +97,7 @@
         int row = pos.row;
         int col = pos.col;
         message = null;
-        foreach (Engine.Coordinate h in highlighted)
+        foreach (Coordinate h in highlighted)
         {
             highlightedClass[h.Row, h.Col] = string.Empty;
         }
@@ -109,11 +111,11 @@
         {
             GameControl.MakeMove(game, game.GameState.PlayerOnTurn!.Value, new(row, col));
         }
-        catch (MinTacToe.Exceptions.FieldOccupiedException e)
+        catch (FieldOccupiedException e)
         {
             message = new() { Message = new($"Field {Convert.ToChar('A' + e.OccupiedCoordinate.Col)}{e.OccupiedCoordinate.Row + 1} is occupied.")};
         }
-        catch (MinTacToe.Exceptions.MinTacToeException e)
+        catch (MinTacToeException e)
         {
             message = new() { Message = new($"Unexpected internal error. Please report it via github issues.\n{e.Message}\n{e.StackTrace}"), Type = GameInfoMessageType.Error };
         }
@@ -122,9 +124,9 @@
             message = new() { Message = new($"Unexpected error. Please report it via github issues.\n{e.Message}\n{e.StackTrace}"), Type = GameInfoMessageType.Error};
         }
 
-        foreach (Engine.Coordinate coordinateChanged in game.GameState.Changes)
+        foreach (Coordinate coordinateChanged in game.GameState.Changes)
         {
-            Engine.Field f = game.GameState.Grid[coordinateChanged];
+				Field f = game.GameState.Grid[coordinateChanged];
             highlightedClass[coordinateChanged.Row, coordinateChanged.Col] = "highlighted";
             RefreshField(coordinateChanged.Row, coordinateChanged.Col, f);
             highlighted.Add(coordinateChanged);

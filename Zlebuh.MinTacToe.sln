@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.7.34221.43
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Zlebuh.MinTacToe", "Zlebuh.MinTacToe\Zlebuh.MinTacToe.csproj", "{4FDEDE6C-1204-4C09-B19E-0EED82A706B9}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Zlebuh.MinTacToe.GameEngine", "Zlebuh.MinTacToe.GameEngine\Zlebuh.MinTacToe.GameEngine.csproj", "{4FDEDE6C-1204-4C09-B19E-0EED82A706B9}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Zlebuh.MinTacToe.ConsoleApp", "Zlebuh.MinTacToe.ConsoleApp\Zlebuh.MinTacToe.ConsoleApp.csproj", "{BB115BB5-3A38-40D9-8DE7-86584F54A33B}"
 EndProject
