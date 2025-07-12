@@ -1,6 +1,0 @@
-@Zlebuh.MinTacToe.API_HostAddress = http://localhost:5213
-
-GET {{Zlebuh.MinTacToe.API_HostAddress}}/weatherforecast/
-Accept: application/json
-
-###
