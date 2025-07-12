@@ -3,7 +3,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using Zlebuh.MinTacToe.GameModel;
 
-namespace Zlebuh.MinTacToe.GameEngine
+namespace Zlebuh.MinTacToe.GameSerialization
 {
     public static class GameSerializer
     {

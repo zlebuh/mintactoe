@@ -17,6 +17,7 @@
     <ProjectReference Include="..\Zlebuh.MinTacToe.APIModel\Zlebuh.MinTacToe.APIModel.csproj" />
     <ProjectReference Include="..\Zlebuh.MinTacToe.GameEngine\Zlebuh.MinTacToe.GameEngine.csproj" />
     <ProjectReference Include="..\Zlebuh.MinTacToe.GameModel\Zlebuh.MinTacToe.GameModel.csproj" />
+    <ProjectReference Include="..\Zlebuh.MinTacToe.GameSerialization\Zlebuh.MinTacToe.GameSerialization.csproj" />
   </ItemGroup>
 
 </Project>

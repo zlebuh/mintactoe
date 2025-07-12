@@ -1,7 +1,7 @@
-﻿using NUnit.Framework;
+﻿using Zlebuh.MinTacToe.GameEngine;
 using Zlebuh.MinTacToe.GameModel;
 
-namespace Zlebuh.MinTacToe.GameEngine.Tests;
+namespace Zlebuh.MinTacToe.GameSerialization.Tests;
 
 [TestFixture]
 public class GameSerializerTests

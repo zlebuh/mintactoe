@@ -1,6 +1,7 @@
 ﻿using Zlebuh.MinTacToe.GameEngine;
 using Zlebuh.MinTacToe.GameEngine.Exceptions;
 using Zlebuh.MinTacToe.GameModel;
+using Zlebuh.MinTacToe.GameSerialization;
 
 namespace Zlebuh.MinTacToe.API.Services
 {
