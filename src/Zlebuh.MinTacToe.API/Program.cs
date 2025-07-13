@@ -11,7 +11,7 @@ builder.Services.AddOpenApi();
 builder.Services.Configure<SupabaseCredentials>(builder.Configuration.GetSection("Supabase"));
 builder.Services.AddScoped<IGameProxy, GameProxy>();
 builder.Services.AddScoped<IDatabase, SupabaseDatabase>();
-builder.Services.AddSingleton<ISerializer, JsonSerializer>();
+builder.Services.AddSingleton<ISerializer, GameJsonSerializer>();
 builder.Logging.AddConsole();
 builder.Services.AddCors(options =>
 {

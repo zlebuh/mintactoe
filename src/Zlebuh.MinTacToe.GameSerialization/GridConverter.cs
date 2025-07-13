@@ -2,46 +2,49 @@
 using System.Text.Json.Serialization;
 using Zlebuh.MinTacToe.GameModel;
 
-namespace Zlebuh.MinTacToe.GameSerialization
+namespace Zlebuh.MinTacToe.GameSerialization;
+
+internal class GridConverter : JsonConverter<Grid>
 {
-    internal class GridConverter : JsonConverter<Grid>
+    public override Grid? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
     {
-        public override Grid? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+        Grid grid = [];
+
+        if (reader.TokenType != JsonTokenType.StartArray)
         {
-            Grid grid = [];
-
-            if (reader.TokenType != JsonTokenType.StartObject)
-            {
-                throw new JsonException();
-            }
-
-            while (reader.Read() && reader.TokenType != JsonTokenType.EndObject)
-            {
-                string keyString = reader.GetString() ?? throw new JsonException();
-                string[] parts = keyString.Split(",");
-                Coordinate coordinate = new(int.Parse(parts[0]), int.Parse(parts[1]));
-
-                reader.Read();
-                Field field = System.Text.Json.JsonSerializer.Deserialize<Field>(ref reader, options)
-                    ?? throw new JsonException();
-                grid[coordinate] = field;
-            }
-
-            return grid;
+            throw new GameSerializationException();
         }
 
-        public override void Write(Utf8JsonWriter writer, Grid value, JsonSerializerOptions options)
+        Coordinate? coordinate = null;
+
+        while (reader.Read() && reader.TokenType != JsonTokenType.EndArray)
         {
-            writer.WriteStartObject();
-
-            foreach (KeyValuePair<Coordinate, Field> kvp in value)
+            if (coordinate == null)
             {
-                string key = $"{kvp.Key.Row},{kvp.Key.Col}";
-                writer.WritePropertyName(key);
-                System.Text.Json.JsonSerializer.Serialize(writer, kvp.Value, options);
+                coordinate = JsonSerializer.Deserialize<Coordinate>(ref reader, options);
             }
-
-            writer.WriteEndObject();
+            else
+            {
+                Field field = JsonSerializer.Deserialize<Field>(ref reader, options)
+                    ?? throw new GameSerializationException("Invalid field");
+                grid[coordinate.Value] = field;
+                coordinate = null;
+            }
         }
+
+        return coordinate != null ? throw new GameSerializationException("Odd number of elements in Grid array") : grid;
+    }
+
+    public override void Write(Utf8JsonWriter writer, Grid value, JsonSerializerOptions options)
+    {
+        writer.WriteStartArray();
+
+        foreach (KeyValuePair<Coordinate, Field> kvp in value)
+        {
+            JsonSerializer.Serialize(writer, kvp.Key, options);
+            JsonSerializer.Serialize(writer, kvp.Value, options);
+        }
+
+        writer.WriteEndArray();
     }
 }

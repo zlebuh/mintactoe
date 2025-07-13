@@ -2,58 +2,33 @@
 using System.Text.Json.Serialization;
 using Zlebuh.MinTacToe.GameModel;
 
-namespace Zlebuh.MinTacToe.GameSerialization
+namespace Zlebuh.MinTacToe.GameSerialization;
+
+internal class CoordinateConverter : JsonConverter<Coordinate>
 {
-    internal class CoordinateConverter : JsonConverter<Coordinate>
+    public override Coordinate Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
     {
-        public override Coordinate Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
-        {
-            if (reader.TokenType != JsonTokenType.StartObject)
-            {
-                throw new JsonException();
-            }
+        string s = reader.GetString() ?? throw new JsonException();
+        return Read(s);
+    }
 
-            int row = 0;
-            int col = 0;
+    public override void Write(Utf8JsonWriter writer, Coordinate value, JsonSerializerOptions options)
+    {
+        writer.WriteStringValue(Write(value));
+    }
 
-            while (reader.Read())
-            {
-                if (reader.TokenType == JsonTokenType.EndObject)
-                {
-                    break;
-                }
+    private static Coordinate Read(string s)
+    {
+        string[] parts = s.Split(',');
+        return parts.Length != 2
+            ? throw new GameSerializationException("Invalid coordinate string format.")
+            : !int.TryParse(parts[0], out int row) || !int.TryParse(parts[1], out int col)
+            ? throw new GameSerializationException("Invalid coordinate number.")
+            : new Coordinate(row, col);
+    }
 
-                if (reader.TokenType != JsonTokenType.PropertyName)
-                {
-                    throw new JsonException();
-                }
-
-                string propertyName = reader.GetString()!;
-                reader.Read();
-
-                switch (propertyName)
-                {
-                    case nameof(Coordinate.Row):
-                        row = reader.GetInt32();
-                        break;
-                    case nameof(Coordinate.Col):
-                        col = reader.GetInt32();
-                        break;
-                    default:
-                        reader.Skip();
-                        break;
-                }
-            }
-
-            return new Coordinate(row, col);
-        }
-
-        public override void Write(Utf8JsonWriter writer, Coordinate value, JsonSerializerOptions options)
-        {
-            writer.WriteStartObject();
-            writer.WriteNumber(nameof(Coordinate.Row), value.Row);
-            writer.WriteNumber(nameof(Coordinate.Col), value.Col);
-            writer.WriteEndObject();
-        }
+    private static string Write(Coordinate coordinate)
+    {
+        return $"{coordinate.Row},{coordinate.Col}";
     }
 }

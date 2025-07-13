@@ -19,17 +19,17 @@ namespace Zlebuh.MinTacToe.API.Services
         public async Task<string> CreateEmptySerializedGame()
         {
             Game game = GameControl.Initialize(Rules);
-            string serialized = await serializer.SerializeGame(game);
+            string serialized = await serializer.SerializeGameAsync(game);
             return serialized;
         }
 
         public async Task<(int errorCode, string message, string? gameState)> MakeAMove(string gameState, Coordinate coordinate, Player player)
         {
-            Game game = await serializer.DeserializeGame(gameState);
+            Game game = await serializer.DeserializeGameAsync(gameState);
             try
             {
                 GameControl.MakeMove(game, player, coordinate);
-                string serializedGame = await serializer.SerializeGame(game);
+                string serializedGame = await serializer.SerializeGameAsync(game);
                 return (0, "Move made successfully.", serializedGame);
             }
             catch (GameIsOverException)

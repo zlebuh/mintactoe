@@ -1,70 +1,131 @@
-﻿using Zlebuh.MinTacToe.GameEngine;
-using Zlebuh.MinTacToe.GameModel;
+﻿using Zlebuh.MinTacToe.GameModel;
 
 namespace Zlebuh.MinTacToe.GameSerialization.Tests;
 
 [TestFixture]
 public class GameSerializerTests
 {
-    private JsonSerializer jsonSerializer;
+    private GameJsonSerializer serializer;
 
     [SetUp]
     public void SetUp()
     {
-        jsonSerializer = new();
+        serializer = new GameJsonSerializer();
+    }
+
+
+    [Test]
+    public async Task SerializeAndDeserialize_RoundTrips_GameWithData()
+    {
+        Game game = new()
+        {
+            GameState = new GameState
+            {
+                Grid = new Grid
+                {
+                    [new Coordinate(0, 0)] = new Field { Player = Player.O, IsMine = false, SurroundedByNotExplodedMines = 1, Generated = true, HasAllNeighboursGenerated = true },
+                    [new Coordinate(1, 2)] = new Field { Player = Player.X, IsMine = true, SurroundedByNotExplodedMines = 0, Generated = false, HasAllNeighboursGenerated = false }
+                },
+                IsGameOver = true,
+                Winner = Player.O,
+                PlayerOnTurn = Player.X,
+                Changes = [new(0, 0), new(1, 2)],
+                MovesPlayed = 7
+            },
+            Rules = new Rules
+            {
+                Rows = 10,
+                Columns = 10,
+                SeriesLength = 3,
+                NoMineMoves = 2,
+                MinePower = 1,
+                MineProbability = 0.25
+            }
+        };
+
+        string json = await serializer.SerializeGameAsync(game);
+        Game deserialized = await serializer.DeserializeGameAsync(json);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(deserialized.GameState.IsGameOver, Is.EqualTo(true));
+            Assert.That(deserialized.GameState.Winner, Is.EqualTo(Player.O));
+            Assert.That(deserialized.GameState.PlayerOnTurn, Is.EqualTo(Player.X));
+            Assert.That(deserialized.GameState.MovesPlayed, Is.EqualTo(7));
+            Assert.That(deserialized.GameState.Grid, Has.Count.EqualTo(2));
+            Assert.That(deserialized.GameState.Grid[new Coordinate(0, 0)].Player, Is.EqualTo(Player.O));
+            Assert.That(deserialized.GameState.Grid[new Coordinate(1, 2)].IsMine, Is.True);
+            Assert.That(deserialized.GameState.Changes, Is.EquivalentTo(new[] { new Coordinate(0, 0), new Coordinate(1, 2) }));
+            Assert.That(deserialized.Rules.Rows, Is.EqualTo(10));
+            Assert.That(deserialized.Rules.MineProbability, Is.EqualTo(0.25));
+        });
     }
 
     [Test]
-    public async Task SerializeAndDeserializeGame()
+    public async Task Serialize_EmptyGameState_DeserializesCorrectly()
     {
-        Rules rules = new()
-        {
-            MineProbability = 0,
-            Columns = 3,
-            Rows = 3,
-            SeriesLength = 3
-        };
-        // xox
-        // oxo
-        // oxo
-        Game game = GameControl.Initialize(rules);
-        GameControl.MakeMove(game, Player.O, new(0, 1));
-        GameControl.MakeMove(game, Player.X, new(1, 1));
-        GameControl.MakeMove(game, Player.O, new(1, 0));
-        GameControl.MakeMove(game, Player.X, new(0, 0));
-        GameControl.MakeMove(game, Player.O, new(1, 2));
-        GameControl.MakeMove(game, Player.X, new(2, 1));
-        GameControl.MakeMove(game, Player.O, new(2, 0));
-        GameControl.MakeMove(game, Player.X, new(0, 2));
-        GameControl.MakeMove(game, Player.O, new(2, 2));
-        string serializedGame = await jsonSerializer.SerializeGame(game);
-        Game deserializedGame = await jsonSerializer.DeserializeGame(serializedGame);
+        Game game = new();
 
-        Assert.That(deserializedGame.Rules.Columns, Is.EqualTo(game.Rules.Columns));
-        Assert.That(deserializedGame.Rules.Rows, Is.EqualTo(game.Rules.Rows));
-        Assert.That(deserializedGame.Rules.SeriesLength, Is.EqualTo(game.Rules.SeriesLength));
-        Assert.That(deserializedGame.GameState.IsGameOver, Is.EqualTo(game.GameState.IsGameOver));
-        Assert.That(deserializedGame.GameState.Winner, Is.EqualTo(game.GameState.Winner));
-        Assert.That(deserializedGame.GameState.PlayerOnTurn, Is.EqualTo(game.GameState.PlayerOnTurn));
-        Assert.That(deserializedGame.GameState.MovesPlayed, Is.EqualTo(game.GameState.MovesPlayed));
-        Assert.That(deserializedGame.GameState.Changes.Count, Is.EqualTo(game.GameState.Changes.Count));
+        string json = await serializer.SerializeGameAsync(game);
+        Game deserialized = await serializer.DeserializeGameAsync(json);
 
-        for (int i = 0; i < game.GameState.Changes.Count; i++)
+        Assert.Multiple(() =>
         {
-            Assert.That(deserializedGame.GameState.Changes[i].Col, Is.EqualTo(game.GameState.Changes[i].Col));
-            Assert.That(deserializedGame.GameState.Changes[i].Row, Is.EqualTo(game.GameState.Changes[i].Row));
-        }
-        for (int i = 0; i < game.Rules.Rows; i++)
+            Assert.That(deserialized, Is.Not.Null);
+            Assert.That(deserialized.GameState, Is.Not.Null);
+            Assert.That(deserialized.Rules, Is.Not.Null);
+            Assert.That(deserialized.GameState.Grid, Is.Empty);
+            Assert.That(deserialized.GameState.Changes, Is.Empty);
+        });
+    }
+
+    [Test]
+    public async Task SerializeAndDeserialize_NullablePlayersHandledCorrectly()
+    {
+        Game game = new()
         {
-            for (int j = 0; j < game.Rules.Columns; j++)
+            GameState = new GameState
             {
-                Coordinate c = new(i, j);
-                Assert.That(deserializedGame.GameState.Grid[c].Player, Is.EqualTo(game.GameState.Grid[c].Player));
-                Assert.That(deserializedGame.GameState.Grid[c].Generated, Is.EqualTo(game.GameState.Grid[c].Generated));
-                Assert.That(deserializedGame.GameState.Grid[c].IsMine, Is.EqualTo(game.GameState.Grid[c].IsMine));
-                Assert.That(deserializedGame.GameState.Grid[c].SurroundedByNotExplodedMines, Is.EqualTo(game.GameState.Grid[c].SurroundedByNotExplodedMines));
-                Assert.That(deserializedGame.GameState.Grid[c].HasAllNeighboursGenerated, Is.EqualTo(game.GameState.Grid[c].HasAllNeighboursGenerated));
+                PlayerOnTurn = null,
+                Winner = null
             }
-        }
+        };
+
+        string json = await serializer.SerializeGameAsync(game);
+        Game deserialized = await serializer.DeserializeGameAsync(json);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(deserialized.GameState.PlayerOnTurn, Is.Null);
+            Assert.That(deserialized.GameState.Winner, Is.Null);
+        });
+    }
+
+    [Test]
+    public async Task SerializeAndDeserialize_EmptyGridAndChanges()
+    {
+        Game game = new()
+        {
+            GameState = new GameState
+            {
+                Grid = [],
+                Changes = []
+            }
+        };
+
+        string json = await serializer.SerializeGameAsync(game);
+        Game deserialized = await serializer.DeserializeGameAsync(json);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(deserialized.GameState.Grid, Is.Empty);
+            Assert.That(deserialized.GameState.Changes, Is.Empty);
+        });
+    }
+
+    [Test]
+    public void Deserialize_EmptyString_ThrowsGameSerializationException()
+    {
+        Assert.ThrowsAsync<GameSerializationException>(() => serializer.DeserializeGameAsync(string.Empty));
     }
 }

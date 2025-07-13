@@ -70,7 +70,7 @@
         {
             GameStateResponse resp = await response.Content.ReadFromJsonAsync<GameStateResponse>()
                 ?? throw new Exception("Failed to deserialize game state response.");
-            game = await serializer.DeserializeGame(resp.GameState);
+            game = await serializer.DeserializeGameAsync(resp.GameState);
             rules = game.Rules;
             grid = new string[rules.Rows, rules.Columns];
             colors = new string[rules.Rows, rules.Columns];
@@ -148,7 +148,7 @@
         Console.WriteLine("I do work!");
         using JsonDocument document = JsonDocument.Parse(json);
         string gameState = document.RootElement.GetProperty("game_state").ToString() ?? string.Empty;
-        var g = await serializer.DeserializeGame(gameState);
+        var g = await serializer.DeserializeGameAsync(gameState);
         RefreshGameBoard(g);        
     }
 

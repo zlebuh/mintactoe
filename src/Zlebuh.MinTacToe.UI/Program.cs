@@ -20,6 +20,6 @@ string supabaseKey = builder.Configuration["Supabase:SubscriptionKey"]
 builder.Services.AddScoped<ISupabaseRealtime, SupabaseRealtime>();
 builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(apiBaseUrl) });
 builder.Services.AddScoped<ICookieService, CookieService>();
-builder.Services.AddSingleton<ISerializer, JsonSerializer>();
+builder.Services.AddSingleton<ISerializer, GameJsonSerializer>();
 
 await builder.Build().RunAsync();
