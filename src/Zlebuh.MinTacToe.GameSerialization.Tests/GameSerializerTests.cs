@@ -6,6 +6,14 @@ namespace Zlebuh.MinTacToe.GameSerialization.Tests;
 [TestFixture]
 public class GameSerializerTests
 {
+    private JsonSerializer jsonSerializer;
+
+    [SetUp]
+    public void SetUp()
+    {
+        jsonSerializer = new();
+    }
+
     [Test]
     public async Task SerializeAndDeserializeGame()
     {
@@ -29,8 +37,8 @@ public class GameSerializerTests
         GameControl.MakeMove(game, Player.O, new(2, 0));
         GameControl.MakeMove(game, Player.X, new(0, 2));
         GameControl.MakeMove(game, Player.O, new(2, 2));
-        string serializedGame = await GameSerializer.SerializeGame(game);
-        Game deserializedGame = await GameSerializer.DeserializeGame(serializedGame);
+        string serializedGame = await jsonSerializer.SerializeGame(game);
+        Game deserializedGame = await jsonSerializer.DeserializeGame(serializedGame);
 
         Assert.That(deserializedGame.Rules.Columns, Is.EqualTo(game.Rules.Columns));
         Assert.That(deserializedGame.Rules.Rows, Is.EqualTo(game.Rules.Rows));

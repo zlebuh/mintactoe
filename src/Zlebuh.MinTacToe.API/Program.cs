@@ -1,7 +1,8 @@
 
 using Zlebuh.MinTacToe.API.Services;
+using Zlebuh.MinTacToe.GameSerialization;
 
-var builder = WebApplication.CreateBuilder(args);
+WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
@@ -10,6 +11,7 @@ builder.Services.AddOpenApi();
 builder.Services.Configure<SupabaseCredentials>(builder.Configuration.GetSection("Supabase"));
 builder.Services.AddScoped<IGameProxy, GameProxy>();
 builder.Services.AddScoped<IDatabase, SupabaseDatabase>();
+builder.Services.AddSingleton<ISerializer, JsonSerializer>();
 builder.Logging.AddConsole();
 builder.Services.AddCors(options =>
 {
@@ -22,7 +24,7 @@ builder.Services.AddCors(options =>
     }
     else
     {
-        var allowedOrigin = builder.Configuration.GetValue<string>("AllowedOrigin")
+        string allowedOrigin = builder.Configuration.GetValue<string>("AllowedOrigin")
             ?? throw new Exception("No origin specified in environment data");
         options.AddPolicy("AllowSpecificOrigins",
             builder => builder.WithOrigins(allowedOrigin)
@@ -31,7 +33,7 @@ builder.Services.AddCors(options =>
     }
 });
 
-var app = builder.Build();
+WebApplication app = builder.Build();
 
 if (app.Environment.IsDevelopment())
 {

@@ -11,23 +11,25 @@ namespace Zlebuh.MinTacToe.API.Services
         Task<(int errorCode, string message, string? gameState)> MakeAMove(string gameState, Coordinate coordinate, Player player);
     }
 
-    internal class GameProxy : IGameProxy
+    internal class GameProxy(ISerializer serializer) : IGameProxy
     {
         private static readonly Rules Rules = new() { Rows = 16, Columns = 16 };
+        private readonly ISerializer serializer = serializer;
+
         public async Task<string> CreateEmptySerializedGame()
         {
             Game game = GameControl.Initialize(Rules);
-            string serialized = await GameSerializer.SerializeGame(game);
+            string serialized = await serializer.SerializeGame(game);
             return serialized;
         }
 
         public async Task<(int errorCode, string message, string? gameState)> MakeAMove(string gameState, Coordinate coordinate, Player player)
         {
-            Game game = await GameSerializer.DeserializeGame(gameState);
+            Game game = await serializer.DeserializeGame(gameState);
             try
             {
                 GameControl.MakeMove(game, player, coordinate);
-                string serializedGame = await GameSerializer.SerializeGame(game);
+                string serializedGame = await serializer.SerializeGame(game);
                 return (0, "Move made successfully.", serializedGame);
             }
             catch (GameIsOverException)

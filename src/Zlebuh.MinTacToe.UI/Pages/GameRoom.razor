@@ -10,6 +10,7 @@
 @inject HttpClient Http
 @inject ICookieService CookieService
 @inject ISupabaseRealtime SupabaseRealtime
+@inject ISerializer serializer;
 @implements IAsyncDisposable
 @implements ICanReactOnGameStateChange
 
@@ -69,7 +70,7 @@
         {
             GameStateResponse resp = await response.Content.ReadFromJsonAsync<GameStateResponse>()
                 ?? throw new Exception("Failed to deserialize game state response.");
-            game = await GameSerializer.DeserializeGame(resp.GameState);
+            game = await serializer.DeserializeGame(resp.GameState);
             rules = game.Rules;
             grid = new string[rules.Rows, rules.Columns];
             colors = new string[rules.Rows, rules.Columns];
@@ -147,7 +148,7 @@
         Console.WriteLine("I do work!");
         using JsonDocument document = JsonDocument.Parse(json);
         string gameState = document.RootElement.GetProperty("game_state").ToString() ?? string.Empty;
-        var g = await GameSerializer.DeserializeGame(gameState);
+        var g = await serializer.DeserializeGame(gameState);
         RefreshGameBoard(g);        
     }
 
