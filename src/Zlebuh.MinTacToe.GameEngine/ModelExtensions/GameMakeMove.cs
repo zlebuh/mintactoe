@@ -6,9 +6,20 @@ namespace Zlebuh.MinTacToe.GameEngine.ModelExtensions;
 
 public static class GameMakeMove
 {
-    private static readonly Random random = new();
-
     public static void MakeMove(this Game game, Player player, Coordinate coordinate)
+    {
+        game.CheckArgumentsValidity(player, coordinate, out Field field);
+
+        game.GenerateFieldOrNeighbors(coordinate, field);
+
+        game.ApplyMoveToAGrid(player, coordinate, field);
+
+        game.CheckGameOver(player, coordinate);
+
+        game.GameState.MovesPlayed++;
+    }
+
+    internal static void CheckArgumentsValidity(this Game game, Player player, Coordinate coordinate, out Field field)
     {
         if (game.GameState.IsGameOver || !game.GameState.PlayerOnTurn.HasValue)
         {
@@ -23,20 +34,17 @@ public static class GameMakeMove
             throw new CoordinateOutOfGridException(coordinate, game.Rules.Rows, game.Rules.Columns);
         }
 
-        Field field = game.GameState.Grid[coordinate];
+        field = game.GameState.Grid[coordinate];
 
         if (field.Player.HasValue)
         {
             throw new FieldOccupiedException(field.Player.Value, coordinate);
         }
+    }
 
-        // Game state is not changed when exception is thrown. Game is not corrupted.
-
-        if (!field.Generated)
-        {
-            field.IsMine = game.GameState.MovesPlayed >= game.Rules.NoMineMoves && random.NextDouble() < game.Rules.MineProbability;
-            field.Generated = true;
-        }
+    internal static void GenerateFieldOrNeighbors(this Game game, Coordinate coordinate, Field field)
+    {
+        field.GenerateSafely(game);
 
         if (!field.HasAllNeighboursGenerated)
         {
@@ -48,11 +56,7 @@ public static class GameMakeMove
                 }
 
                 Field neighbour = game.GameState.Grid[neighbourCoordinate];
-                if (!neighbour.Generated)
-                {
-                    neighbour.IsMine = random.NextDouble() < game.Rules.MineProbability;
-                    neighbour.Generated = true;
-                }
+                neighbour.Generate(game);
                 if (neighbour.IsMine)
                 {
                     field.SurroundedByNotExplodedMines++;
@@ -60,23 +64,26 @@ public static class GameMakeMove
             }
             field.HasAllNeighboursGenerated = true;
         }
-        List<Coordinate> changedFieldCoordinates = [];
+    }
+
+    internal static void ApplyMoveToAGrid(this Game game, Player player, Coordinate coordinate, Field field)
+    {
+        game.GameState.Changes.Clear();
         if (field.IsMine)
         {
-            changedFieldCoordinates.AddRange(game.ExplodeMine(player, coordinate));
+            game.GameState.Changes.AddRange(game.ExplodeMine(player, coordinate));
         }
-        changedFieldCoordinates.Add(coordinate);
+        game.GameState.Changes.Add(coordinate);
         field.Player = player;
+    }
 
-
-
+    internal static void CheckGameOver(this Game game, Player player, Coordinate coordinate)
+    {
         bool playerWins = game.CheckPlayerWins(player, coordinate);
         bool isTie = game.CheckTie();
         bool gameOver = playerWins || isTie;
         game.GameState.IsGameOver = gameOver;
         game.GameState.Winner = playerWins ? player : null;
         game.GameState.PlayerOnTurn = gameOver ? null : player == Player.O ? Player.X : Player.O;
-        game.GameState.Changes = changedFieldCoordinates;
-        game.GameState.MovesPlayed++;
     }
 }

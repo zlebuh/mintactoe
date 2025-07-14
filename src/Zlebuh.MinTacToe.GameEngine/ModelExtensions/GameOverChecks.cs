@@ -4,7 +4,7 @@ namespace Zlebuh.MinTacToe.GameEngine.ModelExtensions;
 
 internal static class GameOverChecks
 {
-    internal static bool CheckPlayerWins(this Game game, Player player, Coordinate coordinate)
+    public static bool CheckPlayerWins(this Game game, Player player, Coordinate coordinate)
     {
         if (game.Rules.SeriesLength == 1)
         {
@@ -60,7 +60,7 @@ internal static class GameOverChecks
         return false;
     }
 
-    internal static bool CheckTie(this Game game)
+    public static bool CheckTie(this Game game)
     {
         for (int row = 0; row < game.Rules.Rows; row++)
         {
