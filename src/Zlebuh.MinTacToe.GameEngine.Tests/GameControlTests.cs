@@ -44,14 +44,14 @@ public class GameControlTests
             MineProbability = 0
         });
         Coordinate coordinate = new(0, 0);
-        GameControl.MakeMove(game, Player.O, coordinate);
+        game.MakeMove(Player.O, coordinate);
         Assert.That(game.GameState.PlayerOnTurn, Is.EqualTo(Player.X));
         Assert.That(game.GameState.Changes.Single(), Is.EqualTo(coordinate));
         Field f = game.GameState.Grid[coordinate];
         Assert.That(f.Player.HasValue, Is.True);
         Assert.That(f.Player!.Value, Is.EqualTo(Player.O));
         coordinate = new(1, 0);
-        GameControl.MakeMove(game, Player.X, coordinate);
+        game.MakeMove(Player.X, coordinate);
         Assert.That(game.GameState.PlayerOnTurn, Is.EqualTo(Player.O));
         Assert.That(game.GameState.Changes.Single(), Is.EqualTo(coordinate));
         f = game.GameState.Grid[coordinate];
@@ -67,14 +67,14 @@ public class GameControlTests
             MineProbability = 0,
         });
 
-        GameControl.MakeMove(game, Player.O, new(0, 0));
-        GameControl.MakeMove(game, Player.X, new(0, 1));
-        GameControl.MakeMove(game, Player.O, new(0, 2));
-        GameControl.MakeMove(game, Player.X, new(1, 2));
-        GameControl.MakeMove(game, Player.O, new(1, 0));
-        GameControl.MakeMove(game, Player.X, new(2, 0));
-        GameControl.MakeMove(game, Player.O, new(2, 1));
-        GameControl.MakeMove(game, Player.X, new(2, 2));
+        game.MakeMove(Player.O, new(0, 0));
+        game.MakeMove(Player.X, new(0, 1));
+        game.MakeMove(Player.O, new(0, 2));
+        game.MakeMove(Player.X, new(1, 2));
+        game.MakeMove(Player.O, new(1, 0));
+        game.MakeMove(Player.X, new(2, 0));
+        game.MakeMove(Player.O, new(2, 1));
+        game.MakeMove(Player.X, new(2, 2));
 
         // mock
         game.GameState.Grid[new(1, 1)].IsMine = true; // place a mine in the middle
@@ -95,7 +95,7 @@ public class GameControlTests
         // OXO
         // OMX
         // XOX
-        GameControl.MakeMove(game, Player.O, new(1, 1));
+        game.MakeMove(Player.O, new(1, 1));
 
         // -X-
         // -MX
@@ -137,7 +137,7 @@ public class GameControlTests
         Coordinate coordinate = new(40, 0);
         Assert.Throws<CoordinateOutOfGridException>(() =>
         {
-            GameControl.MakeMove(game, Player.O, coordinate);
+            game.MakeMove(Player.O, coordinate);
         });
     }
 
@@ -148,7 +148,7 @@ public class GameControlTests
         Coordinate coordinate = new(0, 0);
         Assert.Throws<NotYourTurnException>(() =>
         {
-            GameControl.MakeMove(game, Player.X, coordinate);
+            game.MakeMove(Player.X, coordinate);
         });
     }
 
@@ -157,10 +157,10 @@ public class GameControlTests
     {
         Game game = GameControl.Initialize(new());
         Coordinate coordinate = new(0, 0);
-        GameControl.MakeMove(game, Player.O, coordinate);
+        game.MakeMove(Player.O, coordinate);
         Assert.Throws<FieldOccupiedException>(() =>
         {
-            GameControl.MakeMove(game, Player.X, coordinate);
+            game.MakeMove(Player.X, coordinate);
         });
     }
 
@@ -175,11 +175,11 @@ public class GameControlTests
             MineProbability = 0,
         });
 
-        GameControl.MakeMove(game, Player.O, new(0, 0));
-        GameControl.MakeMove(game, Player.X, new(1, 0));
-        GameControl.MakeMove(game, Player.O, new(0, 1));
-        GameControl.MakeMove(game, Player.X, new(1, 1));
-        GameControl.MakeMove(game, Player.O, new(0, 2));
+        game.MakeMove(Player.O, new(0, 0));
+        game.MakeMove(Player.X, new(1, 0));
+        game.MakeMove(Player.O, new(0, 1));
+        game.MakeMove(Player.X, new(1, 1));
+        game.MakeMove(Player.O, new(0, 2));
         Assert.That(game.GameState.IsGameOver, Is.True);
         Assert.That(game.GameState.Winner.HasValue, Is.True);
         Assert.That(game.GameState.Winner, Is.EqualTo(Player.O));
@@ -194,16 +194,16 @@ public class GameControlTests
             MineProbability = 0,
         });
 
-        GameControl.MakeMove(game, Player.O, new(0, 0));
-        GameControl.MakeMove(game, Player.X, new(10, 10));
-        GameControl.MakeMove(game, Player.O, new(0, 1));
-        GameControl.MakeMove(game, Player.X, new(11, 11));
-        GameControl.MakeMove(game, Player.O, new(0, 2));
-        GameControl.MakeMove(game, Player.X, new(12, 12));
-        GameControl.MakeMove(game, Player.O, new(0, 3));
-        GameControl.MakeMove(game, Player.X, new(13, 13));
-        GameControl.MakeMove(game, Player.O, new(0, 10));
-        GameControl.MakeMove(game, Player.X, new(14, 14));
+        game.MakeMove(Player.O, new(0, 0));
+        game.MakeMove(Player.X, new(10, 10));
+        game.MakeMove(Player.O, new(0, 1));
+        game.MakeMove(Player.X, new(11, 11));
+        game.MakeMove(Player.O, new(0, 2));
+        game.MakeMove(Player.X, new(12, 12));
+        game.MakeMove(Player.O, new(0, 3));
+        game.MakeMove(Player.X, new(13, 13));
+        game.MakeMove(Player.O, new(0, 10));
+        game.MakeMove(Player.X, new(14, 14));
 
         Assert.That(game.GameState.IsGameOver, Is.True);
         Assert.That(game.GameState.Winner.HasValue, Is.True);
@@ -221,7 +221,7 @@ public class GameControlTests
         });
 
         Coordinate coorO = new(10, 10);
-        GameControl.MakeMove(game, Player.O, coorO);
+        game.MakeMove(Player.O, coorO);
         Field fO = game.GameState.Grid[coorO];
         Assert.That(fO.IsMine, Is.False);
         Assert.That(fO.SurroundedByNotExplodedMines, Is.EqualTo(8));
@@ -234,7 +234,7 @@ public class GameControlTests
         //3 .....
 
         Coordinate coorX = new(12, 12);
-        GameControl.MakeMove(game, Player.X, coorX);
+        game.MakeMove(Player.X, coorX);
         Field fX = game.GameState.Grid[coorX];
         Assert.That(fX.IsMine, Is.False);
         Assert.That(fX.SurroundedByNotExplodedMines, Is.EqualTo(8));
@@ -247,7 +247,7 @@ public class GameControlTests
         //3 ..BBB
 
         Coordinate coorO2 = new(11, 11);
-        GameControl.MakeMove(game, Player.O, coorO2);
+        game.MakeMove(Player.O, coorO2);
 
         //  90123
         //9 BBB..
@@ -274,12 +274,12 @@ public class GameControlTests
             MineProbability = 0
         });
 
-        GameControl.MakeMove(game, Player.O, new(0, 0));
-        GameControl.MakeMove(game, Player.X, new(0, 1));
-        GameControl.MakeMove(game, Player.O, new(1, 0));
+        game.MakeMove(Player.O, new(0, 0));
+        game.MakeMove(Player.X, new(0, 1));
+        game.MakeMove(Player.O, new(1, 0));
         Assert.Throws<GameIsOverException>(() =>
         {
-            GameControl.MakeMove(game, Player.X, new(1, 1));
+            game.MakeMove(Player.X, new(1, 1));
         });
     }
 
@@ -294,15 +294,15 @@ public class GameControlTests
             MineProbability = 0
         });
 
-        GameControl.MakeMove(game, Player.O, new(0, 0));
-        GameControl.MakeMove(game, Player.X, new(1, 1));
-        GameControl.MakeMove(game, Player.O, new(0, 1));
-        GameControl.MakeMove(game, Player.X, new(0, 2));
-        GameControl.MakeMove(game, Player.O, new(2, 0));
-        GameControl.MakeMove(game, Player.X, new(1, 0));
-        GameControl.MakeMove(game, Player.O, new(1, 2));
-        GameControl.MakeMove(game, Player.X, new(2, 1));
-        GameControl.MakeMove(game, Player.O, new(2, 2));
+        game.MakeMove(Player.O, new(0, 0));
+        game.MakeMove(Player.X, new(1, 1));
+        game.MakeMove(Player.O, new(0, 1));
+        game.MakeMove(Player.X, new(0, 2));
+        game.MakeMove(Player.O, new(2, 0));
+        game.MakeMove(Player.X, new(1, 0));
+        game.MakeMove(Player.O, new(1, 2));
+        game.MakeMove(Player.X, new(2, 1));
+        game.MakeMove(Player.O, new(2, 2));
 
         // OOX
         // XXO
@@ -324,15 +324,15 @@ public class GameControlTests
             MineProbability = 0,
         });
 
-        GameControl.MakeMove(game, Player.O, new(2, 1));
-        GameControl.MakeMove(game, Player.X, new(1, 1));
+        game.MakeMove(Player.O, new(2, 1));
+        game.MakeMove(Player.X, new(1, 1));
         game.GameState.Grid[new(0, 0)].IsMine = true; // mines indicating counts are corrupted here
-        GameControl.MakeMove(game, Player.O, new(2, 0));
-        GameControl.MakeMove(game, Player.X, new(2, 2));
-        GameControl.MakeMove(game, Player.O, new(1, 0));
-        GameControl.MakeMove(game, Player.X, new(1, 2));
-        GameControl.MakeMove(game, Player.O, new(0, 2));
-        GameControl.MakeMove(game, Player.X, new(0, 1));
+        game.MakeMove(Player.O, new(2, 0));
+        game.MakeMove(Player.X, new(2, 2));
+        game.MakeMove(Player.O, new(1, 0));
+        game.MakeMove(Player.X, new(1, 2));
+        game.MakeMove(Player.O, new(0, 2));
+        game.MakeMove(Player.X, new(0, 1));
 
         // BXO
         // OXX
@@ -354,10 +354,10 @@ public class GameControlTests
             MineProbability = 0,
         });
 
-        GameControl.MakeMove(game, Player.O, new(1, 0));
-        GameControl.MakeMove(game, Player.X, new(0, 1));
+        game.MakeMove(Player.O, new(1, 0));
+        game.MakeMove(Player.X, new(0, 1));
         game.GameState.Grid[new(0, 0)].IsMine = true; // mines indicating counts are corrupted here
-        GameControl.MakeMove(game, Player.O, new(0, 0));
+        game.MakeMove(Player.O, new(0, 0));
         // bomb erases O from [1, 0]
         Field f = game.GameState.Grid[new(0, 0)];
         Assert.That(f.IsMine, Is.True);
@@ -367,15 +367,15 @@ public class GameControlTests
         Assert.That(erased.IsMine, Is.False);
         Assert.That(erased.Player.HasValue, Is.False);
 
-        GameControl.MakeMove(game, Player.X, new(1, 1));
-        GameControl.MakeMove(game, Player.O, new(2, 1));
-        GameControl.MakeMove(game, Player.X, new(1, 0)); // overlay
+        game.MakeMove(Player.X, new(1, 1));
+        game.MakeMove(Player.O, new(2, 1));
+        game.MakeMove(Player.X, new(1, 0)); // overlay
         Assert.That(erased.Player.HasValue, Is.True);
         Assert.That(erased.Player!.Value, Is.EqualTo(Player.X));
-        GameControl.MakeMove(game, Player.O, new(1, 2));
-        GameControl.MakeMove(game, Player.X, new(2, 0));
-        GameControl.MakeMove(game, Player.O, new(0, 2));
-        GameControl.MakeMove(game, Player.X, new(2, 2));
+        game.MakeMove(Player.O, new(1, 2));
+        game.MakeMove(Player.X, new(2, 0));
+        game.MakeMove(Player.O, new(0, 2));
+        game.MakeMove(Player.X, new(2, 2));
 
         // BXO
         // XXO
@@ -395,13 +395,13 @@ public class GameControlTests
             NoMineMoves = 2
         });
 
-        GameControl.MakeMove(game, Player.O, new(10, 10));
+        game.MakeMove(Player.O, new(10, 10));
         Assert.That(game.GameState.Grid[new(10, 10)].IsMine, Is.False);
-        GameControl.MakeMove(game, Player.X, new(5, 5));
+        game.MakeMove(Player.X, new(5, 5));
         Assert.That(game.GameState.Grid[new(5, 5)].IsMine, Is.False);
-        GameControl.MakeMove(game, Player.O, new(11, 10));
+        game.MakeMove(Player.O, new(11, 10));
         Assert.That(game.GameState.Grid[new(11, 10)].IsMine, Is.True);
-        GameControl.MakeMove(game, Player.X, new(0, 0));
+        game.MakeMove(Player.X, new(0, 0));
         Assert.That(game.GameState.Grid[new(0, 0)].IsMine, Is.True);
     }
 
@@ -414,9 +414,9 @@ public class GameControlTests
             NoMineMoves = 2
         });
 
-        GameControl.MakeMove(game, Player.O, new(10, 10));
-        GameControl.MakeMove(game, Player.X, new(13, 13));
-        GameControl.MakeMove(game, Player.O, new(12, 12));
+        game.MakeMove(Player.O, new(10, 10));
+        game.MakeMove(Player.X, new(13, 13));
+        game.MakeMove(Player.O, new(12, 12));
 
         Field f1010 = game.GameState.Grid[new(10, 10)];
         Field f1313 = game.GameState.Grid[new(13, 13)];
@@ -444,15 +444,15 @@ public class GameControlTests
         Field f1111 = game.GameState.Grid[new(11, 11)];
         Field f1212 = game.GameState.Grid[new(12, 12)];
 
-        GameControl.MakeMove(game, Player.O, new(10, 10));
-        GameControl.MakeMove(game, Player.X, new(12, 12));
-        GameControl.MakeMove(game, Player.O, new(11, 11));
+        game.MakeMove(Player.O, new(10, 10));
+        game.MakeMove(Player.X, new(12, 12));
+        game.MakeMove(Player.O, new(11, 11));
         Assert.That(f1010.Player.HasValue, Is.False);
         Assert.That(f1111.IsMine, Is.True);
         Assert.That(f1111.Player.HasValue, Is.True);
         Assert.That(f1111.Player!.Value, Is.EqualTo(Player.O));
         Assert.That(f1212.Player.HasValue, Is.True);
         Assert.That(f1212.Player!.Value, Is.EqualTo(Player.X));
-        GameControl.MakeMove(game, Player.X, new(10, 10));
+        game.MakeMove(Player.X, new(10, 10));
     }
 }

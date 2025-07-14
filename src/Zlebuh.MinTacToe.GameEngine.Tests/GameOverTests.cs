@@ -1,4 +1,5 @@
 ﻿using NUnit.Framework;
+using Zlebuh.MinTacToe.GameEngine.ModelExtensions;
 using Zlebuh.MinTacToe.GameModel;
 
 namespace Zlebuh.MinTacToe.GameEngine.Tests;
@@ -18,15 +19,15 @@ public class GameIsOverCheckTests
         };
         Game game = GameControl.Initialize(rules);
 
-        GameControl.MakeMove(game, Player.O, new(0, 0));
-        GameControl.MakeMove(game, Player.X, new(1, 0));
-        GameControl.MakeMove(game, Player.O, new(0, 1));
-        GameControl.MakeMove(game, Player.X, new(2, 0));
-        GameControl.MakeMove(game, Player.O, new(0, 2));
-        GameControl.MakeMove(game, Player.X, new(3, 0));
-        GameControl.MakeMove(game, Player.O, new(0, 4));
-        GameControl.MakeMove(game, Player.X, new(4, 0));
-        GameControl.MakeMove(game, Player.O, new(0, 3));
+        game.MakeMove(Player.O, new(0, 0));
+        game.MakeMove(Player.X, new(1, 0));
+        game.MakeMove(Player.O, new(0, 1));
+        game.MakeMove(Player.X, new(2, 0));
+        game.MakeMove(Player.O, new(0, 2));
+        game.MakeMove(Player.X, new(3, 0));
+        game.MakeMove(Player.O, new(0, 4));
+        game.MakeMove(Player.X, new(4, 0));
+        game.MakeMove(Player.O, new(0, 3));
         Assert.That(game.GameState.IsGameOver, Is.True);
         Assert.That(game.GameState.Winner, Is.EqualTo(Player.O));
     }

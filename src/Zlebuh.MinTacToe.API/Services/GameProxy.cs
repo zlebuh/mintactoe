@@ -1,5 +1,6 @@
 ﻿using Zlebuh.MinTacToe.GameEngine;
 using Zlebuh.MinTacToe.GameEngine.Exceptions;
+using Zlebuh.MinTacToe.GameEngine.ModelExtensions;
 using Zlebuh.MinTacToe.GameModel;
 using Zlebuh.MinTacToe.GameSerialization;
 
@@ -28,7 +29,7 @@ namespace Zlebuh.MinTacToe.API.Services
             Game game = await serializer.DeserializeGameAsync(gameState);
             try
             {
-                GameControl.MakeMove(game, player, coordinate);
+                game.MakeMove(player, coordinate);
                 string serializedGame = await serializer.SerializeGameAsync(game);
                 return (0, "Move made successfully.", serializedGame);
             }
