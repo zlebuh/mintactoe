@@ -1,0 +1,9 @@
+services:
+  - type: web
+    name: mintactoe-api
+    env: docker
+    repo: https://github.com/zlebuh/mintactoe
+    branch: master
+    plan: free
+    dockerfilePath: ./Dockerfile
+    autoDeploy: true
