@@ -36,7 +36,7 @@ Players are `O` and `X`; `O` always moves first. A move (`coordinate`, `player`)
 4. Target field is not already occupied.
 5. If the field hasn't been generated yet, generate it and its 8 neighbors now (lazy generation — mines are decided per-field, on first visit, not upfront for the whole board).
 6. Mine placement: an ungenerated field becomes a mine with probability `MineProbability`, **unless** fewer than `NoMineMoves` moves have been played so far (first N moves are always safe).
-7. If the target field is a mine: **explode** it (see below). The player who stepped on it keeps their own mark on that field; only the *opponent's* marks within `MinePower` are erased.
+7. If the target field is a mine: **explode** it (see below). The mine erases *the triggering player's own* nearby marks within `MinePower`; the opponent's marks are left untouched.
 8. If the target field is not a mine: place the player's mark normally.
 9. Check win (5-in-a-row) and tie conditions.
 10. Alternate `playerOnTurn` (unless the game just ended).
@@ -56,10 +56,10 @@ Randomness for mine placement is **not seeded** in the legacy implementation —
 
 ## Mine explosion
 
-- When a mine is hit, every field within `MinePower` (Chebyshev/square radius, not just Manhattan-adjacent — i.e. the `(2×MinePower+1)²` square centered on the mine) is affected:
-  - The opponent's marks in that radius are erased (reset to unoccupied).
-  - The mine-placing player's **own** mark, if any is in that radius, is **not** erased — this includes the mine cell itself if the explosion happens to occur adjacent to one of their own prior marks.
-  - `surroundedByNotExplodedMines` is decremented on all affected non-mine fields (this mine no longer counts as a live threat to them).
+- When a mine is hit, every field within `MinePower` (Chebyshev/square radius, not just Manhattan-adjacent — i.e. the `(2×MinePower+1)²` square centered on the mine, excluding the mine cell itself) is affected:
+  - Only marks belonging to the **triggering player** (the one who just stepped on the mine) are erased (reset to unoccupied).
+  - The **opponent's** marks in that radius are left untouched.
+  - `surroundedByNotExplodedMines` is decremented on all affected non-mine fields in the radius (this mine no longer counts as a live threat to them).
 - The set of all coordinates changed by a move (including explosion side-effects) is returned/tracked so the client can highlight what changed — see `changes` in the serialization format below.
 
 ## Game state JSON shape (legacy format — do not carry forward verbatim)
@@ -89,5 +89,5 @@ The legacy `GameSerializer` produces a custom, non-standard shape: the grid is a
 
 The legacy test suites are the executable spec for all of the above — port them case-for-case into the new `packages/game-engine` Vitest suite before considering the port done:
 
-- `GameEngineTests` / `GameControlTests` / `GameOverTests`: turn enforcement, out-of-bounds coordinates, occupied-field rejection, win detection in all 4 axes, tie detection, mine explosion (including the "own mark survives" rule), neighbor generation on first placement.
+- `GameEngineTests` / `GameControlTests` / `GameOverTests`: turn enforcement, out-of-bounds coordinates, occupied-field rejection, win detection in all 4 axes, tie detection, mine explosion (including the "only the triggering player's own marks are erased" rule), neighbor generation on first placement.
 - `GameSerializationTests` / `CoordinateConverterTests` / `GridConverterTests`: round-trip serialization correctness (less relevant verbatim once the JSON shape changes, but the underlying state transitions they exercise are still valid fixtures).
