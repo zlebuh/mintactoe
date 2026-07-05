@@ -77,7 +77,7 @@ Running the frontend natively instead of in Docker also works: `pnpm --filter we
 
 ## Testing conventions
 
-- `packages/game-engine`: Vitest, near-100% coverage expected (pure logic, no I/O). Includes property-based tests (`fast-check`) for core invariants, not just example-based tests.
+- `packages/game-engine`: Vitest, near-100% coverage expected (pure logic, no I/O) - run `pnpm --filter @mintactoe/game-engine test:coverage` to check (CI does this on every push). Includes property-based tests (`fast-check`) for core invariants, not just example-based tests, and a one-off `scripts/parity-check.ts` (not in CI, see the script header) that verified the TS port against the real C# engine during the port itself.
 - `packages/supabase-tests`: integration tests that hit a real local Supabase stack via `@supabase/supabase-js` (real anonymous sign-ins, real REST calls) to prove RLS + table grants are actually enforced, not just assumed from reading the migration SQL. **Requires `supabase start` running first** — this is the one package where `pnpm test`/`pnpm -r test` needs live local infra, unlike `game-engine`/`web`. Runs in CI as its own job (`.github/workflows/ci.yml`), which starts the stack itself via `supabase/setup-cli` + `supabase start`.
   - There are deliberately **no fallback/default values** for `SUPABASE_URL`/`SUPABASE_ANON_KEY`/`SUPABASE_SERVICE_ROLE_KEY` in the test source, even the well-known local-dev demo keys — missing env throws immediately instead of the suite silently running against a guessed value. To run locally: `supabase start`, then export the three vars from the running stack before invoking the tests:
     ```

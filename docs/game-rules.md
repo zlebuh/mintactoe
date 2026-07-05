@@ -18,7 +18,8 @@ These should remain configurable in the port (not hardcoded), since `Rules` is a
 
 ## Grid representation
 
-- The grid is **sparse**: only fields that have been "generated" (visited by move placement or neighbor-generation) exist; everything else is implicitly empty/ungenerated.
+- The grid is **fully pre-allocated at game creation** — every one of the `rows × columns` coordinates has a `Field` entry from move 0 (confirmed by reading `GameControl.Initialize`, which loops the whole board; the legacy test suite explicitly asserts every coordinate is readable immediately after init). It is *not* sparse in memory: "generated" is a per-field flag on an always-present entry, not something that controls whether the entry exists. (An earlier draft of this doc got this backwards — sparse serialization of a dense in-memory grid was mistaken for a sparse grid.)
+- Tie detection scans the entire board on every single move regardless, so there is no memory-saving reason to model the grid sparsely in-memory in the port either — pre-allocate the same way. Sparseness is worth applying only at the storage/serialization boundary (write only non-default fields to `game_state`), not in-memory.
 - Each field (`Field`) tracks:
   - `player`: `"O"`, `"X"`, or null (unoccupied)
   - `isMine`: whether this field is a mine
@@ -35,7 +36,7 @@ Players are `O` and `X`; `O` always moves first. A move (`coordinate`, `player`)
 3. Coordinate is within grid bounds.
 4. Target field is not already occupied.
 5. If the field hasn't been generated yet, generate it and its 8 neighbors now (lazy generation — mines are decided per-field, on first visit, not upfront for the whole board).
-6. Mine placement: an ungenerated field becomes a mine with probability `MineProbability`, **unless** fewer than `NoMineMoves` moves have been played so far (first N moves are always safe).
+6. Mine placement: an ungenerated field becomes a mine with probability `MineProbability`, **unless** fewer than `NoMineMoves` moves have been played so far (first N moves are always safe) — **but this safety window only applies to the field the player directly clicked.** The 8 neighbor fields generated as a side effect of that click do *not* check `NoMineMoves` at all — they can become mines from move 1 onward. This is easy to miss when reading the code casually and is directly observable: with `MineProbability = 1`, a field played within the first `NoMineMoves` moves is itself never a mine, but is very likely to be completely surrounded by mines (its `surroundedByNotExplodedMines` count maxes out at 8).
 7. If the target field is a mine: **explode** it (see below). The mine erases *the triggering player's own* nearby marks within `MinePower`; the opponent's marks are left untouched.
 8. If the target field is not a mine: place the player's mark normally.
 9. Check win (5-in-a-row) and tie conditions.
@@ -83,11 +84,30 @@ The legacy `GameSerializer` produces a custom, non-standard shape: the grid is a
 }
 ```
 
-**This shape does not need to be preserved.** Since `game_state` is moving to a real `jsonb` column with no legacy readers, the TypeScript port should use a straightforward JSON object (e.g. `{ [coordinateKey: string]: Field }`) instead of the alternating-array workaround. Keep `isGameOver`, `winner`, `playerOnTurn`, `changes`, and `movesPlayed` (or equivalents) — the frontend's realtime update handling depends on knowing what just changed, not just the full state.
+**This shape was not carried forward.** `packages/game-engine/src/serialization.ts` (issue #5) uses a plain JSON object instead of the alternating-array workaround — the in-memory grid is fully pre-allocated (see above), but the *serialized* `grid` is sparse: only fields that differ from the default (unvisited, unoccupied, non-mine) are written, keyed by `"row,col"` strings, and reconstructed into a full dense grid on deserialize:
 
-## What the tests already encode (port these first)
+```json
+{
+  "rules": { "rows": 16, "columns": 16, "seriesLength": 5, "noMineMoves": 6, "minePower": 1, "mineProbability": 0.1 },
+  "gameState": {
+    "grid": {
+      "0,0": { "player": "O", "isMine": false, "generated": true, "hasAllNeighboursGenerated": true, "surroundedByNotExplodedMines": 1 },
+      "1,2": { "player": "X", "isMine": true, "generated": true, "hasAllNeighboursGenerated": false, "surroundedByNotExplodedMines": 0 }
+    },
+    "isGameOver": true,
+    "winner": "O",
+    "playerOnTurn": "X",
+    "changes": [{ "row": 0, "col": 0 }, { "row": 1, "col": 2 }],
+    "movesPlayed": 7
+  }
+}
+```
 
-The legacy test suites are the executable spec for all of the above — port them case-for-case into the new `packages/game-engine` Vitest suite before considering the port done:
+## What the tests encode (ported into packages/game-engine)
 
-- `GameEngineTests` / `GameControlTests` / `GameOverTests`: turn enforcement, out-of-bounds coordinates, occupied-field rejection, win detection in all 4 axes, tie detection, mine explosion (including the "only the triggering player's own marks are erased" rule), neighbor generation on first placement.
-- `GameSerializationTests` / `CoordinateConverterTests` / `GridConverterTests`: round-trip serialization correctness (less relevant verbatim once the JSON shape changes, but the underlying state transitions they exercise are still valid fixtures).
+The legacy test suites were the executable spec for all of the above, ported case-for-case (same scenarios, same expected values) into `packages/game-engine`'s Vitest suite:
+
+- `gameControl.test.ts` / `makeMove.test.ts` / `gameOverChecks.test.ts` / `mineExplosion.test.ts`: turn enforcement, out-of-bounds coordinates, occupied-field rejection, win detection (horizontal + diagonal), tie detection (including the mocked-mine tie scenarios), mine explosion (the "only the triggering player's own marks are erased" rule, verified against the exact C# `SurroundingMinesChanges`/`BombExploded*` expected values), the `NoMineMoves`-only-applies-to-the-clicked-field subtlety.
+- `properties.test.ts`: `fast-check` property tests for the mine-explosion invariant (opponent marks never erased, every affected counter decremented by exactly 1) and the move/turn-alternation invariant, generated across random inputs rather than fixed examples.
+- `serialization.test.ts`: round-trip correctness for the new sparse JSON shape (not the legacy alternating-array format).
+- `scripts/parity-check.ts`: one-off script (not in CI) that replayed several deterministic scenarios (`mineProbability` 0 or 1, so outcomes don't depend on the actual random draw) through both the real C# engine and the TS port and diffed the results — used once during the port, all scenarios matched exactly.
