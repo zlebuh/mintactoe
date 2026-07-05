@@ -1,0 +1,29 @@
+# Local dev orchestration for the frontend. The Supabase stack itself (Postgres, Auth, Realtime,
+# Studio) is run separately via `supabase start` (the Supabase CLI manages its own docker compose
+# stack internally) - this file just runs apps/web in a dev container pointed at it, so the whole
+# app can be exercised locally without installing Node on the host.
+#
+# Usage:
+#   supabase start          # starts the local Supabase stack (see `supabase status` for the URL/keys)
+#   cp .env.example .env    # fill in VITE_SUPABASE_ANON_KEY from `supabase status`
+#   docker compose up       # starts the frontend dev server on http://localhost:5173
+
+services:
+  web:
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile.dev
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./apps/web:/repo/apps/web
+      - ./packages/game-engine:/repo/packages/game-engine
+      - /repo/node_modules
+      - /repo/apps/web/node_modules
+      - /repo/packages/game-engine/node_modules
+    environment:
+      VITE_SUPABASE_URL: http://host.docker.internal:54321
+      VITE_SUPABASE_ANON_KEY: ${VITE_SUPABASE_ANON_KEY}
+      CHOKIDAR_USEPOLLING: "true"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
