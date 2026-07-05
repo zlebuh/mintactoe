@@ -42,3 +42,27 @@ jobs:
 
       - run: pnpm --filter web lint
       - run: pnpm --filter web build
+
+  supabase:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: pnpm/action-setup@v6
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '22'
+          cache: 'pnpm'
+
+      - uses: supabase/setup-cli@v2
+
+      - run: pnpm install --frozen-lockfile
+
+      - run: supabase start
+
+      - run: pnpm --filter @mintactoe/supabase-tests lint
+      - run: pnpm --filter @mintactoe/supabase-tests test
+
+      - run: supabase stop
+        if: always()

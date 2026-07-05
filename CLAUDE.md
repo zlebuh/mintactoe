@@ -78,5 +78,6 @@ Running the frontend natively instead of in Docker also works: `pnpm --filter we
 ## Testing conventions
 
 - `packages/game-engine`: Vitest, near-100% coverage expected (pure logic, no I/O). Includes property-based tests (`fast-check`) for core invariants, not just example-based tests.
-- `supabase/functions/*`: unit-test the orchestration logic with a mocked Supabase client; integration-test against a real local stack (`supabase start` + `supabase functions serve`) to prove RLS is actually enforced, not just assumed.
+- `packages/supabase-tests`: integration tests that hit a real local Supabase stack via `@supabase/supabase-js` (real anonymous sign-ins, real REST calls) to prove RLS + table grants are actually enforced, not just assumed from reading the migration SQL. **Requires `supabase start` running first** — this is the one package where `pnpm test`/`pnpm -r test` needs live local infra, unlike `game-engine`/`web`. Runs in CI as its own job (`.github/workflows/ci.yml`), which starts the stack itself via `supabase/setup-cli` + `supabase start`.
+- `supabase/functions/*` (once they exist): unit-test the orchestration logic with a mocked Supabase client; extend `packages/supabase-tests` (or a similar suite) to integration-test the deployed functions against the real local stack.
 - `apps/web`: component tests (Vitest + React Testing Library) plus Playwright e2e for the full online flow (two browser contexts playing a real game against the local Supabase stack).
