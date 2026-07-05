@@ -79,5 +79,12 @@ Running the frontend natively instead of in Docker also works: `pnpm --filter we
 
 - `packages/game-engine`: Vitest, near-100% coverage expected (pure logic, no I/O). Includes property-based tests (`fast-check`) for core invariants, not just example-based tests.
 - `packages/supabase-tests`: integration tests that hit a real local Supabase stack via `@supabase/supabase-js` (real anonymous sign-ins, real REST calls) to prove RLS + table grants are actually enforced, not just assumed from reading the migration SQL. **Requires `supabase start` running first** — this is the one package where `pnpm test`/`pnpm -r test` needs live local infra, unlike `game-engine`/`web`. Runs in CI as its own job (`.github/workflows/ci.yml`), which starts the stack itself via `supabase/setup-cli` + `supabase start`.
+  - There are deliberately **no fallback/default values** for `SUPABASE_URL`/`SUPABASE_ANON_KEY`/`SUPABASE_SERVICE_ROLE_KEY` in the test source, even the well-known local-dev demo keys — missing env throws immediately instead of the suite silently running against a guessed value. To run locally: `supabase start`, then export the three vars from the running stack before invoking the tests:
+    ```
+    eval "$(supabase status -o env)"
+    export SUPABASE_URL="$API_URL" SUPABASE_ANON_KEY="$ANON_KEY" SUPABASE_SERVICE_ROLE_KEY="$SERVICE_ROLE_KEY"
+    pnpm --filter @mintactoe/supabase-tests test
+    ```
+    CI does the equivalent itself as a step, after `supabase start`.
 - `supabase/functions/*` (once they exist): unit-test the orchestration logic with a mocked Supabase client; extend `packages/supabase-tests` (or a similar suite) to integration-test the deployed functions against the real local stack.
 - `apps/web`: component tests (Vitest + React Testing Library) plus Playwright e2e for the full online flow (two browser contexts playing a real game against the local Supabase stack).

@@ -56,10 +56,37 @@ jobs:
           cache: 'pnpm'
 
       - uses: supabase/setup-cli@v2
+        id: setup-cli
+
+      - id: cache-supabase-images
+        uses: actions/cache@v6
+        with:
+          path: ~/supabase-docker-images.tar
+          key: supabase-docker-images-${{ runner.os }}-${{ steps.setup-cli.outputs.version }}
+
+      # Loads previously-saved images into the (empty, on a fresh runner) local Docker daemon
+      # so `supabase start` below sees them as "already present" and skips pulling entirely.
+      - name: Load cached Supabase Docker images
+        if: steps.cache-supabase-images.outputs.cache-hit == 'true'
+        run: docker load -i ~/supabase-docker-images.tar
 
       - run: pnpm install --frozen-lockfile
 
       - run: supabase start
+
+      # Only runs on a cache miss (first run, or the CLI version bumped and pulled different
+      # image tags). Safe to snapshot every image present: the runner's Docker daemon starts
+      # empty, so at this point it holds exactly what `supabase start` just pulled.
+      - name: Save Supabase Docker images to cache
+        if: steps.cache-supabase-images.outputs.cache-hit != 'true'
+        run: docker save $(docker images -q) -o ~/supabase-docker-images.tar
+
+      - name: Export local Supabase URL/keys as env vars
+        run: |
+          eval "$(supabase status -o env)"
+          echo "SUPABASE_URL=$API_URL" >> "$GITHUB_ENV"
+          echo "SUPABASE_ANON_KEY=$ANON_KEY" >> "$GITHUB_ENV"
+          echo "SUPABASE_SERVICE_ROLE_KEY=$SERVICE_ROLE_KEY" >> "$GITHUB_ENV"
 
       - run: pnpm --filter @mintactoe/supabase-tests lint
       - run: pnpm --filter @mintactoe/supabase-tests test
