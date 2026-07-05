@@ -52,6 +52,29 @@ supabase/
 - CI is new and separate from the legacy workflows: `.github/workflows/ci.yml` runs on PRs into the feature branch. The real production deploy workflows (`deploy-supabase.yml`, `deploy-web.yml`) are gated to `master` only, so they stay dormant until the feature branch is finally merged — that merge *is* the production cutover, not a separate step.
 - The full architecture/testing plan lives in the project's plan history; this file and `docs/game-rules.md` are the durable, always-current summary of it.
 
+## Local development
+
+One command runs the full new stack locally (Supabase + frontend) against each other:
+
+```
+pnpm dev:full
+```
+
+This just chains `supabase start && docker compose up --build` (see root `package.json`). Equivalent manual steps:
+
+```
+supabase start                          # starts the local Supabase stack (Postgres/Auth/Realtime/Studio),
+                                         # applying supabase/migrations/ automatically
+supabase status                         # shows the local anon key and API URL
+cp .env.example .env                    # then fill in VITE_SUPABASE_ANON_KEY from the above (one-time)
+docker compose up                       # builds and runs apps/web in a dev container with hot reload,
+                                         # pointed at the local Supabase stack via host.docker.internal
+```
+
+The Supabase stack itself is run via `supabase start`, not reimplemented in `docker-compose.yml` — the Supabase CLI already manages its own docker compose stack, version-matched to `supabase/config.toml`, with migrations auto-applied and a Studio UI. `docker-compose.yml` at the repo root only wraps `apps/web`, so the whole app can be exercised end-to-end (including from a phone/another device on the same network, or without a local Node install) without hand-wiring the Supabase containers ourselves.
+
+Running the frontend natively instead of in Docker also works: `pnpm --filter web dev` (after `supabase start`), with the same env vars in `apps/web/.env` — Docker is optional, not required.
+
 ## Testing conventions
 
 - `packages/game-engine`: Vitest, near-100% coverage expected (pure logic, no I/O). Includes property-based tests (`fast-check`) for core invariants, not just example-based tests.
