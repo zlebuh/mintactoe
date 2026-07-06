@@ -1,11 +1,11 @@
 import { describe, expect, it } from "vitest";
 import fc from "fast-check";
-import { initialize } from "./gameControl.js";
-import { makeMove } from "./makeMove.js";
-import { explodeMine } from "./mineExplosion.js";
-import { getField } from "./grid.js";
-import { allNeighbors } from "./coordinate.js";
-import type { Player } from "./types.js";
+import { initialize } from "../src/gameControl.js";
+import { makeMove } from "../src/makeMove.js";
+import { explodeMine } from "../src/mineExplosion.js";
+import { getField } from "../src/grid.js";
+import { allNeighbors } from "../src/coordinate.js";
+import type { Player } from "../src/types.js";
 
 const playerArb = fc.constantFrom<Player>("O", "X");
 const cellArb = fc.oneof(fc.constant(null), playerArb);

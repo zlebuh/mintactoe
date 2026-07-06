@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
-import { initialize } from "./gameControl.js";
-import { isOnGrid } from "./coordinate.js";
-import { getField } from "./grid.js";
+import { initialize } from "../src/gameControl.js";
+import { isOnGrid } from "../src/coordinate.js";
+import { getField } from "../src/grid.js";
 
 describe("initialize", () => {
   it("starts with no moves played and O on turn (GameControlTests.GameInitialization)", () => {

@@ -9,10 +9,11 @@
     "build": "tsc",
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",
-    "lint": "tsc --noEmit",
+    "lint": "tsc -p tsconfig.test.json",
     "parity-check": "tsx scripts/parity-check.ts"
   },
   "devDependencies": {
+    "@types/node": "latest",
     "@vitest/coverage-v8": "latest",
     "fast-check": "latest",
     "tsx": "latest",

@@ -41,6 +41,9 @@ importers:
 
   packages/game-engine:
     devDependencies:
+      '@types/node':
+        specifier: latest
+        version: 26.1.0
       '@vitest/coverage-v8':
         specifier: latest
         version: 4.1.9(vitest@4.1.9)

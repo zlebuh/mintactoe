@@ -1,13 +1,13 @@
 import { describe, expect, it } from "vitest";
-import { initialize } from "./gameControl.js";
-import { makeMove } from "./makeMove.js";
-import { getField } from "./grid.js";
+import { initialize } from "../src/gameControl.js";
+import { makeMove } from "../src/makeMove.js";
+import { getField } from "../src/grid.js";
 import {
   CoordinateOutOfGridError,
   FieldOccupiedError,
   GameIsOverError,
   NotYourTurnError,
-} from "./errors.js";
+} from "../src/errors.js";
 
 // `random() < mineProbability` with mineProbability 0: never true, regardless of what
 // `random()` returns. Used throughout to keep move sequences deterministic.

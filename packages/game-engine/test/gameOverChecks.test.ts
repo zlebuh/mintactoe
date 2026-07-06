@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
-import { initialize } from "./gameControl.js";
-import { makeMove } from "./makeMove.js";
-import { getField } from "./grid.js";
+import { initialize } from "../src/gameControl.js";
+import { makeMove } from "../src/makeMove.js";
+import { getField } from "../src/grid.js";
 
 const noMines = () => 1;
 

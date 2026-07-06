@@ -1,9 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { initialize } from "./gameControl.js";
-import { makeMove } from "./makeMove.js";
-import { getField } from "./grid.js";
-import { deserializeGame, serializeGame } from "./serialization.js";
-import { GameSerializationError } from "./errors.js";
+import { initialize } from "../src/gameControl.js";
+import { makeMove } from "../src/makeMove.js";
+import { getField } from "../src/grid.js";
+import { deserializeGame, serializeGame } from "../src/serialization.js";
+import { GameSerializationError } from "../src/errors.js";
 
 const noMines = () => 1;
 
