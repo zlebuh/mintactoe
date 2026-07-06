@@ -6,7 +6,7 @@ import type { Player } from "../src/types.js";
 
 const noMines = () => 1;
 
-describe("mine explosion (GameControlTests.PlacingAMoveThatCauseMineExplosion_PutsGameToCorrectState)", () => {
+describe("mine explosion", () => {
   it("erases only the triggering player's own marks; the mine keeps isMine and gets the triggering player's mark", () => {
     const game = initialize({ mineProbability: 0 });
 
@@ -19,7 +19,8 @@ describe("mine explosion (GameControlTests.PlacingAMoveThatCauseMineExplosion_Pu
     makeMove(game, "O", { row: 2, col: 1 }, noMines);
     makeMove(game, "X", { row: 2, col: 2 }, noMines);
 
-    // mock, mirroring the C# test's direct field mutation (not achievable via legal moves alone)
+    // mock: force a mine into place directly, since a legal move sequence alone can't put one
+    // exactly here (mineProbability is 0 above to keep the setup moves deterministic)
     getField(game.gameState.grid, { row: 1, col: 1 }).isMine = true;
     for (let i = 0; i <= 2; i++) {
       for (let j = 0; j <= 2; j++) {
@@ -60,7 +61,7 @@ describe("mine explosion (GameControlTests.PlacingAMoveThatCauseMineExplosion_Pu
   });
 });
 
-describe("mine generation and counters (GameControlTests.SurroundingMinesChanges)", () => {
+describe("mine generation and counters", () => {
   it("only the directly-clicked field respects noMineMoves - neighbor-generated fields ignore it", () => {
     const game = initialize({ mineProbability: 1, noMineMoves: 2 });
 
@@ -87,7 +88,7 @@ describe("mine generation and counters (GameControlTests.SurroundingMinesChanges
   });
 });
 
-describe("noMineMoves (GameControlTests.Mines_NoMineMovesTest)", () => {
+describe("noMineMoves", () => {
   it("guarantees the first noMineMoves directly-clicked cells are safe", () => {
     const game = initialize({ mineProbability: 1, noMineMoves: 2 });
 
@@ -103,7 +104,7 @@ describe("noMineMoves (GameControlTests.Mines_NoMineMovesTest)", () => {
 });
 
 describe("mine explosion edge cases", () => {
-  it("handles exploding with no own marks nearby to erase (GameControlTests.BombExplodedWithNoSurroundings)", () => {
+  it("handles exploding with no own marks nearby to erase", () => {
     const game = initialize({ mineProbability: 1, noMineMoves: 2 });
 
     makeMove(game, "O", { row: 10, col: 10 });
@@ -120,7 +121,7 @@ describe("mine explosion edge cases", () => {
     expect(f1313.player).toBe("X");
   });
 
-  it("erases the triggering player's own nearby mark, then allows the freed field to be overlaid (GameControlTests.BombExplodedAndErases)", () => {
+  it("erases the triggering player's own nearby mark, then allows the freed field to be overlaid", () => {
     const game = initialize({ mineProbability: 1, noMineMoves: 2 });
 
     makeMove(game, "O", { row: 10, col: 10 });

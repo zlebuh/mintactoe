@@ -4,7 +4,7 @@ import { isOnGrid } from "../src/coordinate.js";
 import { getField } from "../src/grid.js";
 
 describe("initialize", () => {
-  it("starts with no moves played and O on turn (GameControlTests.GameInitialization)", () => {
+  it("starts with no moves played and O on turn", () => {
     const game = initialize();
     expect(game.gameState.movesPlayed).toBe(0);
     expect(game.gameState.playerOnTurn).toBe("O");
@@ -20,8 +20,8 @@ describe("initialize", () => {
   });
 });
 
-describe("isOnGrid (GameControlTests.CoordinateTests)", () => {
-  it("matches the C# bounds check exactly", () => {
+describe("isOnGrid", () => {
+  it("treats a coordinate as on-grid only when both row and col are within [0, rows) / [0, columns)", () => {
     const game = initialize();
     expect(isOnGrid({ row: 10, col: 10 }, game.rules)).toBe(true);
     expect(isOnGrid({ row: 0, col: 0 }, game.rules)).toBe(true);

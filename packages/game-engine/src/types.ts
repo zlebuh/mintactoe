@@ -22,9 +22,8 @@ export interface Rules {
   mineProbability: number;
 }
 
-// Mirrors the C# `Rules` class defaults exactly. Production games historically overrode
-// rows/columns to 16x16 at the API layer (see docs/game-rules.md) - that's a caller concern,
-// not an engine default.
+// Default rules for a new game. Production games override rows/columns to 16x16 at the API
+// layer (see docs/game-rules.md) - that's a caller concern, not an engine default.
 export const DEFAULT_RULES: Rules = {
   rows: 20,
   columns: 20,

@@ -13,7 +13,7 @@ import {
 // `random()` returns. Used throughout to keep move sequences deterministic.
 const noMines = () => 1;
 
-describe("makeMove (GameControlTests.PlacingAMove)", () => {
+describe("makeMove", () => {
   it("places a mark, alternates turn, and records the change", () => {
     const game = initialize({ mineProbability: 0 });
 

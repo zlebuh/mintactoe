@@ -4,11 +4,10 @@ import { createDefaultField, createGrid } from "./grid.js";
 import { GameSerializationError } from "./errors.js";
 
 /**
- * Storage format for `game_state` (jsonb). Deliberately not the legacy C# alternating-array
- * shape (see docs/game-rules.md) - there's no legacy reader to stay compatible with. The grid
- * is sparse here (only fields that differ from the default are written) even though the
- * in-memory `Grid` is fully pre-allocated; deserializing rebuilds the full dense grid and
- * overlays these entries on top.
+ * Storage format for `game_state` (jsonb). The grid is sparse here (only fields that differ
+ * from the default are written) even though the in-memory `Grid` is fully pre-allocated;
+ * deserializing rebuilds the full dense grid and overlays these entries on top. See
+ * docs/game-rules.md for the full format.
  */
 export interface SerializedGame {
   rules: Rules;

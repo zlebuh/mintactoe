@@ -6,7 +6,7 @@ import { getField } from "../src/grid.js";
 const noMines = () => 1;
 
 describe("win detection", () => {
-  it("detects a horizontal win (GameControlTests.GamePlayed_OWins)", () => {
+  it("detects a horizontal win", () => {
     const game = initialize({ rows: 3, columns: 3, seriesLength: 3, mineProbability: 0 });
     makeMove(game, "O", { row: 0, col: 0 }, noMines);
     makeMove(game, "X", { row: 1, col: 0 }, noMines);
@@ -19,7 +19,7 @@ describe("win detection", () => {
     expect(game.gameState.playerOnTurn).toBeNull();
   });
 
-  it("detects a diagonal win across the default 20x20 board (GameControlTests.GamePlayed_XWinsDiagonally)", () => {
+  it("detects a diagonal win across the default 20x20 board", () => {
     const game = initialize({ mineProbability: 0 });
     makeMove(game, "O", { row: 0, col: 0 }, noMines);
     makeMove(game, "X", { row: 10, col: 10 }, noMines);
@@ -37,7 +37,7 @@ describe("win detection", () => {
     expect(game.gameState.playerOnTurn).toBeNull();
   });
 
-  it("wins when the last move fills the only remaining gap in a run (GameIsOverCheckTests.LastMissingPlacedInside)", () => {
+  it("wins when the last move fills the only remaining gap in a run", () => {
     const game = initialize({ rows: 10, columns: 10, seriesLength: 5, mineProbability: 0 });
     makeMove(game, "O", { row: 0, col: 0 }, noMines);
     makeMove(game, "X", { row: 1, col: 0 }, noMines);
@@ -54,9 +54,9 @@ describe("win detection", () => {
   });
 
   it("wins on the very first move when seriesLength is 1", () => {
-    // seriesLength: 1 is a documented edge case in the C# engine (CheckPlayerWins returns
-    // true unconditionally) - not exercised by the legacy C# test suite, but worth locking in
-    // since it's a one-line special case easy to silently drop during a port.
+    // seriesLength: 1 is a documented edge case (checkPlayerWins returns true unconditionally,
+    // see gameOverChecks.ts) - worth locking in since it's a one-line special case easy to
+    // silently drop or regress.
     const game = initialize({ seriesLength: 1, mineProbability: 0 });
     makeMove(game, "O", { row: 0, col: 0 }, noMines);
     expect(game.gameState.isGameOver).toBe(true);
@@ -65,7 +65,7 @@ describe("win detection", () => {
 });
 
 describe("tie detection", () => {
-  it("ties when the whole board fills with no winner (GameControlTests.GamePlayed_Tie)", () => {
+  it("ties when the whole board fills with no winner", () => {
     const game = initialize({ rows: 3, columns: 3, seriesLength: 3, mineProbability: 0 });
     makeMove(game, "O", { row: 0, col: 0 }, noMines);
     makeMove(game, "X", { row: 1, col: 1 }, noMines);
@@ -82,7 +82,7 @@ describe("tie detection", () => {
     expect(game.gameState.playerOnTurn).toBeNull();
   });
 
-  it("ties when a mocked mine occupies the last empty cell (GameControlTests.GamePlayed_WithBomb_Tie)", () => {
+  it("ties when a mocked mine occupies the last empty cell", () => {
     const game = initialize({ rows: 3, columns: 3, seriesLength: 3, mineProbability: 0 });
     makeMove(game, "O", { row: 2, col: 1 }, noMines);
     makeMove(game, "X", { row: 1, col: 1 }, noMines);
@@ -99,7 +99,7 @@ describe("tie detection", () => {
     expect(game.gameState.playerOnTurn).toBeNull();
   });
 
-  it("ties after a mine explosion leaves a cell empty that later gets overlaid (GameControlTests.GamePlayed_WithExplodedBomb_Tie)", () => {
+  it("ties after a mine explosion leaves a cell empty that later gets overlaid", () => {
     const game = initialize({ rows: 3, columns: 3, seriesLength: 3, mineProbability: 0 });
     makeMove(game, "O", { row: 1, col: 0 }, noMines);
     makeMove(game, "X", { row: 0, col: 1 }, noMines);

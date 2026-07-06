@@ -11,14 +11,13 @@ import {
 } from "./errors.js";
 
 /**
- * Mutates `game` in place, mirroring the C# engine's reference semantics.
+ * Mutates `game` in place.
  *
- * `random` defaults to `Math.random` (unseeded, matching the C# engine's shared, unseeded
- * `Random` instance) and is injectable for deterministic tests/parity checks.
+ * `random` defaults to `Math.random` (unseeded) and is injectable for deterministic tests.
  *
- * Non-obvious rule ported from the C# engine (see docs/game-rules.md): only the *directly
- * clicked* field respects `noMineMoves` - fields generated as a side effect of being someone
- * else's neighbor can become mines from move 1 onward, regardless of `noMineMoves`.
+ * Non-obvious rule (see docs/game-rules.md): only the *directly clicked* field respects
+ * `noMineMoves` - fields generated as a side effect of being someone else's neighbor can
+ * become mines from move 1 onward, regardless of `noMineMoves`.
  */
 export function makeMove(
   game: Game,

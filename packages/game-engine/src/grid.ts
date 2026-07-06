@@ -11,11 +11,11 @@ export function createDefaultField(): Field {
   };
 }
 
-// Every coordinate in bounds is allocated up front (mirrors GameControl.Initialize in the C#
-// engine, which pre-allocates the full rows*columns dictionary). CheckTie already scans the
-// entire board on every move, so a "lazy/sparse" in-memory grid would densify on the first move
-// anyway - pre-allocating is simpler and removes an entire class of "was this coordinate ever
-// touched" bugs. Sparseness is instead applied at the serialization boundary (see serialization.ts).
+// Every coordinate in bounds is allocated up front rather than created lazily on first visit.
+// checkTie() scans the entire board on every move, so a lazy/sparse grid would end up fully
+// populated after move 1 anyway - pre-allocating up front is simpler and removes a whole class
+// of "was this coordinate ever touched" bugs, for no real memory cost. Sparseness is instead
+// applied at the serialization boundary (see serialization.ts).
 export function createGrid(rules: Rules): Grid {
   const grid: Grid = new Map();
   for (let row = 0; row < rules.rows; row++) {
