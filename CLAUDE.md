@@ -33,6 +33,8 @@ supabase/
   config.toml           Local dev + project config
   migrations/            SQL schema + RLS policies — the source of truth for the DB
   functions/
+    deno.json              Shared Deno config for all functions (test file discovery, see below)
+    _shared/                Auth/error/response helpers + game-row typing shared by all three functions
     create-game/
     join-game/
     make-move/
@@ -60,16 +62,21 @@ One command runs the full new stack locally (Supabase + frontend) against each o
 pnpm dev:full
 ```
 
-This just chains `supabase start && docker compose up --build` (see root `package.json`). Equivalent manual steps:
+This just chains `pnpm --filter @mintactoe/game-engine build && supabase start && docker compose up --build` (see root `package.json`). Equivalent manual steps:
 
 ```
-supabase start                          # starts the local Supabase stack (Postgres/Auth/Realtime/Studio),
-                                         # applying supabase/migrations/ automatically
+pnpm --filter @mintactoe/game-engine build   # builds packages/game-engine/dist - supabase/functions/*
+                                              # import from there (not src), and must exist before the
+                                              # next step or the local Edge Runtime fails to boot them
+supabase start                          # starts the local Supabase stack (Postgres/Auth/Realtime/Studio/
+                                         # Edge Functions), applying supabase/migrations/ automatically
 supabase status                         # shows the local anon key and API URL
 cp .env.example .env                    # then fill in VITE_SUPABASE_ANON_KEY from the above (one-time)
 docker compose up                       # builds and runs apps/web in a dev container with hot reload,
                                          # pointed at the local Supabase stack via host.docker.internal
 ```
+
+If you edit `packages/game-engine` while a local stack is already running, re-run the build and then `supabase stop && supabase start` - the local Edge Runtime doesn't pick up dist changes made after it started.
 
 The Supabase stack itself is run via `supabase start`, not reimplemented in `docker-compose.yml` — the Supabase CLI already manages its own docker compose stack, version-matched to `supabase/config.toml`, with migrations auto-applied and a Studio UI. `docker-compose.yml` at the repo root only wraps `apps/web`, so the whole app can be exercised end-to-end (including from a phone/another device on the same network, or without a local Node install) without hand-wiring the Supabase containers ourselves.
 
@@ -86,5 +93,8 @@ Running the frontend natively instead of in Docker also works: `pnpm --filter we
     pnpm --filter @mintactoe/supabase-tests test
     ```
     CI does the equivalent itself as a step, after `supabase start`.
-- `supabase/functions/*` (once they exist): unit-test the orchestration logic with a mocked Supabase client; extend `packages/supabase-tests` (or a similar suite) to integration-test the deployed functions against the real local stack.
+- `supabase/functions/*`: each function is a thin `index.ts` (`Deno.serve`, extracts the caller from the JWT via `_shared/auth.ts`, calls the handler, maps errors to HTTP status) delegating to an exported `handler.ts` orchestration function that takes a `SupabaseClient` as a parameter — that's what makes it unit-testable without booting the serve loop. Unit tests (`handler.test.ts`, Deno's built-in test runner, not Vitest — this code runs on Deno, not Node) use `_shared/testSupabase.ts`, a minimal fluent fake of the `.from("games")...` chain that hands back scripted `{ data, error }` results in call order, rather than a full Postgrest mock. Run with `deno test --allow-env --allow-net --config supabase/functions/deno.json supabase/functions` (the explicit `--config` matters: Deno's auto-discovery walks up from the cwd and stops at the root `package.json`/`pnpm-workspace.yaml` instead of finding this one).
+  - **These functions import `packages/game-engine/dist` (built output), not `src`.** That package's own internal imports use the `./foo.js`-pointing-at-`./foo.ts` convention (valid under its `tsconfig.json`'s `"moduleResolution": "Bundler"`, for Node/Vite consumers) — plain Deno's module graph resolution can't follow that, and critically, the *deployed* `supabase-edge-runtime` (unlike the plain `deno` CLI) doesn't support the `sloppy-imports` flag that would otherwise paper over it, so pointing at `src` breaks the function's actual boot, not just local type-checking. Run `pnpm --filter @mintactoe/game-engine build` before `supabase start` or `deno test`/`deno check` against this directory (see "Local development" above); CI does this in both the `edge-functions` and `supabase` jobs.
+  - **The `Player`/`Coordinate`/`Rules`/`SerializedGame` types are mirrored locally in `_shared/gameRow.ts`**, not imported from `packages/game-engine`, even though the values (`initialize`, `serializeGame`, `deserializeGame`, `makeMove`, the `*Error` classes) are imported normally from `dist/index.js`. Deno's checker infers value types loosely straight from the plain compiled JS but doesn't resolve a `type`-only export re-exported through a `.js` specifier back to its real declaration — and, as above, it can't be pointed at `src` either. These types are small and frozen (see `docs/game-rules.md`), so the duplication is a deliberate, documented trade-off, not an oversight.
+  - Integration tests live in `packages/supabase-tests/src/edge-functions.test.ts` (Vitest, real `fetch` calls to `${SUPABASE_URL}/functions/v1/<name>` with real anonymous-session bearer tokens) — `supabase start` serves local functions automatically (config.toml's `[edge_runtime]` block), no separate `supabase functions serve` needed for CI/testing purposes.
 - `apps/web`: component tests (Vitest + React Testing Library) plus Playwright e2e for the full online flow (two browser contexts playing a real game against the local Supabase stack).

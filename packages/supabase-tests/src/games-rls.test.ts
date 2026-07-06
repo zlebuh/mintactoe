@@ -1,40 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { createClient, type SupabaseClient } from "@supabase/supabase-js";
-
-// No fallback values on purpose: these must come from the actually-running local stack
-// (`supabase status -o env`), never a literal string committed to the repo, even a
-// non-secret local-dev default. Missing env fails the whole file loudly instead of
-// silently running against a guessed value.
-function requireEnv(name: string): string {
-  const value = process.env[name];
-  if (!value) {
-    throw new Error(
-      `${name} is not set. Run \`supabase start\`, then export its output ` +
-        "(see CLAUDE.md's Local development section) before running these tests.",
-    );
-  }
-  return value;
-}
-
-const SUPABASE_URL = requireEnv("SUPABASE_URL");
-const ANON_KEY = requireEnv("SUPABASE_ANON_KEY");
-const SERVICE_ROLE_KEY = requireEnv("SUPABASE_SERVICE_ROLE_KEY");
-
-interface AnonSession {
-  client: SupabaseClient;
-  userId: string;
-}
-
-async function signInAnonymously(): Promise<AnonSession> {
-  const client = createClient(SUPABASE_URL, ANON_KEY);
-  const { data, error } = await client.auth.signInAnonymously();
-  if (error || !data.user) {
-    throw error ?? new Error("anonymous sign-in returned no user");
-  }
-  return { client, userId: data.user.id };
-}
-
-const serviceClient = createClient(SUPABASE_URL, SERVICE_ROLE_KEY);
+import { serviceClient, signInAnonymously } from "./testEnv.js";
 
 describe("games RLS + grants", () => {
   it("gates reads/writes across host, invited participant, and an uninvolved third party", async () => {
