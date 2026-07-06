@@ -20,8 +20,11 @@ export function Board({ game, onCellClick }: BoardProps) {
     <div
       role="grid"
       aria-label="Game board"
-      className="grid w-full max-w-md gap-[2px] rounded-2xl bg-black/10 p-[2px]"
-      style={{ gridTemplateColumns: `repeat(${columns}, minmax(0, 1fr))` }}
+      className="grid aspect-square w-full max-w-md gap-[2px] overflow-hidden rounded-2xl bg-black/10 p-[2px]"
+      style={{
+        gridTemplateColumns: `repeat(${columns}, minmax(0, 1fr))`,
+        gridTemplateRows: `repeat(${rows}, minmax(0, 1fr))`,
+      }}
     >
       {cells.map((coordinate) => {
         const key = coordinateKey(coordinate)
@@ -35,21 +38,27 @@ export function Board({ game, onCellClick }: BoardProps) {
             type="button"
             role="gridcell"
             aria-label={`Row ${coordinate.row + 1}, column ${coordinate.col + 1}${
-              field.player ? `, ${field.player}` : ''
+              field.player
+                ? `, ${field.player}, ${field.surroundedByNotExplodedMines} mines nearby`
+                : ''
             }`}
             disabled={!isEmpty || game.gameState.isGameOver}
             onClick={() => onCellClick(coordinate)}
             className={cn(
-              'flex aspect-square items-center justify-center bg-white text-[min(4vw,1.1rem)] font-bold',
+              'flex items-center justify-center bg-white p-[8%]',
               'disabled:pointer-events-none',
               isEmpty && !game.gameState.isGameOver && 'hover:bg-brand/10 active:bg-brand/20',
-              field.player === 'O' && 'text-player-o',
-              field.player === 'X' && 'text-player-x',
             )}
           >
             {field.player ? (
-              <span key={flashKey} className="inline-block animate-[mark-pop_150ms_ease-out]">
-                {field.player}
+              <span
+                key={flashKey}
+                className={cn(
+                  'flex h-full w-full items-center justify-center rounded-md text-[min(3.2vw,1rem)] font-extrabold text-white animate-[mark-pop_150ms_ease-out]',
+                  field.player === 'O' ? 'bg-player-o' : 'bg-player-x',
+                )}
+              >
+                {field.surroundedByNotExplodedMines}
               </span>
             ) : (
               changedKeys.has(key) && (
@@ -58,7 +67,7 @@ export function Board({ game, onCellClick }: BoardProps) {
                 <span
                   key={flashKey}
                   aria-hidden="true"
-                  className="block h-2/3 w-2/3 rounded-full animate-[cell-flash_400ms_ease-out]"
+                  className="block h-full w-full rounded-md animate-[cell-flash_400ms_ease-out]"
                 />
               )
             )}

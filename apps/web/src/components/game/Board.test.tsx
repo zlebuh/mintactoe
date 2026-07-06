@@ -30,7 +30,7 @@ describe('Board', () => {
     const onCellClick = vi.fn()
     render(<Board game={game} onCellClick={onCellClick} />)
 
-    await user.click(screen.getByLabelText('Row 1, column 1, O'))
+    await user.click(screen.getByLabelText(/Row 1, column 1, O/))
 
     expect(onCellClick).not.toHaveBeenCalled()
   })
