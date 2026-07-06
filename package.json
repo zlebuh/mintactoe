@@ -4,7 +4,7 @@
   "type": "module",
   "scripts": {
     "dev": "pnpm --filter web dev",
-    "dev:full": "supabase start && docker compose up --build",
+    "dev:full": "pnpm --filter @mintactoe/game-engine build && supabase start && docker compose up --build",
     "build": "pnpm -r build",
     "test": "pnpm -r test",
     "lint": "pnpm -r lint"

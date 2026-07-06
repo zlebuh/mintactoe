@@ -385,6 +385,19 @@ deno_version = 2
 # [edge_runtime.secrets]
 # secret_key = "env(SECRET_VALUE)"
 
+# All three functions authenticate the caller themselves (see supabase/functions/_shared/auth.ts)
+# and write via the service-role client, bypassing RLS by design (see
+# supabase/migrations/20260704220000_games_schema.sql) - verify_jwt must stay on so the platform
+# rejects unauthenticated requests before they even reach the handler.
+[functions.create-game]
+verify_jwt = true
+
+[functions.join-game]
+verify_jwt = true
+
+[functions.make-move]
+verify_jwt = true
+
 [analytics]
 enabled = false
 port = 54327
