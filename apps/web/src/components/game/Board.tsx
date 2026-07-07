@@ -55,8 +55,11 @@ export function Board({ game, onCellClick }: BoardProps) {
             disabled={!isEmpty || game.gameState.isGameOver}
             onClick={() => onCellClick(coordinate)}
             className={cn(
-              'flex items-center justify-center bg-white p-[8%]',
+              'flex items-center justify-center p-[8%]',
               'disabled:pointer-events-none',
+              // Lingers on the fields from the last move (not just the brief pop/flash above) -
+              // naturally clears itself once the *next* move updates game.gameState.changes.
+              justChanged ? 'bg-mine-flash/15' : 'bg-white',
               isEmpty && !game.gameState.isGameOver && 'hover:bg-brand/10 active:bg-brand/20',
             )}
           >
