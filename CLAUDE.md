@@ -4,7 +4,7 @@ Persistent context for AI agents (and humans) working on this repo. Keep this fi
 
 ## What this project is
 
-A multiplayer board game combining Minesweeper and 5-in-a-row (Gomoku). Two players alternate marks on a grid; some fields are hidden mines that erase the opponent's nearby marks when hit; first to 5-in-a-row wins. See [docs/game-rules.md](docs/game-rules.md) for the full rules spec.
+A multiplayer board game combining Minesweeper and 5-in-a-row (Gomoku). Two players alternate marks on a grid; some fields are hidden mines that erase *the triggering player's own* nearby marks when hit (the opponent's marks are untouched); first to 5-in-a-row wins. See [README.md](README.md) for the short product description and [docs/game-rules.md](docs/game-rules.md) for the full rules spec.
 
 ## Current status: mid-rewrite
 

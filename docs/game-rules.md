@@ -1,6 +1,6 @@
 # Game rules & domain spec
 
-This is the reference spec for the game logic, extracted from the current (legacy) C# implementation in `src/Zlebuh.MinTacToe.GameModel`, `src/Zlebuh.MinTacToe.GameEngine`, and `src/Zlebuh.MinTacToe.GameSerialization`. It is the spec the TypeScript port in `packages/game-engine` must match, verified by porting the existing test suites (`GameEngine.Tests`, `GameSerialization.Tests`) case-for-case.
+This is the reference spec for the game logic, extracted from the current (legacy) C# implementation in `src/Zlebuh.MinTacToe.GameModel`, `src/Zlebuh.MinTacToe.GameEngine`, and `src/Zlebuh.MinTacToe.GameSerialization`. It is the spec the TypeScript port in `packages/game-engine` must match, verified by porting the existing test suites (`GameEngine.Tests`, `GameSerialization.Tests`) case-for-case. [README.md](../README.md) states the same rules in short, plain-English form and is a useful cross-check.
 
 ## Board & rules parameters
 
@@ -60,7 +60,7 @@ Randomness for mine placement is **not seeded** in the legacy implementation —
 - When a mine is hit, every field within `MinePower` (Chebyshev/square radius, not just Manhattan-adjacent — i.e. the `(2×MinePower+1)²` square centered on the mine, excluding the mine cell itself) is affected:
   - Only marks belonging to the **triggering player** (the one who just stepped on the mine) are erased (reset to unoccupied).
   - The **opponent's** marks in that radius are left untouched.
-  - `surroundedByNotExplodedMines` is decremented on all affected non-mine fields in the radius (this mine no longer counts as a live threat to them).
+  - `surroundedByNotExplodedMines` is decremented on **every** field in the radius except the mine's own cell — mine fields included, not just non-mine ones (their counter has no further effect once they're mines, but it's still decremented for consistent bookkeeping, matching both the C# original and `mineExplosion.ts`'s own header comment).
 - The set of all coordinates changed by a move (including explosion side-effects) is returned/tracked so the client can highlight what changed — see `changes` in the serialization format below.
 
 ## Game state JSON shape (legacy format — do not carry forward verbatim)
@@ -72,7 +72,7 @@ The legacy `GameSerializer` produces a custom, non-standard shape: the grid is a
   "gameState": {
     "grid": [
       "0,0", { "player": "O", "isMine": false, "generated": true, "hasAllNeighboursGenerated": true, "surroundedByNotExplodedMines": 1 },
-      "1,2", { "player": "X", "isMine": true, "generated": false, "hasAllNeighboursGenerated": false, "surroundedByNotExplodedMines": 0 }
+      "1,2", { "player": "X", "isMine": true, "generated": true, "hasAllNeighboursGenerated": false, "surroundedByNotExplodedMines": 0 }
     ],
     "isGameOver": true,
     "winner": "O",
