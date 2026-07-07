@@ -30,6 +30,10 @@ export function Board({ game, onCellClick }: BoardProps) {
         const key = coordinateKey(coordinate)
         const field = getField(game.gameState.grid, coordinate)
         const isEmpty = field.player === null
+        // An exploded mine still carries the triggering player's mark in the data model (see
+        // packages/game-engine's docs/game-rules.md), but it's a permanent, unowned obstacle -
+        // render it as a crater, not as that player's stone.
+        const isCrater = field.isMine && field.player !== null
         const flashKey = changedKeys.has(key) ? game.gameState.movesPlayed : 0
 
         return (
@@ -38,9 +42,11 @@ export function Board({ game, onCellClick }: BoardProps) {
             type="button"
             role="gridcell"
             aria-label={`Row ${coordinate.row + 1}, column ${coordinate.col + 1}${
-              field.player
-                ? `, ${field.player}, ${field.surroundedByNotExplodedMines} mines nearby`
-                : ''
+              isCrater
+                ? ', exploded mine crater'
+                : field.player
+                  ? `, ${field.player}, ${field.surroundedByNotExplodedMines} mines nearby`
+                  : ''
             }`}
             disabled={!isEmpty || game.gameState.isGameOver}
             onClick={() => onCellClick(coordinate)}
@@ -50,7 +56,13 @@ export function Board({ game, onCellClick }: BoardProps) {
               isEmpty && !game.gameState.isGameOver && 'hover:bg-brand/10 active:bg-brand/20',
             )}
           >
-            {field.player ? (
+            {isCrater ? (
+              <span
+                key={flashKey}
+                aria-hidden="true"
+                className="h-full w-full rounded-full bg-crater shadow-[inset_0_2px_5px_rgba(0,0,0,0.6)] animate-[mark-pop_150ms_ease-out]"
+              />
+            ) : field.player ? (
               <span
                 key={flashKey}
                 className={cn(

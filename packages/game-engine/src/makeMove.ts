@@ -70,7 +70,12 @@ export function makeMove(
   changedCoordinates.push(coordinate);
   field.player = player;
 
-  const playerWins = checkPlayerWins(game, player, coordinate);
+  // An exploded mine cell is still marked with the triggering player (matches the C# original -
+  // see GameMakeMove.cs), but it must not count as a win for them: checkPlayerWins() always
+  // credits the just-placed coordinate as "1" without re-checking whether *it* is a mine (it
+  // only checks isMine while walking outward to neighbors), so a move that only detonates a
+  // mine needs to skip the win check entirely rather than relying on that function to reject it.
+  const playerWins = !field.isMine && checkPlayerWins(game, player, coordinate);
   const isTie = checkTie(game);
   const gameOver = playerWins || isTie;
 

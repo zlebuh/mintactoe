@@ -9,6 +9,7 @@
   --color-player-o: oklch(0.62 0.19 250);
   --color-player-x: oklch(0.62 0.24 12);
   --color-mine-flash: oklch(0.75 0.19 55);
+  --color-crater: oklch(0.4 0.02 60);
   --color-surface: oklch(0.98 0.01 175);
 }
 
