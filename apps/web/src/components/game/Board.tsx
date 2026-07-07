@@ -74,7 +74,7 @@ export function Board({ game, onCellClick }: BoardProps) {
             ) : field.player ? (
               <span
                 className={cn(
-                  'flex h-full w-full items-center justify-center rounded-md text-[min(3.2vw,1rem)] font-extrabold text-white',
+                  'flex h-full w-full items-center justify-center rounded-md text-center text-[min(3.2vw,1rem)] leading-none font-bold text-white',
                   field.player === 'O' ? 'bg-player-o' : 'bg-player-x',
                   justChanged && 'animate-[mark-pop_150ms_ease-out]',
                 )}

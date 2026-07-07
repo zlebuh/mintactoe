@@ -7,7 +7,7 @@ export function LocalGamePage() {
   const { game, move, reset } = useLocalGame()
 
   return (
-    <main className="mx-auto flex min-h-dvh max-w-md flex-col items-center gap-4 px-4 py-6">
+    <main className="mx-auto flex max-w-md flex-col items-center gap-4 px-4 py-6">
       <div className="flex w-full items-center justify-between">
         <Link to="/" className="text-sm font-semibold text-brand">
           ← Home

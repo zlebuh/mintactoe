@@ -1,4 +1,4 @@
-import type { Game } from '@mintactoe/game-engine'
+import type { Game, Player } from '@mintactoe/game-engine'
 import { Button } from '../ui/Button'
 import { cn } from '../../lib/cn'
 
@@ -7,44 +7,47 @@ export interface GameInfoProps {
   onReset: () => void
 }
 
+// A player is always shown as a plain color, never the O/X letter (see docs) - the letter is
+// still in the DOM for screen readers via the visually-hidden span.
+function Dot({ player }: { player: Player }) {
+  return (
+    <span
+      className={cn(
+        'inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full',
+        player === 'O' ? 'bg-player-o' : 'bg-player-x',
+      )}
+    >
+      <span className="sr-only">{player}</span>
+    </span>
+  )
+}
+
 export function GameInfo({ game, onReset }: GameInfoProps) {
   const { isGameOver, winner, playerOnTurn, movesPlayed } = game.gameState
 
-  if (isGameOver) {
-    return (
-      <div className="flex flex-col items-center gap-3 rounded-3xl bg-white p-5 text-center shadow-sm animate-[banner-in_200ms_ease-out]">
-        <p className="text-xl font-extrabold">
-          {winner ? (
-            <>
-              <span className={winner === 'O' ? 'text-player-o' : 'text-player-x'}>{winner}</span>{' '}
-              wins!
-            </>
-          ) : (
-            "It's a tie!"
-          )}
-        </p>
-        <Button onClick={onReset}>New game</Button>
-      </div>
-    )
-  }
-
   return (
-    <div className="flex items-center justify-between gap-3 rounded-3xl bg-white p-4 shadow-sm">
-      <p className="font-semibold">
-        Turn:{' '}
-        <span
-          className={cn(
-            'inline-flex h-7 w-7 items-center justify-center rounded-full font-bold text-white',
-            playerOnTurn === 'O' ? 'bg-player-o' : 'bg-player-x',
-          )}
-        >
-          {playerOnTurn}
-        </span>
-      </p>
-      <p className="text-sm text-black/60">Moves: {movesPlayed}</p>
-      <Button variant="ghost" onClick={onReset}>
-        Restart
-      </Button>
+    <div className="flex w-full max-w-md items-center justify-between gap-3 rounded-3xl bg-white p-4 shadow-sm">
+      {isGameOver ? (
+        <>
+          <p className="flex items-center gap-2 font-semibold">
+            {winner && <Dot player={winner} />}
+            {winner ? 'wins!' : "It's a tie!"}
+          </p>
+          <Button onClick={onReset}>New game</Button>
+        </>
+      ) : (
+        playerOnTurn && (
+          <>
+            <p className="flex items-center gap-2 font-semibold">
+              Turn: <Dot player={playerOnTurn} />
+            </p>
+            <p className="text-sm text-black/60">Moves: {movesPlayed}</p>
+            <Button variant="ghost" onClick={onReset}>
+              Restart
+            </Button>
+          </>
+        )
+      )}
     </div>
   )
 }

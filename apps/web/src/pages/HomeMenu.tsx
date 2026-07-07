@@ -14,7 +14,7 @@ export function HomeMenu() {
   const navigate = useNavigate()
 
   return (
-    <main className="mx-auto flex min-h-dvh max-w-md flex-col gap-4 px-4 pt-16 pb-10">
+    <main className="mx-auto flex max-w-md flex-col gap-4 px-4 pt-16 pb-10">
       <h1 className="mb-6 text-center text-4xl font-extrabold text-brand">MinTacToe</h1>
 
       <CardButton onClick={() => navigate('/local')}>
