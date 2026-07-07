@@ -11,13 +11,17 @@ const playerArb = fc.constantFrom<Player>("O", "X");
 const cellArb = fc.oneof(fc.constant(null), playerArb);
 
 describe("explodeMine (property-based)", () => {
-  it("never erases the opponent's marks, always erases the triggering player's own marks, and decrements every affected counter by exactly 1", () => {
+  it("never erases the opponent's marks, always erases the triggering player's own marks (unless the neighbor is itself a mine, which is never touched), and decrements every affected counter by exactly 1 - mine neighbors included", () => {
     fc.assert(
       fc.property(
         playerArb,
         fc.array(cellArb, { minLength: 8, maxLength: 8 }),
         fc.array(fc.integer({ min: 0, max: 10 }), { minLength: 8, maxLength: 8 }),
-        (triggeringPlayer, neighborMarks, neighborCounts) => {
+        // A neighbor can itself be a mine (e.g. an already-exploded crater carrying a mark, or
+        // a still-hidden one) - explodeMine() must never touch its `player`, only decrement its
+        // counter, same as any other field in the radius.
+        fc.array(fc.boolean(), { minLength: 8, maxLength: 8 }),
+        (triggeringPlayer, neighborMarks, neighborCounts, neighborIsMine) => {
           const game = initialize({ mineProbability: 0, minePower: 1 });
           const center = { row: 10, col: 10 };
           getField(game.gameState.grid, center).isMine = true;
@@ -27,6 +31,7 @@ describe("explodeMine (property-based)", () => {
             const field = getField(game.gameState.grid, coordinate);
             field.player = neighborMarks[i]!;
             field.surroundedByNotExplodedMines = neighborCounts[i]!;
+            field.isMine = neighborIsMine[i]!;
           });
 
           explodeMine(game, triggeringPlayer, center);
@@ -34,12 +39,16 @@ describe("explodeMine (property-based)", () => {
           neighbors.forEach((coordinate, i) => {
             const field = getField(game.gameState.grid, coordinate);
             const originalMark = neighborMarks[i];
-            if (originalMark !== null && originalMark !== triggeringPlayer) {
+            if (neighborIsMine[i]) {
+              // A mine neighbor (exploded or not) is never affected by someone else's
+              // explosion - its own `player` (if any) is permanent, not erasable.
               expect(field.player).toBe(originalMark);
-            }
-            if (originalMark === triggeringPlayer) {
+            } else if (originalMark !== null && originalMark !== triggeringPlayer) {
+              expect(field.player).toBe(originalMark);
+            } else if (originalMark === triggeringPlayer) {
               expect(field.player).toBeNull();
             }
+            // Decremented regardless of whether this neighbor is itself a mine.
             expect(field.surroundedByNotExplodedMines).toBe(neighborCounts[i]! - 1);
           });
 
