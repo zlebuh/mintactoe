@@ -42,6 +42,13 @@ export function Board({ game, onCellClick }: BoardProps) {
         // coordinate or a newly-erased cell can), so the animation classes below are added once
         // and never re-added, rather than being retriggered by a `key`-based remount.
         const justChanged = changedKeys.has(key)
+        // The container clips to rounded-2xl via overflow-hidden; without matching rounding on
+        // the corner cells themselves, that clip cuts a curved bite out of their sharp corners,
+        // exposing the page background underneath in a crescent shape at each of the 4 corners.
+        const isTop = coordinate.row === 0
+        const isBottom = coordinate.row === rows - 1
+        const isLeft = coordinate.col === 0
+        const isRight = coordinate.col === columns - 1
 
         return (
           <button
@@ -66,6 +73,10 @@ export function Board({ game, onCellClick }: BoardProps) {
               // naturally clears itself once the *next* move updates game.gameState.changes.
               justChanged ? 'bg-mine-flash/15' : 'bg-white',
               isEmpty && !game.gameState.isGameOver && 'hover:bg-brand/10 active:bg-brand/20',
+              isTop && isLeft && 'rounded-tl-2xl',
+              isTop && isRight && 'rounded-tr-2xl',
+              isBottom && isLeft && 'rounded-bl-2xl',
+              isBottom && isRight && 'rounded-br-2xl',
             )}
           >
             {isCrater ? (

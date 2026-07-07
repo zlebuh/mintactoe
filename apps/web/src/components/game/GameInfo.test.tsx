@@ -20,22 +20,24 @@ describe('GameInfo', () => {
     expect(screen.getByText('Moves: 3')).toBeInTheDocument()
   })
 
-  it('shows a winner banner and lets the player start a new game', async () => {
+  it('shows a winner banner, keeps the move count, and lets the player start a new game', async () => {
     const user = userEvent.setup()
-    const game = withGameState({ isGameOver: true, winner: 'O', playerOnTurn: null })
+    const game = withGameState({ isGameOver: true, winner: 'O', playerOnTurn: null, movesPlayed: 7 })
     const onReset = vi.fn()
     render(<GameInfo game={game} onReset={onReset} />)
 
     expect(screen.getByText(/wins!/)).toBeInTheDocument()
+    expect(screen.getByText('Moves: 7')).toBeInTheDocument()
 
     await user.click(screen.getByRole('button', { name: 'New game' }))
     expect(onReset).toHaveBeenCalledOnce()
   })
 
-  it('shows a tie banner when the game ends without a winner', () => {
-    const game = withGameState({ isGameOver: true, winner: null, playerOnTurn: null })
+  it('shows a tie banner and keeps the move count when the game ends without a winner', () => {
+    const game = withGameState({ isGameOver: true, winner: null, playerOnTurn: null, movesPlayed: 9 })
     render(<GameInfo game={game} onReset={vi.fn()} />)
 
     expect(screen.getByText("It's a tie!")).toBeInTheDocument()
+    expect(screen.getByText('Moves: 9')).toBeInTheDocument()
   })
 })

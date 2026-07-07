@@ -27,27 +27,27 @@ export function GameInfo({ game, onReset }: GameInfoProps) {
 
   return (
     <div className="flex w-full max-w-md items-center justify-between gap-3 rounded-3xl bg-white p-4 shadow-sm">
-      {isGameOver ? (
-        <>
-          <p className="flex items-center gap-2 font-semibold">
-            {winner && <Dot player={winner} />}
-            {winner ? 'wins!' : "It's a tie!"}
-          </p>
-          <Button onClick={onReset}>New game</Button>
-        </>
-      ) : (
-        playerOnTurn && (
-          <>
-            <p className="flex items-center gap-2 font-semibold">
+      <p className="flex items-center gap-2 font-semibold">
+        {isGameOver ? (
+          winner ? (
+            <>
+              <Dot player={winner} /> wins!
+            </>
+          ) : (
+            "It's a tie!"
+          )
+        ) : (
+          playerOnTurn && (
+            <>
               Turn: <Dot player={playerOnTurn} />
-            </p>
-            <p className="text-sm text-black/60">Moves: {movesPlayed}</p>
-            <Button variant="ghost" onClick={onReset}>
-              Restart
-            </Button>
-          </>
-        )
-      )}
+            </>
+          )
+        )}
+      </p>
+      <p className="text-sm text-black/60">Moves: {movesPlayed}</p>
+      <Button variant="ghost" onClick={onReset}>
+        {isGameOver ? 'New game' : 'Restart'}
+      </Button>
     </div>
   )
 }

@@ -1,5 +1,6 @@
 import { Link } from 'react-router'
 import { Board } from '../components/game/Board'
+import { BoardLegend } from '../components/game/BoardLegend'
 import { GameInfo } from '../components/game/GameInfo'
 import { useLocalGame } from '../hooks/useLocalGame'
 
@@ -18,6 +19,7 @@ export function LocalGamePage() {
 
       <GameInfo game={game} onReset={reset} />
       <Board game={game} onCellClick={move} />
+      <BoardLegend />
     </main>
   )
 }
