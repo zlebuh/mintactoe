@@ -34,7 +34,11 @@ export function Board({ game, onCellClick }: BoardProps) {
         // packages/game-engine's docs/game-rules.md), but it's a permanent, unowned obstacle -
         // render it as a crater, not as that player's stone.
         const isCrater = field.isMine && field.player !== null
-        const flashKey = changedKeys.has(key) ? game.gameState.movesPlayed : 0
+        // Only true for the one render right after this exact cell was affected by a move - an
+        // occupied cell can never re-enter `changes` on a later move (only the just-placed
+        // coordinate or a newly-erased cell can), so the animation classes below are added once
+        // and never re-added, rather than being retriggered by a `key`-based remount.
+        const justChanged = changedKeys.has(key)
 
         return (
           <button
@@ -58,26 +62,29 @@ export function Board({ game, onCellClick }: BoardProps) {
           >
             {isCrater ? (
               <span
-                key={flashKey}
                 aria-hidden="true"
-                className="h-full w-full rounded-full bg-crater shadow-[inset_0_2px_5px_rgba(0,0,0,0.6)] animate-[mark-pop_150ms_ease-out]"
+                className={cn(
+                  'h-full w-full rounded-full bg-crater shadow-[inset_0_2px_5px_rgba(0,0,0,0.6)]',
+                  justChanged && 'animate-[mark-pop_150ms_ease-out]',
+                )}
               />
             ) : field.player ? (
               <span
-                key={flashKey}
                 className={cn(
-                  'flex h-full w-full items-center justify-center rounded-md text-[min(3.2vw,1rem)] font-extrabold text-white animate-[mark-pop_150ms_ease-out]',
+                  'flex h-full w-full items-center justify-center rounded-md text-[min(3.2vw,1rem)] font-extrabold text-white',
                   field.player === 'O' ? 'bg-player-o' : 'bg-player-x',
+                  justChanged && 'animate-[mark-pop_150ms_ease-out]',
                 )}
               >
                 {field.surroundedByNotExplodedMines}
               </span>
             ) : (
-              changedKeys.has(key) && (
+              justChanged && (
                 // A mine explosion just erased this cell's mark - flash it so the change
-                // (which would otherwise look like nothing happened) is visible.
+                // (which would otherwise look like nothing happened) is visible. This element
+                // only ever exists for the one render where it just got erased (mounts fresh
+                // each time, per the conditional above), so no key trick is needed here.
                 <span
-                  key={flashKey}
                   aria-hidden="true"
                   className="block h-full w-full rounded-md animate-[cell-flash_400ms_ease-out]"
                 />
