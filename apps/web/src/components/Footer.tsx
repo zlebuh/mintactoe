@@ -18,6 +18,7 @@ export function Footer() {
         <LegendItem swatchClassName="bg-player-o" label="O's mark" />
         <LegendItem swatchClassName="bg-player-x" label="X's mark" />
         <LegendItem swatchClassName="bg-crater" label="Exploded mine" />
+        <LegendItem swatchClassName="bg-mine-flash/50" label="Hidden mine (revealed at game end)" />
         <span>Number = live mines nearby</span>
       </div>
 
@@ -36,6 +37,7 @@ export function Footer() {
             <li>Hit one, and your own nearby marks disappear - your opponent's are untouched.</li>
             <li>The number on each mark shows how many live mines are still nearby.</li>
             <li>An exploded mine becomes a permanent crater - nobody can play there again.</li>
+            <li>Once the game ends, every mine nobody found is revealed.</li>
           </ul>
         </DialogContent>
       </Dialog>

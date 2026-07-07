@@ -34,6 +34,9 @@ export function Board({ game, onCellClick }: BoardProps) {
         // packages/game-engine's docs/game-rules.md), but it's a permanent, unowned obstacle -
         // render it as a crater, not as that player's stone.
         const isCrater = field.isMine && field.player !== null
+        // Once the game ends, reveal every mine nobody ever triggered - generated (isMine can
+        // only ever be true on a generated field) and never played on.
+        const isRevealedMine = game.gameState.isGameOver && field.generated && field.isMine && field.player === null
         // Only true for the one render right after this exact cell was affected by a move - an
         // occupied cell can never re-enter `changes` on a later move (only the just-placed
         // coordinate or a newly-erased cell can), so the animation classes below are added once
@@ -50,7 +53,9 @@ export function Board({ game, onCellClick }: BoardProps) {
                 ? ', exploded mine crater'
                 : field.player
                   ? `, ${field.player}, ${field.surroundedByNotExplodedMines} mines nearby`
-                  : ''
+                  : isRevealedMine
+                    ? ', hidden mine'
+                    : ''
             }`}
             disabled={!isEmpty || game.gameState.isGameOver}
             onClick={() => onCellClick(coordinate)}
@@ -80,6 +85,14 @@ export function Board({ game, onCellClick }: BoardProps) {
                 )}
               >
                 {field.surroundedByNotExplodedMines}
+              </span>
+            ) : isRevealedMine ? (
+              // The game is over - show where every mine nobody triggered actually was.
+              <span
+                aria-hidden="true"
+                className="flex h-full w-full items-center justify-center rounded-full bg-mine-flash/25 animate-[mark-pop_150ms_ease-out]"
+              >
+                <span className="h-[45%] w-[45%] rounded-full bg-crater" />
               </span>
             ) : (
               justChanged && (

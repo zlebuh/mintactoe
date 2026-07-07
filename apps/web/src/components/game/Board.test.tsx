@@ -53,4 +53,20 @@ describe('Board', () => {
     await user.click(crater)
     expect(onCellClick).not.toHaveBeenCalled()
   })
+
+  it('reveals a never-triggered mine once the game is over, and not before', () => {
+    const game = initialize({ rows: 3, columns: 3, mineProbability: 0 })
+    const mineField = getField(game.gameState.grid, { row: 0, col: 0 })
+    mineField.isMine = true
+    mineField.generated = true
+
+    const { rerender } = render(<Board game={game} onCellClick={vi.fn()} />)
+    expect(screen.queryByLabelText(/hidden mine/)).not.toBeInTheDocument()
+
+    game.gameState.isGameOver = true
+    rerender(<Board game={game} onCellClick={vi.fn()} />)
+
+    const revealed = screen.getByLabelText(/Row 1, column 1, hidden mine/)
+    expect(revealed).toBeDisabled()
+  })
 })
