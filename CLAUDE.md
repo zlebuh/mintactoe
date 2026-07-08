@@ -4,7 +4,7 @@ Persistent context for AI agents (and humans) working on this repo. Keep this fi
 
 ## What this project is
 
-A multiplayer board game combining Minesweeper and 5-in-a-row (Gomoku). Two players alternate marks on a grid; some fields are hidden mines that erase the opponent's nearby marks when hit; first to 5-in-a-row wins. See [docs/game-rules.md](docs/game-rules.md) for the full rules spec.
+A multiplayer board game combining Minesweeper and 5-in-a-row (Gomoku). Two players alternate marks on a grid; some fields are hidden mines that erase *the triggering player's own* nearby marks when hit (the opponent's marks are untouched); first to 5-in-a-row wins. See [README.md](README.md) for the short product description and [docs/game-rules.md](docs/game-rules.md) for the full rules spec.
 
 ## Current status: mid-rewrite
 
@@ -26,7 +26,15 @@ This repo is being rewritten in place. Two stacks currently coexist:
 ## Target repository layout
 
 ```
-apps/web/              React + TypeScript + Vite frontend
+apps/web/              React + TypeScript + Vite frontend. Tailwind CSS v4 + a small hand-built
+                          component set (components/ui/ - Button/Card/Badge/Dialog, the last wrapping
+                          @radix-ui/react-dialog for accessibility) rather than shadcn/ui's CLI, to
+                          avoid its config surface (components.json, ESLint-oriented tooling) on a
+                          repo that otherwise runs oxlint. react-router (data mode: createBrowserRouter
+                          + RouterProvider, see src/router.tsx) for routing. components/game/ holds the
+                          board/turn-info presentational components; hooks/useLocalGame.ts wraps
+                          packages/game-engine directly for the local (offline) 2-player mode - no
+                          network involved, unlike the online flow (issue #8).
 packages/game-engine/  Shared TS port of the game rules (grid, mines, win detection, serialization)
                           used by both Edge Functions and apps/web (local mode)
 supabase/
@@ -97,4 +105,4 @@ Running the frontend natively instead of in Docker also works: `pnpm --filter we
   - **These functions import `packages/game-engine/dist` (built output), not `src`.** That package's own internal imports use the `./foo.js`-pointing-at-`./foo.ts` convention (valid under its `tsconfig.json`'s `"moduleResolution": "Bundler"`, for Node/Vite consumers) — plain Deno's module graph resolution can't follow that, and critically, the *deployed* `supabase-edge-runtime` (unlike the plain `deno` CLI) doesn't support the `sloppy-imports` flag that would otherwise paper over it, so pointing at `src` breaks the function's actual boot, not just local type-checking. Run `pnpm --filter @mintactoe/game-engine build` before `supabase start` or `deno test`/`deno check` against this directory (see "Local development" above); CI does this in both the `edge-functions` and `supabase` jobs.
   - **The `Player`/`Coordinate`/`Rules`/`SerializedGame` types are mirrored locally in `_shared/gameRow.ts`**, not imported from `packages/game-engine`, even though the values (`initialize`, `serializeGame`, `deserializeGame`, `makeMove`, the `*Error` classes) are imported normally from `dist/index.js`. Deno's checker infers value types loosely straight from the plain compiled JS but doesn't resolve a `type`-only export re-exported through a `.js` specifier back to its real declaration — and, as above, it can't be pointed at `src` either. These types are small and frozen (see `docs/game-rules.md`), so the duplication is a deliberate, documented trade-off, not an oversight.
   - Integration tests live in `packages/supabase-tests/src/edge-functions.test.ts` (Vitest, real `fetch` calls to `${SUPABASE_URL}/functions/v1/<name>` with real anonymous-session bearer tokens) — `supabase start` serves local functions automatically (config.toml's `[edge_runtime]` block), no separate `supabase functions serve` needed for CI/testing purposes.
-- `apps/web`: component tests (Vitest + React Testing Library) plus Playwright e2e for the full online flow (two browser contexts playing a real game against the local Supabase stack).
+- `apps/web`: component tests via Vitest + `@testing-library/react` (`pnpm --filter web test`; jsdom environment + setup file configured in `vite.config.ts`'s `test` block per Vitest's own recommended pattern, since this app otherwise has no separate Jest/Vitest config file). Not using `globals: true` (consistent with the rest of the repo's explicit-import style), so `src/test/setup.ts` registers `@testing-library/react`'s `cleanup()` on `afterEach` itself — without `globals: true`, that package can't auto-detect a global `afterEach` to hook into. `packages/game-engine`'s `makeMove()` mutates in place; `useLocalGame` (see above) clones with `structuredClone` before each move so React re-renders correctly and an illegal move (caught via `MinTacToeError`) can be discarded without corrupting the previous state. Playwright e2e for the full *online* flow (two browser contexts playing a real game against the local Supabase stack) is issue #8's scope, not built yet.

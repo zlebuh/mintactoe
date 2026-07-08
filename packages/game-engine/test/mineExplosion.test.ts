@@ -140,4 +140,33 @@ describe("mine explosion edge cases", () => {
     makeMove(game, "X", { row: 10, col: 10 });
     expect(getField(game.gameState.grid, { row: 10, col: 10 }).player).toBe("X");
   });
+
+  it("does not credit the triggering player with a win for a move that only detonates a mine", () => {
+    const game = initialize({
+      rows: 5,
+      columns: 5,
+      seriesLength: 5,
+      mineProbability: 0,
+    });
+
+    makeMove(game, "O", { row: 0, col: 0 }, noMines);
+    makeMove(game, "X", { row: 4, col: 0 }, noMines);
+    makeMove(game, "O", { row: 0, col: 1 }, noMines);
+    makeMove(game, "X", { row: 4, col: 1 }, noMines);
+    makeMove(game, "O", { row: 0, col: 2 }, noMines);
+    makeMove(game, "X", { row: 4, col: 2 }, noMines);
+    makeMove(game, "O", { row: 0, col: 3 }, noMines);
+    makeMove(game, "X", { row: 4, col: 3 }, noMines);
+
+    // O has 4 in a row; (0, 4) would complete a 5-in-a-row win, but it's a mine.
+    getField(game.gameState.grid, { row: 0, col: 4 }).isMine = true;
+    makeMove(game, "O", { row: 0, col: 4 }, noMines);
+
+    const mine = getField(game.gameState.grid, { row: 0, col: 4 });
+    expect(mine.isMine).toBe(true);
+    expect(mine.player).toBe("O");
+    expect(game.gameState.isGameOver).toBe(false);
+    expect(game.gameState.winner).toBeNull();
+    expect(game.gameState.playerOnTurn).toBe("X");
+  });
 });

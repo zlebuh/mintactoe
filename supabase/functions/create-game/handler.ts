@@ -1,11 +1,6 @@
 import type { SupabaseClient } from "npm:@supabase/supabase-js@2";
 import { initialize, serializeGame } from "../../../packages/game-engine/dist/index.js";
-import { isUnfinished, type GameRow, type Rules } from "../_shared/gameRow.ts";
-
-// docs/game-rules.md: production games override the engine's defaults to a 16x16 board.
-// This is a caller concern, not an engine default, so it's applied here rather than in
-// packages/game-engine.
-export const PRODUCTION_RULES: Partial<Rules> = { rows: 16, columns: 16 };
+import { isUnfinished, type GameRow } from "../_shared/gameRow.ts";
 
 export interface CreateGameParams {
   callerId: string;
@@ -35,7 +30,7 @@ export async function createGame(
     return existing;
   }
 
-  const serialized = serializeGame(initialize(PRODUCTION_RULES));
+  const serialized = serializeGame(initialize());
 
   const { data: inserted, error: insertError } = await supabase
     .from("games")

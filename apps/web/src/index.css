@@ -1,8 +1,61 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: system-ui, "Segoe UI", Roboto, sans-serif;
+
+  /* Bold, playful palette - a deliberate break from the legacy Blazor UI's look. */
+  --color-brand: oklch(0.7 0.15 175);
+  --color-brand-dark: oklch(0.55 0.14 175);
+  --color-player-o: oklch(0.62 0.19 250);
+  --color-player-x: oklch(0.63 0.24 25);
+  --color-mine-flash: oklch(0.75 0.19 55);
+  --color-crater: oklch(0.4 0.02 60);
+  --color-surface: oklch(0.98 0.01 175);
+}
+
 :root {
-  color-scheme: light dark;
-  font: 16px/1.5 system-ui, 'Segoe UI', Roboto, sans-serif;
+  color-scheme: light;
 }
 
 body {
   margin: 0;
+  font-family: var(--font-sans);
+  background-color: var(--color-surface);
+}
+
+@keyframes cell-flash {
+  0% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 var(--color-mine-flash);
+  }
+  30% {
+    transform: scale(1.15);
+    box-shadow: 0 0 0 6px oklch(0.75 0.19 55 / 40%);
+  }
+  100% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 oklch(0.75 0.19 55 / 0%);
+  }
+}
+
+@keyframes mark-pop {
+  0% {
+    transform: scale(0.4);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes banner-in {
+  0% {
+    transform: translateY(-8px) scale(0.96);
+    opacity: 0;
+  }
+  100% {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
 }

@@ -140,3 +140,7 @@ coverage/
 .env
 .env.*
 !.env.example
+
+# Claude Code: local tool config/settings, not project config.
+.claude/settings.local.json
+.claude/launch.json

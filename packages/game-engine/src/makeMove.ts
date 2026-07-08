@@ -70,7 +70,7 @@ export function makeMove(
   changedCoordinates.push(coordinate);
   field.player = player;
 
-  const playerWins = checkPlayerWins(game, player, coordinate);
+  const playerWins = !field.isMine && checkPlayerWins(game, player, coordinate);
   const isTie = checkTie(game);
   const gameOver = playerWins || isTie;
 

@@ -22,11 +22,12 @@ export interface Rules {
   mineProbability: number;
 }
 
-// Default rules for a new game. Production games override rows/columns to 16x16 at the API
-// layer (see docs/game-rules.md) - that's a caller concern, not an engine default.
+// Default rules for a new game. 16x16 matches the actual production board size (see
+// docs/game-rules.md) - it's the engine's own default rather than something every caller has
+// to override separately.
 export const DEFAULT_RULES: Rules = {
-  rows: 20,
-  columns: 20,
+  rows: 16,
+  columns: 16,
   seriesLength: 5,
   noMineMoves: 6,
   minePower: 1,
