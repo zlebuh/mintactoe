@@ -13,8 +13,8 @@ Deno.test("joinGame - happy path sets the caller as the invited player", async (
   const updated = createGameRow({ id: "game-1", host_user_id: "host-1", invited_user_id: "visitor-1" });
 
   const supabase = createMockSupabase([
-    { data: open, error: null }, // fetch
-    { data: updated, error: null }, // update
+    { data: [open], error: null }, // fetch (returns array, no .single())
+    { data: updated, error: null }, // update (.single())
   ]) as unknown as SupabaseClient;
 
   const result = await joinGame(supabase, { callerId: "visitor-1", gameId: "game-1" });
@@ -25,7 +25,7 @@ Deno.test("joinGame - happy path sets the caller as the invited player", async (
 Deno.test("joinGame - rejects joining a game that already has an invited player", async () => {
   const full = createGameRow({ id: "game-1", host_user_id: "host-1", invited_user_id: "visitor-1" });
   const supabase = createMockSupabase([
-    { data: full, error: null },
+    { data: [full], error: null },
   ]) as unknown as SupabaseClient;
 
   await assertRejects(
@@ -37,7 +37,7 @@ Deno.test("joinGame - rejects joining a game that already has an invited player"
 Deno.test("joinGame - rejects the host joining their own game", async () => {
   const open = createGameRow({ id: "game-1", host_user_id: "host-1", invited_user_id: null });
   const supabase = createMockSupabase([
-    { data: open, error: null },
+    { data: [open], error: null },
   ]) as unknown as SupabaseClient;
 
   await assertRejects(
@@ -48,7 +48,7 @@ Deno.test("joinGame - rejects the host joining their own game", async () => {
 
 Deno.test("joinGame - rejects joining a game that doesn't exist", async () => {
   const supabase = createMockSupabase([
-    { data: null, error: null },
+    { data: [], error: null },
   ]) as unknown as SupabaseClient;
 
   await assertRejects(

@@ -13,21 +13,25 @@ export interface JoinGameParams {
 }
 
 export async function joinGame(supabase: SupabaseClient, params: JoinGameParams): Promise<GameRow> {
-  if (!params.gameId) {
+  const code = (params.gameId ?? "").trim();
+  if (!code) {
     throw new InvalidRequestError("gameId is required.");
   }
 
-  const { data: row, error: fetchError } = await supabase
-    .from("games")
-    .select("*")
-    .eq("id", params.gameId)
-    .maybeSingle();
+  const isFullUuid = code.length === 36;
+  const query = supabase.from("games").select("*");
+  const { data: rows, error: fetchError } = isFullUuid
+    ? await query.eq("id", code)
+    : await query
+        .gte("id", `${code.padEnd(8, "0")}-0000-0000-0000-000000000000`)
+        .lte("id", `${code.padEnd(8, "f")}-ffff-ffff-ffff-ffffffffffff`);
 
   if (fetchError) {
     throw fetchError;
   }
+  const row = rows?.[0] ?? null;
   if (!row) {
-    throw new GameNotFoundError(params.gameId);
+    throw new GameNotFoundError(code);
   }
 
   const game = row as GameRow;
@@ -41,7 +45,7 @@ export async function joinGame(supabase: SupabaseClient, params: JoinGameParams)
   const { data: updated, error: updateError } = await supabase
     .from("games")
     .update({ invited_user_id: params.callerId })
-    .eq("id", params.gameId)
+    .eq("id", game.id)
     .select("*")
     .single();
 

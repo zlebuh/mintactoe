@@ -11,7 +11,11 @@ function chainable(result: MockResult): unknown {
     insert: () => builder,
     update: () => builder,
     eq: () => builder,
+    gte: () => builder,
+    lte: () => builder,
+    or: () => builder,
     order: () => builder,
+    limit: () => builder,
     single: () => builder,
     maybeSingle: () => builder,
     then: (onFulfilled: (r: MockResult) => unknown, onRejected?: (e: unknown) => unknown) =>

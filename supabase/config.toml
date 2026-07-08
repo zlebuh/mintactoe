@@ -398,6 +398,9 @@ verify_jwt = true
 [functions.make-move]
 verify_jwt = true
 
+[functions.forfeit-game]
+verify_jwt = true
+
 [analytics]
 enabled = false
 port = 54327
