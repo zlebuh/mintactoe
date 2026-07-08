@@ -88,15 +88,34 @@ export function Board({ game, onCellClick }: BoardProps) {
                 )}
               />
             ) : field.player ? (
-              <span
+              <svg
+                viewBox="0 0 100 100"
+                aria-hidden="true"
                 className={cn(
-                  'flex h-full w-full items-center justify-center rounded-md text-center text-[min(3.2vw,1rem)] leading-none font-bold text-white tabular-nums',
-                  field.player === 'O' ? 'bg-player-o' : 'bg-player-x',
+                  'h-full w-full',
                   justChanged && 'animate-[mark-pop_150ms_ease-out]',
                 )}
               >
-                {field.surroundedByNotExplodedMines}
-              </span>
+                <rect
+                  width="100"
+                  height="100"
+                  rx="15"
+                  ry="15"
+                  fill={field.player === 'O' ? 'var(--color-player-o)' : 'var(--color-player-x)'}
+                />
+                <text
+                  x="50"
+                  y="50"
+                  textAnchor="middle"
+                  dominantBaseline="central"
+                  fill="white"
+                  fontSize="62"
+                  fontWeight="bold"
+                  fontFamily="system-ui, sans-serif"
+                >
+                  {field.surroundedByNotExplodedMines}
+                </text>
+              </svg>
             ) : isRevealedMine ? (
               // The game is over - show where every mine nobody triggered actually was.
               <span
