@@ -19,7 +19,7 @@ describe("win detection", () => {
     expect(game.gameState.playerOnTurn).toBeNull();
   });
 
-  it("detects a diagonal win across the default 20x20 board", () => {
+  it("detects a diagonal win across the default board", () => {
     const game = initialize({ mineProbability: 0 });
     makeMove(game, "O", { row: 0, col: 0 }, noMines);
     makeMove(game, "X", { row: 10, col: 10 }, noMines);

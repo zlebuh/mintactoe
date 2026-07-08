@@ -141,6 +141,6 @@ coverage/
 .env.*
 !.env.example
 
-# Claude Code: personal/local tool settings, not project config (unlike .claude/launch.json,
-# which is committed so anyone using Claude Code on this repo can launch the dev server).
+# Claude Code: local tool config/settings, not project config.
 .claude/settings.local.json
+.claude/launch.json

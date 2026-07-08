@@ -1,20 +1,8 @@
 import { useCallback, useState } from 'react'
-import {
-  MinTacToeError,
-  initialize,
-  makeMove,
-  type Coordinate,
-  type Game,
-  type Rules,
-} from '@mintactoe/game-engine'
-
-// Matches the documented production (online) board size (docs/game-rules.md) rather than the
-// engine's own 20x20 default, for a consistent feel between local and online play and a better
-// fit on a phone screen.
-export const LOCAL_RULES: Partial<Rules> = { rows: 16, columns: 16 }
+import { MinTacToeError, initialize, makeMove, type Coordinate, type Game } from '@mintactoe/game-engine'
 
 export function useLocalGame() {
-  const [game, setGame] = useState<Game>(() => initialize(LOCAL_RULES))
+  const [game, setGame] = useState<Game>(() => initialize())
 
   const move = useCallback((coordinate: Coordinate) => {
     setGame((previous) => {
@@ -37,7 +25,7 @@ export function useLocalGame() {
     })
   }, [])
 
-  const reset = useCallback(() => setGame(initialize(LOCAL_RULES)), [])
+  const reset = useCallback(() => setGame(initialize()), [])
 
   return { game, move, reset }
 }

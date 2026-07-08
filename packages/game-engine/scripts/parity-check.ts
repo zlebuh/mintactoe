@@ -6,12 +6,6 @@
 // csharp-parity-fixture.json was captured by running the same scenarios below through the real
 // C# engine (a throwaway console harness referencing Zlebuh.MinTacToe.GameEngine directly).
 // Run with: pnpm --filter @mintactoe/game-engine parity-check
-//
-// makeMove.ts has since deliberately diverged from the C# original in one respect (see
-// docs/game-rules.md, "Turn & move flow" step 9): a move that explodes a mine is never itself
-// credited as a win, whereas the original C# would count it. None of the scenarios below happen
-// to complete a winning line on the same move that triggers a mine, so this doesn't actually
-// produce a mismatch here - noted in case a future scenario is added that does.
 
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";

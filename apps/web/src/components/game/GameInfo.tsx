@@ -7,8 +7,6 @@ export interface GameInfoProps {
   onReset: () => void
 }
 
-// A player is always shown as a plain color, never the O/X letter (see docs) - the letter is
-// still in the DOM for screen readers via the visually-hidden span.
 function Dot({ player }: { player: Player }) {
   return (
     <span
