@@ -24,7 +24,9 @@ vi.mock('../lib/supabase', () => ({
     from: () => ({
       select: () => ({
         or: () => ({
-          order: () => Promise.resolve({ data: [] }),
+          order: () => ({
+            limit: () => Promise.resolve({ data: [] }),
+          }),
         }),
       }),
     }),
