@@ -1,0 +1,162 @@
+name: CI
+
+on:
+  pull_request:
+    branches:
+      - refactor/supabase-react
+      - master
+  push:
+    branches:
+      - refactor/supabase-react
+      - master
+
+jobs:
+  game-engine:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: pnpm/action-setup@v6
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '22'
+          cache: 'pnpm'
+
+      - run: pnpm install --frozen-lockfile
+
+      - run: pnpm --filter @mintactoe/game-engine lint
+      - run: pnpm --filter @mintactoe/game-engine test:coverage
+
+  web:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: pnpm/action-setup@v6
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '22'
+          cache: 'pnpm'
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: Guard against service-role key in frontend
+        run: |
+          if grep -rli 'SERVICE_ROLE' apps/web/; then
+            echo "::error::Reference to SERVICE_ROLE found in apps/web/ — the service-role key must never appear in frontend code."
+            exit 1
+          fi
+
+      - run: pnpm --filter web lint
+      - run: pnpm --filter web test
+      - run: pnpm --filter web build
+
+  edge-functions:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: pnpm/action-setup@v6
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '22'
+          cache: 'pnpm'
+
+      - uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+
+      - run: pnpm install --frozen-lockfile
+
+      # The functions import packages/game-engine/dist (built output), not its src - Deno
+      # doesn't resolve that package's .js-specifier-pointing-at-.ts-sibling source layout
+      # (fine for Node/Vite's "Bundler" resolution, not for plain Deno), and the deployed
+      # edge-runtime can't be pointed at src either. See supabase/functions/_shared/gameRow.ts.
+      - run: pnpm --filter @mintactoe/game-engine build
+
+      # --config is explicit because Deno's config auto-discovery walks up from the cwd (repo
+      # root here) and would otherwise stop at the root package.json/pnpm-workspace.yaml
+      # instead of finding supabase/functions/deno.json.
+      - run: deno test --allow-env --allow-net --config supabase/functions/deno.json supabase/functions
+
+  supabase:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: pnpm/action-setup@v6
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '22'
+          cache: 'pnpm'
+
+      - uses: supabase/setup-cli@v2
+        id: setup-cli
+
+      - id: cache-supabase-images
+        uses: actions/cache@v6
+        with:
+          path: ~/supabase-docker-images.tar
+          key: supabase-docker-images-${{ runner.os }}-${{ steps.setup-cli.outputs.version }}
+
+      # Loads previously-saved images into the (empty, on a fresh runner) local Docker daemon
+      # so `supabase start` below sees them as "already present" and skips pulling entirely.
+      - name: Load cached Supabase Docker images
+        if: steps.cache-supabase-images.outputs.cache-hit == 'true'
+        run: docker load -i ~/supabase-docker-images.tar
+
+      - run: pnpm install --frozen-lockfile
+
+      # The local Edge Runtime (started below) serves supabase/functions, which import
+      # packages/game-engine/dist - it must exist on disk before `supabase start` boots them.
+      - run: pnpm --filter @mintactoe/game-engine build
+
+      - run: supabase start
+
+      # Only runs on a cache miss (first run, or the CLI version bumped and pulled different
+      # image tags). Safe to snapshot every image present: the runner's Docker daemon starts
+      # empty, so at this point it holds exactly what `supabase start` just pulled.
+      - name: Save Supabase Docker images to cache
+        if: steps.cache-supabase-images.outputs.cache-hit != 'true'
+        run: docker save $(docker images -q) -o ~/supabase-docker-images.tar
+
+      - name: Export local Supabase URL/keys as env vars
+        run: |
+          eval "$(supabase status -o env)"
+          echo "SUPABASE_URL=$API_URL" >> "$GITHUB_ENV"
+          echo "SUPABASE_ANON_KEY=$ANON_KEY" >> "$GITHUB_ENV"
+          echo "SUPABASE_SERVICE_ROLE_KEY=$SERVICE_ROLE_KEY" >> "$GITHUB_ENV"
+
+      - name: Check generated types are up to date
+        run: |
+          supabase gen types typescript --local 2>/dev/null > /tmp/database.types.ts
+          if ! diff -q apps/web/src/lib/database.types.ts /tmp/database.types.ts > /dev/null 2>&1; then
+            echo "::error::Generated Supabase types are out of date. Run 'pnpm gen:types' and commit the result."
+            diff apps/web/src/lib/database.types.ts /tmp/database.types.ts || true
+            exit 1
+          fi
+
+      # `supabase start` already boots the local Edge Runtime and serves whatever it finds
+      # under supabase/functions (config.toml's [edge_runtime] block) - this just confirms
+      # that happened, so a serving failure here fails fast with a clear message instead of
+      # a cryptic fetch error buried in the vitest run below.
+      - name: Wait for local Edge Functions to be ready
+        run: |
+          for i in $(seq 1 30); do
+            if curl -sf -o /dev/null -X OPTIONS -H "apikey: $SUPABASE_ANON_KEY" "$SUPABASE_URL/functions/v1/create-game"; then
+              exit 0
+            fi
+            sleep 1
+          done
+          echo "Edge Functions did not become ready in time"
+          exit 1
+
+      - run: pnpm --filter @mintactoe/supabase-tests lint
+      - run: pnpm --filter @mintactoe/supabase-tests test
+
+      - run: supabase stop
+        if: always()
