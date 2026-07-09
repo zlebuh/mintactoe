@@ -46,6 +46,8 @@ export interface SerializedGame {
 // Shape of a row in `public.games` (see supabase/migrations/20260704220000_games_schema.sql).
 export interface GameRow {
   id: string;
+  created_at: string;
+  updated_at: string;
   host_user_id: string;
   invited_user_id: string | null;
   game_state: SerializedGame;

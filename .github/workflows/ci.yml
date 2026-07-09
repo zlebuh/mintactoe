@@ -40,6 +40,13 @@ jobs:
 
       - run: pnpm install --frozen-lockfile
 
+      - name: Guard against service-role key in frontend
+        run: |
+          if grep -rli 'SERVICE_ROLE' apps/web/; then
+            echo "::error::Reference to SERVICE_ROLE found in apps/web/ — the service-role key must never appear in frontend code."
+            exit 1
+          fi
+
       - run: pnpm --filter web lint
       - run: pnpm --filter web test
       - run: pnpm --filter web build
@@ -121,6 +128,15 @@ jobs:
           echo "SUPABASE_URL=$API_URL" >> "$GITHUB_ENV"
           echo "SUPABASE_ANON_KEY=$ANON_KEY" >> "$GITHUB_ENV"
           echo "SUPABASE_SERVICE_ROLE_KEY=$SERVICE_ROLE_KEY" >> "$GITHUB_ENV"
+
+      - name: Check generated types are up to date
+        run: |
+          supabase gen types typescript --local 2>/dev/null > /tmp/database.types.ts
+          if ! diff -q apps/web/src/lib/database.types.ts /tmp/database.types.ts > /dev/null 2>&1; then
+            echo "::error::Generated Supabase types are out of date. Run 'pnpm gen:types' and commit the result."
+            diff apps/web/src/lib/database.types.ts /tmp/database.types.ts || true
+            exit 1
+          fi
 
       # `supabase start` already boots the local Edge Runtime and serves whatever it finds
       # under supabase/functions (config.toml's [edge_runtime] block) - this just confirms

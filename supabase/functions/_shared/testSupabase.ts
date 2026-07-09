@@ -45,6 +45,8 @@ export function createMockSupabase(results: MockResult[]): unknown {
 export function createGameRow(overrides: Partial<GameRow> = {}): GameRow {
   return {
     id: "game-1",
+    created_at: "2026-07-01T00:00:00.000Z",
+    updated_at: "2026-07-01T00:00:00.000Z",
     host_user_id: "host-1",
     invited_user_id: null,
     game_state: {

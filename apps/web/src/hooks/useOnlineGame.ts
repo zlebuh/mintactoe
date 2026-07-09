@@ -54,7 +54,7 @@ export function useOnlineGame(gameId: string, session: Session) {
             filter: `id=eq.${fullId}`,
           },
           (payload) => {
-            applyRow(payload.new as GameRow)
+            applyRow(payload.new as unknown as GameRow)
           },
         )
         .subscribe()
@@ -77,7 +77,7 @@ export function useOnlineGame(gameId: string, session: Session) {
         return
       }
 
-      const row = data as GameRow
+      const row = data as unknown as GameRow
       const fullId = row.id
       resolvedIdRef.current = fullId
 
@@ -119,7 +119,7 @@ export function useOnlineGame(gameId: string, session: Session) {
           .eq('id', fullId)
           .single()
         if (refreshed) {
-          applyRow(refreshed as GameRow)
+          applyRow(refreshed as unknown as GameRow)
           setNeedsJoin(false)
           subscribe(fullId)
         }

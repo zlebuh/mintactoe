@@ -12,6 +12,7 @@ import {
 } from '../components/ui/Dialog'
 import { useAuth } from '../hooks/useAuth'
 import { createGame, joinGame, forfeitGame, ApiError, type GameRow } from '../lib/api'
+import { getCleanupDeadline, isCleanupImminent, formatDeadline } from '../lib/cleanup'
 import { supabase } from '../lib/supabase'
 import { cn } from '../lib/cn'
 
@@ -43,7 +44,7 @@ function useActiveGame(userId: string | undefined) {
       .order('created_at', { ascending: false })
       .limit(10)
 
-    const rows = (data as GameRow[] | null) ?? []
+    const rows = (data as unknown as GameRow[] | null) ?? []
     setActiveGame(rows.find(isUnfinished) ?? null)
     setHistory(rows)
     setChecking(false)
@@ -249,6 +250,8 @@ function GameHistory({ games, userId }: { games: GameRow[]; userId: string }) {
           const status = deriveGameStatus(row, userId)
           const code = row.id.slice(0, 8)
           const moves = row.game_state.gameState.movesPlayed
+          const deadline = getCleanupDeadline(row)
+          const expiring = isCleanupImminent(deadline)
           return (
             <Link
               key={row.id}
@@ -265,7 +268,13 @@ function GameHistory({ games, userId }: { games: GameRow[]; userId: string }) {
               </span>
               <span className="flex-1 font-mono text-xs text-black/40">{code}</span>
               <span className="text-xs text-black/40">{moves} moves</span>
-              <span className="text-xs text-black/30">{formatDate(row.created_at)}</span>
+              {expiring ? (
+                <span className="text-xs font-medium text-amber-600">
+                  Expires {formatDeadline(deadline)}
+                </span>
+              ) : (
+                <span className="text-xs text-black/30">{formatDate(row.created_at)}</span>
+              )}
             </Link>
           )
         })}
