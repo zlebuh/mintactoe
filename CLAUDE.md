@@ -6,24 +6,15 @@ Persistent context for AI agents (and humans) working on this repo. Keep this fi
 
 A multiplayer board game combining Minesweeper and 5-in-a-row (Gomoku). Two players alternate marks on a grid; some fields are hidden mines that erase *the triggering player's own* nearby marks when hit (the opponent's marks are untouched); first to 5-in-a-row wins. See [README.md](README.md) for the short product description and [docs/game-rules.md](docs/game-rules.md) for the full rules spec.
 
-## Current status: mid-rewrite
+## Architecture
 
-This repo is being rewritten in place. Two stacks currently coexist:
+- **Supabase** is the DB/Realtime layer. Schema, RLS policies, and project config are version-controlled as migrations under `supabase/migrations/`, deployed via the Supabase CLI in CI.
+- **Supabase Edge Functions** handle authoritative game logic (move validation, game creation/join/forfeit). No self-hosted API server.
+- **Anonymous Auth + RLS** enforces access control. `supabase.auth.signInAnonymously()` provides a stable `auth.uid()` per browser; Postgres Row-Level Security enforces who can read/write a game row. Writes to `game_state` go only through Edge Functions using the service-role key — RLS denies direct client writes.
+- **React + TypeScript** frontend (`apps/web/`), built with Vite.
+- **Shared TypeScript game engine** (`packages/game-engine`) runs both server-side (Edge Functions, authoritative) and client-side (local/offline 2-player mode, optimistic UI). One implementation, not two to keep in sync.
 
-- **Legacy stack (on `master`, currently in production)**: Blazor WASM frontend (`src/Zlebuh.MinTacToe.UI`) on Netlify, a C# ASP.NET API (`src/Zlebuh.MinTacToe.API`) on Fly.io, Supabase (Postgres + Realtime) as the data/transport layer with its schema managed only via the Supabase dashboard (not in this repo).
-- **New stack (being built on the `refactor/supabase-react` branch)**: Supabase remains the DB/Realtime layer but its schema/config now lives in this repo, the C# API is eliminated in favor of Supabase Edge Functions, and the frontend is rewritten in React + TypeScript.
-
-**Do not modify `src/` (the legacy .NET solution) as part of the rewrite** — it stays untouched and deployable from `master` until the final cutover issue. All rewrite work happens on `refactor/supabase-react` and is deleted only in the last cutover step.
-
-## Why this rewrite (decisions + rationale)
-
-- **Supabase stays, but becomes version-controlled.** The DB schema, RLS policies, and Supabase project config previously existed only in the dashboard. Now they're migrations under `supabase/migrations/`, deployed via the Supabase CLI in CI.
-- **The C# API is replaced by Supabase Edge Functions**, not by a self-hosted alternative. The API's only real job was authoritative move validation; everything else it did (a hand-rolled `users` table, per-game host/visitor tokens) was working around not having real auth. Removing it removes a whole deployment target (Fly.io) and a whole set of "is this in sync with the DB" problems.
-- **Anonymous Auth + RLS replaces the token scheme.** The old design checked a client-supplied token string in application code to decide who could move. The new design uses `supabase.auth.signInAnonymously()` for a stable `auth.uid()` per browser, and Postgres Row-Level Security actually enforces who can read/write a game row. Writes to `game_state` go only through Edge Functions using the service-role key — RLS denies direct client writes.
-- **Blazor is replaced by React + TypeScript**, per explicit user preference (better ecosystem for visual design/styling).
-- **The game engine is ported to TypeScript** (`packages/game-engine`) rather than kept in C#, so the exact same validation logic runs both server-side (Edge Functions, authoritative) and client-side (the local/offline 2-player mode, and optimistic UI). One implementation, not two to keep in sync.
-
-## Target repository layout
+## Repository layout
 
 ```
 apps/web/              React + TypeScript + Vite frontend. Tailwind CSS v4 + a small hand-built
@@ -48,24 +39,21 @@ supabase/
     make-move/
     forfeit-game/
 .github/workflows/
-  ci.yml                 Lint/build/test on PRs into refactor/supabase-react (new, separate from legacy CI)
+  ci.yml                 Lint/build/test on PRs and pushes to master
   deploy-supabase.yml     supabase db push + functions deploy — gated to push on master only
   deploy-web.yml          Build + deploy apps/web to Netlify — gated to push on master only
 ```
 
-`src/`, `Dockerfile`, `fly.toml`, `render.yaml`, and the legacy `deploy-api-flyio.yml`/`deploy.yml` workflows are removed in the final cutover PR, not before.
-
 ## Delivery process
 
-- All rewrite work targets the **`refactor/supabase-react`** branch, not `master`. `master` keeps deploying the legacy stack untouched throughout.
-- The work is broken into GitHub issues, each with its own PR against `refactor/supabase-react`. **Work on the next issue does not start until the current PR is reviewed and merged by the repo owner.** See issues in this repo for the full sequence (roughly: docs → monorepo/CI scaffold → Supabase schema/RLS → game engine port → Edge Functions → frontend core/local mode → frontend online flow → hardening → production deploy automation → cutover).
-- **Every unit of work starts on its own new branch, branched from `origin/refactor/supabase-react`** (not from `master`, and not stacked on another in-progress work branch). Open the PR for that branch against `refactor/supabase-react`.
-- CI is new and separate from the legacy workflows: `.github/workflows/ci.yml` runs on PRs and pushes to both `refactor/supabase-react` and `master` (so the cutover PR gets validated before merge). The production deploy workflows (`deploy-supabase.yml`, `deploy-web.yml`) are gated to `push` on `master` only, so they stay dormant until the feature branch is finally merged — that merge *is* the production cutover, not a separate step.
-- The full architecture/testing plan lives in the project's plan history; this file and `docs/game-rules.md` are the durable, always-current summary of it.
+- All work targets **`master`**. Each unit of work gets its own branch off `origin/master`, with a PR back into `master`.
+- Work is broken into GitHub issues, each with its own PR. **Work on the next issue does not start until the current PR is reviewed and merged by the repo owner.**
+- `.github/workflows/ci.yml` runs on PRs and pushes to `master`. The production deploy workflows (`deploy-supabase.yml`, `deploy-web.yml`) are gated to `push` on `master` only — merging a PR triggers production deployment automatically.
+- This file and `docs/game-rules.md` are the durable, always-current project documentation.
 
 ## Local development
 
-One command runs the full new stack locally (Supabase + frontend) against each other:
+One command runs the full stack locally (Supabase + frontend):
 
 ```
 pnpm dev:full
@@ -93,7 +81,7 @@ Running the frontend natively instead of in Docker also works: `pnpm --filter we
 
 ## Testing conventions
 
-- `packages/game-engine`: Vitest, near-100% coverage expected (pure logic, no I/O) - run `pnpm --filter @mintactoe/game-engine test:coverage` to check (CI does this on every push). Includes property-based tests (`fast-check`) for core invariants, not just example-based tests, and a one-off `scripts/parity-check.ts` (not in CI, see the script header) that verified the TS port against the real C# engine during the port itself.
+- `packages/game-engine`: Vitest, near-100% coverage expected (pure logic, no I/O) - run `pnpm --filter @mintactoe/game-engine test:coverage` to check (CI does this on every push). Includes property-based tests (`fast-check`) for core invariants, not just example-based tests.
 - `packages/supabase-tests`: integration tests that hit a real local Supabase stack via `@supabase/supabase-js` (real anonymous sign-ins, real REST calls) to prove RLS + table grants are actually enforced, not just assumed from reading the migration SQL. **Requires `supabase start` running first** — this is the one package where `pnpm test`/`pnpm -r test` needs live local infra, unlike `game-engine`/`web`. Runs in CI as its own job (`.github/workflows/ci.yml`), which starts the stack itself via `supabase/setup-cli` + `supabase start`.
   - There are deliberately **no fallback/default values** for `SUPABASE_URL`/`SUPABASE_ANON_KEY`/`SUPABASE_SERVICE_ROLE_KEY` in the test source, even the well-known local-dev demo keys — missing env throws immediately instead of the suite silently running against a guessed value. To run locally: `supabase start`, then export the three vars from the running stack before invoking the tests:
     ```
