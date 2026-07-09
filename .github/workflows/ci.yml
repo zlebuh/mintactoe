@@ -4,9 +4,11 @@ on:
   pull_request:
     branches:
       - refactor/supabase-react
+      - master
   push:
     branches:
       - refactor/supabase-react
+      - master
 
 jobs:
   game-engine:
