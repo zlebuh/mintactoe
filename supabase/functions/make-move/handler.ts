@@ -4,17 +4,15 @@ import {
   makeMove as engineMakeMove,
   serializeGame,
 } from "../../../packages/game-engine/dist/index.js";
-import { GameNotFoundError, InvalidRequestError, NotAParticipantError } from "../_shared/errors.ts";
+import { GameNotFoundError, NotAParticipantError } from "../_shared/errors.ts";
 import type { Coordinate, GameRow, Player } from "../_shared/gameRow.ts";
 
 export interface MakeMoveParams {
   callerId: string;
   gameId: string;
-  coordinate: unknown;
+  coordinate: Coordinate;
 }
 
-// The host always plays first as "O" (see docs/game-rules.md); the invited player is "X".
-// This mapping is derived from host_user_id/invited_user_id rather than stored separately.
 function resolvePlayer(game: GameRow, callerId: string): Player {
   if (game.host_user_id === callerId) {
     return "O";
@@ -25,24 +23,7 @@ function resolvePlayer(game: GameRow, callerId: string): Player {
   throw new NotAParticipantError();
 }
 
-function parseCoordinate(value: unknown): Coordinate {
-  const candidate = value as Partial<Coordinate> | null;
-  if (
-    typeof candidate !== "object" ||
-    candidate === null ||
-    !Number.isInteger(candidate.row) ||
-    !Number.isInteger(candidate.col)
-  ) {
-    throw new InvalidRequestError("coordinate must be an object with integer row and col.");
-  }
-  return { row: candidate.row as number, col: candidate.col as number };
-}
-
 export async function makeMove(supabase: SupabaseClient, params: MakeMoveParams): Promise<GameRow> {
-  if (!params.gameId) {
-    throw new InvalidRequestError("gameId is required.");
-  }
-  const coordinate = parseCoordinate(params.coordinate);
 
   const { data: row, error: fetchError } = await supabase
     .from("games")
@@ -61,7 +42,7 @@ export async function makeMove(supabase: SupabaseClient, params: MakeMoveParams)
   const player = resolvePlayer(gameRow, params.callerId);
 
   const game = deserializeGame(gameRow.game_state);
-  engineMakeMove(game, player, coordinate);
+  engineMakeMove(game, player, params.coordinate);
   const serialized = serializeGame(game);
 
   const { data: updated, error: updateError } = await supabase

@@ -7,7 +7,8 @@
     "dev:full": "pnpm --filter @mintactoe/game-engine build && supabase start && docker compose up --build",
     "build": "pnpm -r build",
     "test": "pnpm -r test",
-    "lint": "pnpm -r lint"
+    "lint": "pnpm -r lint",
+    "gen:types": "supabase gen types typescript --local 2>/dev/null > apps/web/src/lib/database.types.ts"
   },
   "packageManager": "pnpm@11.4.0"
 }

@@ -1,4 +1,7 @@
 {
+  "imports": {
+    "zod": "npm:zod@3"
+  },
   "test": {
     "include": ["**/*.test.ts"]
   }

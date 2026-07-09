@@ -1,6 +1,6 @@
 import type { SupabaseClient } from "npm:@supabase/supabase-js@2";
 import { deserializeGame, serializeGame } from "../../../packages/game-engine/dist/index.js";
-import { GameNotFoundError, InvalidRequestError, NotAParticipantError } from "../_shared/errors.ts";
+import { GameNotFoundError, NotAParticipantError } from "../_shared/errors.ts";
 import type { GameRow, Player } from "../_shared/gameRow.ts";
 
 export interface ForfeitGameParams {
@@ -15,10 +15,6 @@ function resolveOpponent(game: GameRow, callerId: string): Player {
 }
 
 export async function forfeitGame(supabase: SupabaseClient, params: ForfeitGameParams): Promise<GameRow> {
-  if (!params.gameId) {
-    throw new InvalidRequestError("gameId is required.");
-  }
-
   const { data: row, error: fetchError } = await supabase
     .from("games")
     .select("*")

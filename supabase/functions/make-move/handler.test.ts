@@ -1,6 +1,6 @@
 import { assertEquals, assertRejects } from "jsr:@std/assert@1";
 import type { SupabaseClient } from "npm:@supabase/supabase-js@2";
-import { NotAParticipantError, InvalidRequestError } from "../_shared/errors.ts";
+import { NotAParticipantError } from "../_shared/errors.ts";
 import { NotYourTurnError } from "../../../packages/game-engine/dist/index.js";
 import { createGameRow, createMockSupabase } from "../_shared/testSupabase.ts";
 import { makeMove } from "./handler.ts";
@@ -50,16 +50,3 @@ Deno.test("makeMove - rejects a move when it isn't the caller's turn", async () 
   );
 });
 
-Deno.test("makeMove - rejects malformed coordinates without touching the database", async () => {
-  const supabase = createMockSupabase([]) as unknown as SupabaseClient;
-
-  await assertRejects(
-    () =>
-      makeMove(supabase, {
-        callerId: "host-1",
-        gameId: "game-1",
-        coordinate: { row: "0", col: 0 },
-      }),
-    InvalidRequestError,
-  );
-});

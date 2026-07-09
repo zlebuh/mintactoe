@@ -4,6 +4,7 @@ import type { Coordinate, Player } from '@mintactoe/game-engine'
 import { useAuth } from '../hooks/useAuth'
 import { useOnlineGame, type OnlineRole } from '../hooks/useOnlineGame'
 import { forfeitGame, ApiError } from '../lib/api'
+import { getCleanupDeadline, isCleanupImminent, formatDeadline } from '../lib/cleanup'
 import { Board } from '../components/game/Board'
 import { BoardLegend } from '../components/game/BoardLegend'
 import { Button } from '../components/ui/Button'
@@ -81,7 +82,17 @@ function shortCode(gameId: string) {
   return gameId.slice(0, 8)
 }
 
-function WaitingForOpponent({ gameId }: { gameId: string }) {
+function ExpiryNotice({ gameRow }: { gameRow: { invited_user_id: string | null; created_at: string; updated_at: string } }) {
+  const deadline = getCleanupDeadline(gameRow)
+  if (!isCleanupImminent(deadline)) return null
+  return (
+    <p className="rounded-xl bg-amber-50 px-4 py-2 text-center text-xs font-medium text-amber-700">
+      This game expires {formatDeadline(deadline)}
+    </p>
+  )
+}
+
+function WaitingForOpponent({ gameId, gameRow }: { gameId: string; gameRow: { invited_user_id: string | null; created_at: string; updated_at: string } }) {
   const code = shortCode(gameId)
   const gameUrl = `${window.location.origin}/game/${code}`
 
@@ -91,6 +102,7 @@ function WaitingForOpponent({ gameId }: { gameId: string }) {
         <Spinner />
         <h2 className="text-lg font-bold">Waiting for opponent…</h2>
       </div>
+      <ExpiryNotice gameRow={gameRow} />
 
       <div className="flex flex-col gap-3">
         <p className="text-sm font-semibold">Share the link</p>
@@ -269,7 +281,7 @@ function GameViewWithSession({
   const isWaiting = myRole === 'host' && gameRow.invited_user_id === null
 
   if (isWaiting) {
-    return <WaitingForOpponent gameId={gameId} />
+    return <WaitingForOpponent gameId={gameId} gameRow={gameRow} />
   }
 
   const myPlayer = roleToPlayer(myRole)
@@ -307,6 +319,7 @@ function GameViewWithSession({
       )}
       <Board game={game} onCellClick={handleCellClick} />
       {moveError && <p className="text-sm text-red-600">{moveError}</p>}
+      <ExpiryNotice gameRow={gameRow} />
       <BoardLegend />
     </>
   )

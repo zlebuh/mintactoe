@@ -3,7 +3,6 @@ import {
   CannotJoinOwnGameError,
   GameAlreadyFullError,
   GameNotFoundError,
-  InvalidRequestError,
 } from "../_shared/errors.ts";
 import type { GameRow } from "../_shared/gameRow.ts";
 
@@ -13,10 +12,7 @@ export interface JoinGameParams {
 }
 
 export async function joinGame(supabase: SupabaseClient, params: JoinGameParams): Promise<GameRow> {
-  const code = (params.gameId ?? "").trim();
-  if (!code) {
-    throw new InvalidRequestError("gameId is required.");
-  }
+  const code = params.gameId;
 
   const isFullUuid = code.length === 36;
   const query = supabase.from("games").select("*");

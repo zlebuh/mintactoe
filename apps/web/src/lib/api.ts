@@ -2,10 +2,11 @@ import type { Coordinate, SerializedGame } from '@mintactoe/game-engine'
 
 export interface GameRow {
   id: string
+  created_at: string
+  updated_at: string
   host_user_id: string
   invited_user_id: string | null
   game_state: SerializedGame
-  created_at: string
 }
 
 export class ApiError extends Error {
