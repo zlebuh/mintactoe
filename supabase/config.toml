@@ -385,21 +385,29 @@ deno_version = 2
 # [edge_runtime.secrets]
 # secret_key = "env(SECRET_VALUE)"
 
-# All three functions authenticate the caller themselves (see supabase/functions/_shared/auth.ts)
-# and write via the service-role client, bypassing RLS by design (see
-# supabase/migrations/20260704220000_games_schema.sql) - verify_jwt must stay on so the platform
-# rejects unauthenticated requests before they even reach the handler.
+# All four functions authenticate the caller themselves (see supabase/functions/_shared/auth.ts,
+# which calls GoTrue's auth.getUser() directly - it doesn't rely on the gateway having already
+# checked the signature) and write via the service-role client, bypassing RLS by design (see
+# supabase/migrations/20260704220000_games_schema.sql).
+#
+# verify_jwt is off: the platform's own gateway-level JWT check started rejecting freshly-issued,
+# valid anonymous session tokens as UNAUTHORIZED_LEGACY_JWT after this project picked up the 2026
+# API key migration (sb_publishable_/sb_secret_ keys alongside the legacy anon/service_role keys),
+# even though GoTrue's own /auth/v1/user accepts the same token - a mismatch between Supabase's
+# Auth service and Functions gateway for this project (see
+# https://github.com/orgs/supabase/discussions/41834), not anything under our control. The
+# in-handler check above remains the real auth boundary either way.
 [functions.create-game]
-verify_jwt = true
+verify_jwt = false
 
 [functions.join-game]
-verify_jwt = true
+verify_jwt = false
 
 [functions.make-move]
-verify_jwt = true
+verify_jwt = false
 
 [functions.forfeit-game]
-verify_jwt = true
+verify_jwt = false
 
 [analytics]
 enabled = false
